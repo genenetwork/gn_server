@@ -6,15 +6,10 @@ defmodule GnServer.Router.Homepage do
     {:ok, pid} = Mysqlex.Connection.start_link(username: "test", database: "test", password: "test", hostname: "localhost")
     {:ok, result} = Mysqlex.Connection.query(pid, "SELECT title FROM posts", [])
     rec = Map.from_struct(result)
-    IO.puts :stderr, "HERE"
     lines = rec[:rows]
-    for item <- lines do
-      {s} = item
-      IO.puts s
-    end
-    IO.inspect(Enum.join(lines))
-    # Enum.join(tuple_to_list(lines))
-    json(conn, lines.first)
+    nlist = Enum.map(lines, fn(x) -> {s} = x ; s end)
+    # IO.puts Poison.encode_to_iodata!(nlist)
+    json(conn, nlist)
   end
   get do
       json(conn, %{hello: :world})
