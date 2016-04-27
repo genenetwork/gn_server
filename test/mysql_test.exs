@@ -10,6 +10,7 @@ defmodule MySQLTest do
     IO.inspect(rows)
     nlist = Enum.map(rows, fn(x) -> {s} = x ; s end)
     IO.puts Poison.encode_to_iodata!(nlist)
+    IO.puts Enum.join(nlist,"\n")
     true
   end
 end
