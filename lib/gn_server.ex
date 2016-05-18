@@ -2,7 +2,7 @@
 defmodule GnServer.Router.Homepage do
   use Maru.Router
 
-  get "/hey" do
+  get "/hey2" do
     {:ok, pid} = Mysqlex.Connection.start_link(username: "test", database: "test", password: "test", hostname: "localhost")
     {:ok, result} = Mysqlex.Connection.query(pid, "SELECT title FROM posts", [])
     # rec = Map.from_struct(result)
@@ -26,7 +26,11 @@ defmodule GnServer.Router.Homepage do
   end
   
   get do
-    json(conn, %{hello: :world})
+    json(conn, %{"I am": :genenetwork})
+  end
+
+  get "/hey" do
+    json(conn, %{"I am": :genenetwork})
   end
 
 end

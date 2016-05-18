@@ -24,9 +24,35 @@ After setting the
 
 ```sh
 mix hex.info
-mix run
+mix deps.get
+mix test
 ```
-    
+
+which will probably render a database error. To start the database use
+the credentials for your system, e.g.,
+"mysql://gn2:mysql_password@localhost/db_webqtl_s"
+
+```
+mysql -p -u gn2
+use db_webqtl_s;
+show tables;
+```
+
+Should show the tables as listed on [GeneNetwork](http://genenetwork.org/webqtl/main.py?FormID=schemaShowPage).
+
+To start the server
+
+```
+iex -S mix
+```
+
+and the following should get you a reply
+
+```
+curl http://localhost:8880/hey
+{"I am":"genenetwork"}
+```
+
 ## Source code installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be
