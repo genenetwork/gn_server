@@ -27,7 +27,7 @@ defmodule GnServer.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   def deps do
-  [ {:maru, "~> 0.8"} ,
+  [ {:maru, "~> 0.9.5"} ,
     {:mysqlex, github: "tjheeta/mysqlex" } ]  
   end
 end
