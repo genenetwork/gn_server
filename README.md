@@ -23,6 +23,8 @@ After setting the
 [GUIX locale](https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#set-locale) (to avoid UTF-8 errors) install with mix
 
 ```sh
+export GUIX_LOCPATH=$HOME/.guix-profile/lib/locale
+export LC_ALL=en_US.UTF-8
 mix hex.info
 mix deps.get
 mix test
