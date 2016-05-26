@@ -2,6 +2,7 @@ defmodule MySQLTest do
   use ExUnit.Case
   # doctest GnServer
 
+  # We currently use the small database for testing
   # DB_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
   test "Test MySQL connection" do
     {:ok, pid} = Mysqlex.Connection.start_link(username: "gn2", database: "db_webqtl_s", password: "mysql_password", hostname: "localhost")
