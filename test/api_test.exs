@@ -18,4 +18,9 @@ defmodule APITest do
     assert state == value
   end
 
+  test "/species" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/species") |> make_response
+    assert value == ""
+  end
+
 end
