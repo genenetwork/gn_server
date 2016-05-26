@@ -12,6 +12,6 @@ defmodule MySQLTest do
     nlist = Enum.map(rows, fn(x) -> {_,_,s,_,_,_,_,_} = x ; s end)
     IO.puts Poison.encode_to_iodata!(nlist)
     IO.puts Enum.join(nlist,"\n")
-    true
+    assert length(nlist) == 2
   end
 end
