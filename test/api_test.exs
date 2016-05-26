@@ -20,7 +20,7 @@ defmodule APITest do
 
   test "/species" do
     %Plug.Conn{resp_body: value} = conn(:get, "/species") |> make_response
-    assert value == ""
+    assert value == Poison.encode!([[1,"Mouse","Mus musculus"],[4,"Human","Homo sapiens"]])
   end
 
 end
