@@ -8,8 +8,8 @@ defmodule GnServer.Router.Homepage do
 
   # DB_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
   get "/species" do
-    {:ok, rows} = DB.query("SELECT * FROM Species")
-    nlist = Enum.map(rows, fn(x) -> {_,species_id,species_name,_,_,full_name,_,_} = x ; [species_id,species_name,full_name] end)
+    {:ok, rows} = DB.query("SELECT speciesid,name,fullname FROM Species")
+    nlist = Enum.map(rows, fn(x) -> {species_id,species_name,full_name} = x ; [species_id,species_name,full_name] end)
     IO.puts Poison.encode_to_iodata!(nlist)
     IO.puts Enum.join(nlist,"\n")
     # CSV version: text(conn,Enum.join(nlist,"\n"))
