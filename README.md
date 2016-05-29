@@ -1,8 +1,8 @@
 # GnServer
 
 GeneNetwork server (GnServer) serves data and functionality over a
-network interface. GnServer can fetch and upload data over a REST
-interface. GnServer can execute remote commands.
+network interface. GnServer can fetch and upload data via a REST
+API. GnServer can execute remote commands.
 
 GnServer is implemented in the highly parallel and robust Elixir
 programming language on top of the Erlang VM.
@@ -11,7 +11,7 @@ Note: GnServer is a work in progress (YMMV).
 
 ## GNU Guix installation
 
-Elixir and packages should come soon with a general genenetwork2
+Elixir and packages should soon come with a general genenetwork2
 install. For now use the checked out GN2 repositories and install
 Elixir with
 
@@ -72,3 +72,18 @@ installed by providing:
           [applications: [:gn_server]]
         end
 
+## License
+
+The source code is released under the Affero General Public License 3
+(AGPLv3). See [LICENSE.txt](LICENSE.txt).
+
+## More information
+
+For more information visit http://www.genenetwork.org/
+
+## Contact
+
+IRC on #genenetwork on irc.freenode.net.
+
+Code and primary web service managed by Dr. Robert W. Williams and the
+University of Tennessee Health Science Center, Memphis TN, USA. 
