@@ -11,6 +11,10 @@ defmodule GnServer.Router.Homepage do
     json(conn, Store.species)
   end
 
+  get "/datasets" do
+    json(conn, Store.datasets)
+  end
+
   get do
     json(conn, %{"I am": :genenetwork})
   end

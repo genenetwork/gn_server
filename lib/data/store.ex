@@ -11,4 +11,11 @@ defmodule GnServer.Data.Store do
     nlist
   end
 
+  def datasets do
+    {:ok, rows} = DB.query("select InbredSet.inbredsetid,InbredSet.speciesid,InbredSet.name,ProbeFreeze.name from InbredSet,ProbeFreeze where InbredSet.inbredsetid=ProbeFreeze.inbredsetid")
+    IO.inspect rows
+    nlist = Enum.map(rows, fn(x) -> {inbredset_id,species_id,inbredset_name,full_name} = x ; [inbredset_id,species_id,inbredset_name,full_name] end)
+    nlist
+  end
+
 end
