@@ -1,18 +1,21 @@
 defmodule GnServer.Backend.MySQLinfo do
-  defstruct user: "gn2",
-    password: "mysql_password", type: nil
+  defstruct database: "db_webqtl_s", user: "gn2",
+    password: "mysql_password", hostname: "localhost"
 end
 
 defmodule GnServer.Backend.MySQL do
+  # At this point we start a connection every time. We are planning
+  # for query caching as well as connection pooling for short
+  # queries. Long running queries should not use a pool to avoid
+  # blocking.
 
-  info = %GnServer.Backend.MySQLinfo{}
-  IO.inspect info
-
+  # Query the database and return rows
   def query(str) do
-    {:ok, pid} = Mysqlex.Connection.start_link(username: "gn2", database: "db_webqtl_s", password: "mysql_password", hostname: "localhost")
+    db = %GnServer.Backend.MySQLinfo{}
+    {:ok, pid} = Mysqlex.Connection.start_link(username: db.user, database: db.database, password: db.password, hostname: db.hostname)
     {:ok, result} = Mysqlex.Connection.query(pid, str)
     # rec = Map.from_struct(result)
     %Mysqlex.Result{rows: rows} = result
-    rows
+    {:ok, rows}
   end
 end
