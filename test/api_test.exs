@@ -7,7 +7,7 @@ defmodule APITest do
   end
 
   test "/hey",%{hello: state} do
-    IO.inspect state
+    # IO.inspect state
     %Plug.Conn{resp_body: value} = conn(:get, "/hey") |> make_response
     assert state == value
   end

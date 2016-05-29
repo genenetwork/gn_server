@@ -6,7 +6,6 @@ defmodule GnServer.Router.Homepage do
 
   alias GnServer.Data.Store, as: Store
 
-  # DB_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
   get "/species" do
     # CSV version: text(conn,Enum.join(nlist,"\n"))
     json(conn, Store.species)

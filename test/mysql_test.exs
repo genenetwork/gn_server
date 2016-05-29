@@ -9,10 +9,10 @@ defmodule MySQLTest do
     {:ok, result} = Mysqlex.Connection.query(pid, "SELECT * FROM Species", [])
     # rec = Map.from_struct(result)
     %Mysqlex.Result{rows: rows} = result
-    IO.inspect(rows)
+    # IO.inspect(rows)
     nlist = Enum.map(rows, fn(x) -> {_,_,s,_,_,_,_,_} = x ; s end)
-    IO.puts Poison.encode_to_iodata!(nlist)
-    IO.puts Enum.join(nlist,"\n")
+    # IO.puts Poison.encode_to_iodata!(nlist)
+    # IO.puts Enum.join(nlist,"\n")
     assert length(nlist) == 2
   end
 end
