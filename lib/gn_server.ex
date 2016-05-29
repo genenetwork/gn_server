@@ -1,6 +1,9 @@
 
 defmodule GnServer.Router.Homepage do
+
   use Maru.Router
+
+  IO.puts "Setup routing"
 
   # DB_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
   get "/species" do
@@ -63,12 +66,17 @@ end
 
 defmodule GnServer.API do
   use Maru.Router
-  
+
   mount GnServer.Router.Homepage
+
   IO.puts "Starting server"
-  rescue_from :all do
+  
+  rescue_from :all, as: e do
+    IO.inspect e
+
     conn
     |> put_status(500)
-    |> text("*** Server Error")
+    |> text("Server error")
   end
+
 end
