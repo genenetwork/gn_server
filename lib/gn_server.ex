@@ -4,16 +4,12 @@ defmodule GnServer.Router.Homepage do
 
   IO.puts "Setup routing"
 
-  alias GnServer.Backend.MySQL, as: DB
+  alias GnServer.Data.Store, as: Store
 
   # DB_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
   get "/species" do
-    {:ok, rows} = DB.query("SELECT speciesid,name,fullname FROM Species")
-    nlist = Enum.map(rows, fn(x) -> {species_id,species_name,full_name} = x ; [species_id,species_name,full_name] end)
-    IO.puts Poison.encode_to_iodata!(nlist)
-    IO.puts Enum.join(nlist,"\n")
     # CSV version: text(conn,Enum.join(nlist,"\n"))
-    json(conn, nlist)
+    json(conn, Store.species)
   end
 
   get do
