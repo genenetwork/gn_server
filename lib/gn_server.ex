@@ -29,34 +29,34 @@ defmodule GnServer.Router.Rqtl do
 
   use Maru.Router
 
+
+
   namespace :rqtl do
+    plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
     params do
-      requires :file, type: String
+      requires :track_name, type: String
+      requires :file, 			type: String
     end
     get do
       # TODO needs to handle nonexistent files
       {:ok, content} = File.read("./" <> params[:file])
+      len = byte_size(content)
 
       conn
-      |> Plug.Conn.put_resp_header("Access-Control-Allow-Origin", "*")
-      |> Plug.Conn.put_resp_header("Access-Control-Expose-Headers", "Content-Range")
-      |> text(content)
+      |> put_resp_header("Content-Range", "bytes 0-" <> (to_string(len-1)) <> "/" <> to_string(len))
+      |> put_resp_header("Accept-Ranges", "bytes")
+      |> put_resp_content_type("text/csv")
+      |> send_resp(206, content)
     end
 
-    options do
-      conn
-      |> Plug.Conn.put_resp_header("Access-Control-Allow-Origin", "*")
-      |> Plug.Conn.put_resp_header("Access-Control-Allow-Headers", "Range,If-None-Match,Content-Range")
-      |> Plug.Conn.put_resp_header("Access-Control-Allow-Methods", "GET, OPTIONS")
-      |> text("")
-    end
   end
 
 end
 
 defmodule GnServer.API do
   use Maru.Router
+
 
   mount GnServer.Router.Homepage
   mount GnServer.Router.Rqtl
