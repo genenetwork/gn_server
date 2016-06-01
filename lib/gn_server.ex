@@ -29,20 +29,30 @@ defmodule GnServer.Router.Rqtl do
 
   use Maru.Router
 
-  get "/iron.json" do
-    {:ok, content} = File.read("./iron.json")
-    text(conn, content)
+  namespace :rqtl do
+
+    params do
+      requires :file, type: String
+    end
+    get do
+      # TODO needs to handle nonexistent files
+      {:ok, content} = File.read("./" <> params[:file])
+
+      conn
+      |> Plug.Conn.put_resp_header("Access-Control-Allow-Origin", "*")
+      |> Plug.Conn.put_resp_header("Access-Control-Expose-Headers", "Content-Range")
+      |> text(content)
+    end
+
+    options do
+      conn
+      |> Plug.Conn.put_resp_header("Access-Control-Allow-Origin", "*")
+      |> Plug.Conn.put_resp_header("Access-Control-Allow-Headers", "Range,If-None-Match,Content-Range")
+      |> Plug.Conn.put_resp_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+      |> text("")
+    end
   end
 
-  get "/iron_gmap.csv" do
-    {:ok, content} = File.read("./iron_gmap.csv")
-    text(conn, content)
-  end
-
-  get "/iron_geno.csv" do
-    {:ok, content} = File.read("./iron_geno.csv")
-    text(conn, content)
-  end
 end
 
 defmodule GnServer.API do
