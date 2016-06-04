@@ -34,41 +34,26 @@ defmodule GnServer.Rqtl.Tracks do
   Should be able to serve data both from files as well as databases
   """
 
+  use GenServer
+
   def start_link do
-    Task.start_link(fn -> loop(%{}) end)
+    Agent.start_link(fn -> %{} end, name: :rqtl_tracks)
   end
 
-  defp loop(map) do
-    receive do
-      # serve genotype, gmap, etc. file
-      {:get_file, {track_name, file}, caller} ->
-        ctrl = Map.get(map, track_name)
-        case Map.get(map, track_name) do
-          nil  ->
-            send caller, {:error, "Track doesn't exist"}
-          ctrl ->
-            {:ok, content} = File.read(ctrl[file])
-            send caller, content
-        end
-        loop(map)
-
-      ## Add a track, given a control file path
-      {:add_track, {track_name, file}, caller} ->
-        ctrl =
-          GnServer.Rqtl.Control.parse_control(file)
-          # |> GnServer.Rqtl.Control.add_uri_root("./")
-        send caller, {:ok, "Track added"}
-        loop(Map.put(map, track_name, ctrl))
-
-      # get track control file (mostly for testing and debugging)
-      {:get_control, track_name, caller} ->
-        case Map.get(map, track_name) do
-          nil  ->
-            send caller, {:error, "Track doesn't exist"}
-          ctrl ->
-            send caller, ctrl
-        end
-        loop(map)
-    end
+  def add_track(track_name, file) do
+    ctrl = GnServer.Rqtl.Control.parse_control(file)
+    Agent.update(:rqtl_tracks, fn tracks -> Map.put(tracks, track_name, ctrl) end)
   end
+
+  def get_control(track_name) do
+    Agent.get(:rqtl_tracks, fn tracks -> tracks[track_name] end)
+  end
+
+  def get_file(track_name, file) do
+    filename = Agent.get(:rqtl_tracks, fn tracks ->
+      tracks[track_name][file]
+    end)
+    File.read(filename)
+  end
+
 end
