@@ -30,7 +30,6 @@ defmodule GnServer.Router.Rqtl do
   use Maru.Router
 
 
-
   namespace :rqtl do
     plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
@@ -38,9 +37,9 @@ defmodule GnServer.Router.Rqtl do
       requires :track_name, type: String
       requires :file, 			type: String
     end
+
     get do
-      # TODO needs to handle nonexistent files
-      {:ok, content} = File.read("./" <> params[:file])
+      {:ok, content} = GnServer.Rqtl.Tracks.get_file(params[:track_name], params[:file])
       len = byte_size(content)
 
       conn
