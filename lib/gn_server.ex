@@ -46,22 +46,39 @@ defmodule GnServer.Router.Rqtl do
 
         get do
           # this should probably be done in a... better way.
-          {:ok, content} = File.read("./genotype/" <> params[:cross] <> "_" <> params[:file] <> ".csv" )
-
-          len = byte_size(content)
+          path = "./genotype/" <> params[:cross] <> "_" <> params[:file] <> ".csv"
 
           conn
-          |> put_resp_header("Content-Range", "bytes 0-" <> (to_string(len-1)) <> "/" <> to_string(len))
-          |> put_resp_header("Accept-Ranges", "bytes")
-          |> put_resp_content_type("text/csv")
-          |> send_resp(206, content)
+          |> GnServer.Utility.serve_file(path, "text/csv", 206)
         end
+      end
+    end
+  end
+end
 
       end
     end
 
   end
 
+defmodule GnServer.Utility do
+  use Maru.Router
+
+  def add_cors_header(c, len) do
+    c
+    |> put_resp_header("Content-Range", "bytes 0-" <> (to_string(len-1)) <> "/" <> to_string(len))
+    |> put_resp_header("Accept-Ranges", "bytes")
+  end
+
+  def serve_file(conn, path, content_type, status) do
+    {:ok, content} = File.read(path)
+    len = byte_size(content)
+    {content, len}
+    conn
+    |> add_cors_header(len)
+    |> put_resp_content_type(content_type)
+    |> send_resp(status, content)
+  end
 end
 
 defmodule GnServer.API do
