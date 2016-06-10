@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DASSTYLE>
+  <STYLESHEET>
+    <CATEGORY id="default">
+      <TYPE id="default">
+        <GLYPH>
+          <HISTOGRAM>
+            <MIN>0</MIN>
+            <MAX>1000</MAX>
+            <HEIGHT>120</HEIGHT>
+            <STEPS>275</STEPS>
+            <COLOR1>red</COLOR1>
+            <COLOR2>red</COLOR2>
+            <COLOR3>red</COLOR3>
+            <AXISCENTER>true</AXISCENTER>
+            <HIDEAXISLABEL>true</HIDEAXISLABEL>
+          </HISTOGRAM>
+        </GLYPH>
+      </TYPE>
+    </CATEGORY>
+  </STYLESHEET>
+</DASSTYLE>

@@ -22,4 +22,10 @@ defmodule APITest do
     assert value == Poison.encode!([[1,"mouse","Mus musculus"],[4,"human","Homo sapiens"]])
   end
 
+  test "/genotype/mouse/iron/?file=geno" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/genotype/mouse/iron?file=geno&chr=11") |> make_response
+    IO.inspect value
+    assert true
+  end
+
 end
