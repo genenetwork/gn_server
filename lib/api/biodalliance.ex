@@ -19,10 +19,10 @@ defmodule GnServer.Router.Rqtl do
 
         get do
           # this should probably be done in a... better way.
-          path = "./genotype/" <> params[:cross] <> "_" <> params[:file] <> ".csv"
+          path = "./test/data/input/genotype/" <> params[:cross] <> "_" <> params[:file] <> ".csv"
 
           conn
-          |> GnServer.Utility.serve_file(path, "text/csv", 206)
+          |> GnServer.Files.serve_file(path, "text/csv", 206)
         end
       end
     end
@@ -37,10 +37,10 @@ defmodule GnServer.Router.QTL do
       plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
       get do
-        path = "./qtl/" <> params[:file]
+        path = "./test/data/input/qtl/" <> params[:file]
 
         conn
-        |> GnServer.Utility.serve_file(path, "text/csv", 206)
+        |> GnServer.Files.serve_file(path, "text/csv", 206)
       end
     end
   end
@@ -62,10 +62,10 @@ defmodule GnServer.Router.SNP do
 
       get do
         IO.inspect params[:file]
-        path = "./snptest/" <> params[:file]
+        path = "./test/data/input/snptest/" <> params[:file]
 
         conn
-        |> GnServer.Utility.serve_file(path, "application/x-gzip", 206)
+        |> GnServer.Files.serve_file(path, "application/x-gzip", 206)
       end
     end
   end
@@ -80,10 +80,10 @@ defmodule GnServer.Router.Stylesheets do
       plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
       get do
-        path = "./bd-stylesheets/" <> params[:file]
+        path = "./templates/biodalliance/" <> params[:file]
 
         conn
-        |> GnServer.Utility.serve_file(path, "application/xml", 200)
+        |> GnServer.Files.serve_file(path, "application/xml", 200)
       end
 
     end
