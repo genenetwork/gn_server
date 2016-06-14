@@ -12,7 +12,7 @@ defmodule GnServer.Router.IntAPI do
     end
   
     get "menu/main" do
-      json(conn, Store.menu_species)
+      json(conn, Store.menu_main)
     end
   end
 end

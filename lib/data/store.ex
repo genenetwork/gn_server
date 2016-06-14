@@ -1,5 +1,5 @@
 defmodule GnServer.Data.Store do
-  
+
   alias GnServer.Backend.MySQL, as: DB
 
   def species do
@@ -22,7 +22,35 @@ defmodule GnServer.Data.Store do
     {:ok, rows} = DB.query("SELECT speciesid,name,menuname FROM Species")
     # IO.inspect rows
     nlist = Enum.map(rows, fn(x) -> {species_id,species_name,full_name} = x ; [species_id,species_name,full_name] end)
-    %{ species: nlist }
+    nlist
   end
 
+  def menu_groups do
+    # for species_name, _species_full_name in species:
+    nlist = Enum.map(menu_species, fn(x) -> [_,species,_]=x ;
+      query = """
+    select InbredSet.id,InbredSet.Name,InbredSet.FullName
+    from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
+    where Species.Name = '#{species}'
+      and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300'
+      and
+                       (PublishFreeze.InbredSetId = InbredSet.Id
+                        or GenoFreeze.InbredSetId = InbredSet.Id
+                        or ProbeFreeze.InbredSetId = InbredSet.Id)
+                        group by InbredSet.Name
+                        order by InbredSet.Name
+"""
+      {:ok, rows} = DB.query(query)
+      IO.inspect rows
+      %{ species => Enum.map(rows, fn(x) -> {id,name,fullname} = x ; [id,name,fullname] end) }
+
+    end
+    );
+    nlist
+  end
+
+  def menu_main do
+    %{ species: menu_species,
+       groups: menu_groups}
+  end
 end
