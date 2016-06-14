@@ -8,8 +8,6 @@ defmodule GnServer.Router.Rqtl do
 
       route_param :cross, type: String do
 
-        plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
-
         params do
           requires :file,       type: String
           optional :chr,        type: String
@@ -34,7 +32,6 @@ defmodule GnServer.Router.QTL do
   use Maru.Router
   namespace :qtl do
     route_param :file, type: String do
-      plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
       get do
         path = "./test/data/input/qtl/" <> params[:file]
@@ -52,7 +49,6 @@ defmodule GnServer.Router.SNP do
 
   namespace :snp do
     route_param :file, type: String do
-      plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
       # params do
       # optional :chr,        type: String
@@ -77,7 +73,6 @@ defmodule GnServer.Router.Stylesheets do
 
   namespace :stylesheets do
     route_param :file, type: String do
-      plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
       get do
         path = "./templates/biodalliance/" <> params[:file]
