@@ -19,7 +19,7 @@ defmodule GnServer.Router.Rqtl do
 
         get do
           # this should probably be done in a... better way.
-          path = "./genotype/" <> params[:cross] <> "_" <> params[:file] <> ".csv"
+          path = "./test/data/input/genotype/" <> params[:cross] <> "_" <> params[:file] <> ".csv"
 
           conn
           |> GnServer.Utility.serve_file(path, "text/csv", 206)
