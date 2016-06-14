@@ -56,6 +56,23 @@ defmodule GnServer.Router.Rqtl do
   end
 end
 
+defmodule GnServer.Router.QTL do
+
+  use Maru.Router
+  namespace :qtl do
+    route_param :file, type: String do
+      plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
+
+      get do
+        path = "./qtl/" <> params[:file]
+
+        conn
+        |> GnServer.Utility.serve_file(path, "text/csv", 206)
+      end
+    end
+  end
+end
+
 defmodule GnServer.Router.SNP do
 
   use Maru.Router

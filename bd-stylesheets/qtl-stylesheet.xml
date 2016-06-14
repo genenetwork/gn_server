@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DASSTYLE>
+  <STYLESHEET>
+    <CATEGORY id="default">
+      <TYPE id="default">
+        <GLYPH>
+          <LINEPLOT>
+            <MIN>0</MIN>
+            <MAX>1</MAX>
+            <HEIGHT>120</HEIGHT>
+            <STEPS>500</STEPS>
+            <COLOR1>blue</COLOR1>
+            <COLOR2>blue</COLOR2>
+            <COLOR3>blue</COLOR3>
+            <BUMP>no</BUMP>
+          </LINEPLOT>
+        </GLYPH>
+      </TYPE>
+      <TYPE id="ruler">
+        <GLYPH>
+          <LINE>
+            <HEIGHT>120</HEIGHT>
+            <FGCOLOR>red</FGCOLOR>
+            <BGCOLOR>red</BGCOLOR>
+            <BUMP>no</BUMP>
+          </LINE>
+        </GLYPH>
+      </TYPE>
+    </CATEGORY>
+  </STYLESHEET>
+</DASSTYLE>
