@@ -22,7 +22,7 @@ defmodule GnServer.Data.Store do
     {:ok, rows} = DB.query("SELECT speciesid,name,menuname FROM Species")
     # IO.inspect rows
     nlist = Enum.map(rows, fn(x) -> {species_id,species_name,full_name} = x ; [species_id,species_name,full_name] end)
-    nlist
+    %{ species: nlist }
   end
 
 end
