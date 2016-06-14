@@ -18,4 +18,11 @@ defmodule GnServer.Data.Store do
     nlist
   end
 
+  def menu_species do
+    {:ok, rows} = DB.query("SELECT speciesid,name,menuname FROM Species")
+    # IO.inspect rows
+    nlist = Enum.map(rows, fn(x) -> {species_id,species_name,full_name} = x ; [species_id,species_name,full_name] end)
+    nlist
+  end
+
 end

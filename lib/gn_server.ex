@@ -2,6 +2,9 @@
 
 defmodule GnServer.API do
   use Maru.Router
+  
+  plug CORSPlug, origin: ["*"]
+  plug Plug.Head
 
   mount GnServer.Router.MainAPI
   mount GnServer.Router.IntAPI
