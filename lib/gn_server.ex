@@ -140,8 +140,8 @@ end
 defmodule GnServer.API do
   use Maru.Router
 
-
   mount GnServer.Router.Homepage
+  mount GnServer.Router.IntAPI
   mount GnServer.Router.Rqtl
   mount GnServer.Router.SNP
   mount GnServer.Router.Stylesheets
