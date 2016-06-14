@@ -42,11 +42,11 @@ defmodule GnServer.Data.Store do
 """
       {:ok, rows} = DB.query(query)
       IO.inspect rows
-      %{ species => Enum.map(rows, fn(x) -> {id,name,fullname} = x ; [id,name,fullname] end) }
+      [ species, Enum.map(rows, fn(x) -> {id,name,fullname} = x ; [id,name,fullname] end) ]
 
     end
     );
-    nlist
+    for [k,v] <- nlist, into: %{}, do: { k, v }
   end
 
   def menu_main do
