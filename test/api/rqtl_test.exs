@@ -2,7 +2,7 @@ defmodule RQTLTest do
   use ExUnit.Case
 
   setup do
-     file = GnServer.Rqtl.Control.parse_control("./genotype/iron.json")
+     file = GnServer.Rqtl.Control.parse_control("./test/data/input/genotype/iron.json")
      {:ok, ctrl: file}
   end
 
