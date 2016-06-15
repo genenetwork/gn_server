@@ -12,7 +12,7 @@ defmodule InternalAPITest do
   end
 
   test "int/menu/main", %{hello: state} do
-    %Plug.Conn{resp_body: value} = conn(:get, "int/menu/main") |> make_response
+    %Plug.Conn{resp_body: value} = conn(:get, "int/menu/main.json") |> make_response
     assert value == Poison.encode!(
       %{species: [[1,"mouse","Mouse"],[4,"human","Human"]],
         groups: %{ mouse: [[1,"BXD","BXD"]],
