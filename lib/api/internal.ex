@@ -1,6 +1,7 @@
 defmodule GnServer.Router.IntAPI do
 
   use Maru.Router
+  plug CORSPlug, origin: ["*"]
   
   IO.puts "Setup routing"
 
