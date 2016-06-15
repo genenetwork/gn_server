@@ -1,6 +1,7 @@
 defmodule GnServer.Router.Genotype do
 
   use Maru.Router
+  plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
   namespace :genotype do
 
@@ -16,7 +17,6 @@ defmodule GnServer.Router.Genotype do
         end
 
         get do
-          plug CORSPlug, origin: ["*"], headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
           # this should probably be done in a... better way.
           path = "./test/data/input/genotype/" <> params[:cross] <> "_" <> params[:file] <> ".csv"
 
@@ -31,11 +31,11 @@ end
 defmodule GnServer.Router.QTL do
 
   use Maru.Router
+  plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
   namespace :qtl do
     route_param :file, type: String do
 
       get do
-        plug CORSPlug, origin: ["*"], headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
         path = "./test/data/input/qtl/" <> params[:file]
 
         conn
@@ -48,6 +48,7 @@ end
 defmodule GnServer.Router.SNP do
 
   use Maru.Router
+  plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
   namespace :snp do
     route_param :file, type: String do
@@ -59,7 +60,6 @@ defmodule GnServer.Router.SNP do
       # end
 
       get do
-        plug CORSPlug, origin: ["*"], headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
         # IO.inspect params[:file]
         path = "./test/data/input/snptest/" <> params[:file]
 
@@ -73,12 +73,12 @@ end
 defmodule GnServer.Router.Stylesheets do
 
   use Maru.Router
+  plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
   namespace :stylesheets do
     route_param :file, type: String do
 
       get do
-        plug CORSPlug, origin: ["*"], headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
         path = "./templates/biodalliance/" <> params[:file]
 
         conn

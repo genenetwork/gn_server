@@ -1,4 +1,3 @@
-
 defmodule GnServer.Biodalliance.Control do
   defstruct crosstype: "", geno: "", pheno: "", phenocovar: "",
     covar: "", gmap: "", alleles: [], genotypes: {}, sex: {},
@@ -19,7 +18,7 @@ defmodule GnServer.Biodalliance.Control do
   Adds an URI root to a parsed control object
   """
   def add_uri_root(ctrl, root) do
-    %GnServer.Rqtl.Control{ ctrl | geno: root <> ctrl.geno,
+    %GnServer.Biodalliance.Control{ ctrl | geno: root <> ctrl.geno,
                             pheno: root <> ctrl.pheno, phenocovar: root <> ctrl.phenocovar,
                             covar: root <> ctrl.covar, gmap: root <> ctrl.gmap }
   end
