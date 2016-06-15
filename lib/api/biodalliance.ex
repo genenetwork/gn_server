@@ -1,7 +1,7 @@
 defmodule GnServer.Router.Genotype do
 
   use Maru.Router
-  plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
+  plug CORSPlug, origin: ["*"], headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
   namespace :genotype do
 
