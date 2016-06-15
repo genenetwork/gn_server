@@ -1,6 +1,9 @@
 # This module should only contain the MySQL calls to the backend to
-# fetch data. Assembling more complex structures happens in
-# the Assemble module.
+# fetch data. Assembling more complex structures should happen in the
+# Assemble modules.
+#
+# All functions return lists of lists, rather than lists of
+# tuples. Main reason is that tuples do not go nicely with JSON.
 
 defmodule GnServer.Data.Store do
 
