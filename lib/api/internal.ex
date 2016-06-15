@@ -5,6 +5,7 @@ defmodule GnServer.Router.IntAPI do
   IO.puts "Setup routing"
 
   alias GnServer.Data.Store, as: Store
+  alias GnServer.Logic.Assemble, as: Assemble
 
   namespace :int do
     get "/" do
@@ -12,7 +13,7 @@ defmodule GnServer.Router.IntAPI do
     end
   
     get "menu/main.json" do
-      json(conn, Store.menu_main)
+      json(conn, Assemble.menu_main)
     end
   end
 end
