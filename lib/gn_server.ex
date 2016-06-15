@@ -1,5 +1,3 @@
-
-
 defmodule GnServer.API do
   use Maru.Router
   
