@@ -56,6 +56,6 @@ defmodule GnServer.Data.Store do
       order by Tissue.Name
     """
     {:ok, rows} = DB.query(query)
-    rows
+    Enum.map(rows, fn(x) -> {tissue} = x ; [tissue] end)
   end
 end

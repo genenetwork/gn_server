@@ -14,11 +14,17 @@ defmodule GnServer.Logic.Assemble do
     h =
       for [s,gs] <- nlist, # for every species,group combi
         into: %{},
-        do: { s, Enum.map(gs, fn(g) -> # for every group
-              [_,gname,_] = g
-              ts = Store.menu_types(s,gname) # fetch types
-              %{gname => ts}
-            end)}
+        do: { s, (
+              for [_,gname,_] <- gs,
+                into: %{},
+                do: { gname, Store.menu_types(s,gname) } )
+              
+            # Enum.map(gs, fn(g) -> # for every group
+            #   [_,gname,_] = g
+            #   ts = Store.menu_types(s,gname) # fetch types
+            #   %{gname => ts}
+            # end)
+        }
         IO.inspect h
         IO.puts "^^^"
     %{ species: species,
