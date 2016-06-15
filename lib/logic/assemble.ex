@@ -11,23 +11,19 @@ defmodule GnServer.Logic.Assemble do
     groups = for [k,v] <- nlist, into: %{}, do: { k, v }
 
     IO.inspect nlist
-    list =
+    h =
       for [s,gs] <- nlist, # for every species,group combi
-        do: Enum.map(gs, fn(g) -> # for every group
+        into: %{},
+        do: { s, Enum.map(gs, fn(g) -> # for every group
               [_,gname,_] = g
               ts = Store.menu_types(s,gname) # fetch types
-              {s,gname,ts}
-            end)
-    # list contains a list of tuples {s,g,ts}
-    types = %{}
-    Enum.each(list, fn(tup) ->
-      IO.inspect "***"
-      IO.inspect(tup)
-    end)
-
+              %{gname => ts}
+            end)}
+        IO.inspect h
+        IO.puts "^^^"
     %{ species: species,
        groups: groups,
-       types: types }
+       types: h }
   end
 
 end
