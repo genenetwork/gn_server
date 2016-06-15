@@ -1,4 +1,4 @@
-defmodule GnServer.Router.Rqtl do
+defmodule GnServer.Router.Genotype do
 
   use Maru.Router
 

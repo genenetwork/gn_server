@@ -6,7 +6,7 @@ defmodule GnServer.API do
 
   mount GnServer.Router.MainAPI
   mount GnServer.Router.IntAPI
-  mount GnServer.Router.Rqtl
+  mount GnServer.Router.Genotype
   mount GnServer.Router.SNP
   # mount GnServer.Router.Stylesheets
   # mount GnServer.Router.QTL

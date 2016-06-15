@@ -1,5 +1,5 @@
 
-defmodule GnServer.Rqtl.Control do
+defmodule GnServer.Biodalliance.Control do
   defstruct crosstype: "", geno: "", pheno: "", phenocovar: "",
     covar: "", gmap: "", alleles: [], genotypes: {}, sex: {},
     cross_info: {}, x_chr: "", na_strings: []
@@ -26,7 +26,7 @@ defmodule GnServer.Rqtl.Control do
 end
 
 
-defmodule GnServer.Rqtl.Tracks do
+defmodule GnServer.Biodalliance.Tracks do
   @moduledoc """
   Keeps track of all R/QTL2 tracks, and manages fetching of data
   and serving it to the router
@@ -41,7 +41,7 @@ defmodule GnServer.Rqtl.Tracks do
   end
 
   def add_track(track_name, file) do
-    ctrl = GnServer.Rqtl.Control.parse_control(file)
+    ctrl = GnServer.Biodalliance.Control.parse_control(file)
     Agent.update(:rqtl_tracks, fn tracks -> Map.put(tracks, track_name, ctrl) end)
   end
 
