@@ -8,8 +8,8 @@ defmodule GnServer.API do
   mount GnServer.Router.IntAPI
   mount GnServer.Router.Genotype
   mount GnServer.Router.SNP
-  # mount GnServer.Router.Stylesheets
-  # mount GnServer.Router.QTL
+  mount GnServer.Router.Stylesheets
+  mount GnServer.Router.QTL
 
   IO.puts "Starting server"
   
