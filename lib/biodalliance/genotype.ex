@@ -1,5 +1,4 @@
-
-defmodule GnServer.Rqtl.Control do
+defmodule GnServer.Biodalliance.Control do
   defstruct crosstype: "", geno: "", pheno: "", phenocovar: "",
     covar: "", gmap: "", alleles: [], genotypes: {}, sex: {},
     cross_info: {}, x_chr: "", na_strings: []
@@ -19,14 +18,14 @@ defmodule GnServer.Rqtl.Control do
   Adds an URI root to a parsed control object
   """
   def add_uri_root(ctrl, root) do
-    %GnServer.Rqtl.Control{ ctrl | geno: root <> ctrl.geno,
+    %GnServer.Biodalliance.Control{ ctrl | geno: root <> ctrl.geno,
                             pheno: root <> ctrl.pheno, phenocovar: root <> ctrl.phenocovar,
                             covar: root <> ctrl.covar, gmap: root <> ctrl.gmap }
   end
 end
 
 
-defmodule GnServer.Rqtl.Tracks do
+defmodule GnServer.Biodalliance.Tracks do
   @moduledoc """
   Keeps track of all R/QTL2 tracks, and manages fetching of data
   and serving it to the router
@@ -41,7 +40,7 @@ defmodule GnServer.Rqtl.Tracks do
   end
 
   def add_track(track_name, file) do
-    ctrl = GnServer.Rqtl.Control.parse_control(file)
+    ctrl = GnServer.Biodalliance.Control.parse_control(file)
     Agent.update(:rqtl_tracks, fn tracks -> Map.put(tracks, track_name, ctrl) end)
   end
 

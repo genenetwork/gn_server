@@ -1,5 +1,6 @@
 defmodule GnServer.Files do
   use Maru.Router
+  plug CORSPlug, origin: ["*"], headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
   def serve_file(conn, path, content_type, status) do
     {:ok, content} = File.read(path)

@@ -1,13 +1,12 @@
-defmodule RQTLTest do
+defmodule BiodallianceTest do
   use ExUnit.Case
 
   setup do
-     file = GnServer.Rqtl.Control.parse_control("./test/data/input/genotype/iron.json")
+     file = GnServer.Biodalliance.Control.parse_control("./test/data/input/genotype/iron.json")
      {:ok, ctrl: file}
   end
 
   test "Test parsing R/QTL control file", state  do
-    # ctrl = GnServer.Rqtl.Control.parse_control("./genotype/iron.json")
     keys = ["crosstype", "geno", "pheno", "phenocovar",
             "covar", "gmap", "alleles", "genotypes", "sex",
             "cross_info", "x_chr", "na.strings"]
