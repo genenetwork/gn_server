@@ -42,5 +42,20 @@ defmodule GnServer.Data.Store do
       {:ok, rows} = DB.query(query)
       Enum.map(rows, fn(x) -> {id,name,fullname} = x ; [id,name,fullname] end)
   end
-  
+
+  def menu_types(species, group) do
+    query = """
+    select distinct Tissue.Name
+    from ProbeFreeze,ProbeSetFreeze,InbredSet,Tissue,Species
+    where Species.Name = '#{species}' and Species.Id = InbredSet.SpeciesId and
+      InbredSet.Name = '#{group}' and
+      ProbeFreeze.TissueId = Tissue.Id and
+      ProbeFreeze.InbredSetId = InbredSet.Id and
+      ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
+      ProbeSetFreeze.public > 0
+      order by Tissue.Name
+    """
+    {:ok, rows} = DB.query(query)
+    rows
+  end
 end
