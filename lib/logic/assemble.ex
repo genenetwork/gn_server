@@ -13,10 +13,10 @@ defmodule GnServer.Logic.Assemble do
     types =
       for [s,smenu,gs] <- nlist, # for every species,group combi
         into: %{},
-        do: { s, [smenu , (
+        do: { s, %{ "menu" => smenu , "types" => (
               for [_,gname,_] <- gs,
                 into: %{},
-                do: { gname, Store.menu_types(s,gname) } ) ]
+                do: { gname, Store.menu_types(s,gname) } ) }
         }
 
     datasets =
@@ -34,7 +34,7 @@ defmodule GnServer.Logic.Assemble do
         )}
     %{ # species: species,
        groups: groups,
-       types: types,
+       menu: types,
        datasets: datasets }
   end
 
