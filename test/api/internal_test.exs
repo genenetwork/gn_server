@@ -14,7 +14,7 @@ defmodule InternalAPITest do
   test "int/menu/main" do
     %Plug.Conn{resp_body: value} = conn(:get, "int/menu/main.json") |> make_response
     assert Poison.decode!(value) ==
-      %{"datasets" => %{"human" => %{"HLC" => %{"Liver mRNA" => [[320,
+    %{"datasets" => %{"human" => %{"HLC" => %{"Liver mRNA" => [[320,
                      "HLC_0311",
                      "GSE9588 Human Liver Normal (Mar11) Both Sexes"]]}},
                "mouse" => %{"BXD" => %{"Hippocampus mRNA" => [[112,
@@ -23,10 +23,10 @@ defmodule InternalAPITest do
              "groups" => %{"human" => [[34, "HLC",
                  "Liver: Normal Gene Expression with Genotypes (Merck)"]],
                "mouse" => [[1, "BXD", "BXD"]]},
-             "species" => [[1, "mouse", "Mouse"], [4, "human", "Human"]],
-             "types" => %{"human" => %{"HLC" => [["Liver mRNA"]]},
-               "mouse" => %{"BXD" => [["Hippocampus mRNA"]]}}}
-
+             "menu" => %{"human" => %{"menu" => "Human",
+                 "types" => %{"HLC" => [["Liver mRNA"]]}},
+               "mouse" => %{"menu" => "Mouse",
+                 "types" => %{"BXD" => [["Hippocampus mRNA"]]}}}}
   end
 
 end
