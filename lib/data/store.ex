@@ -11,22 +11,17 @@ defmodule GnServer.Data.Store do
 
   def species do
     {:ok, rows} = DB.query("SELECT speciesid,name,fullname FROM Species")
-    nlist = Enum.map(rows, fn(x) -> {species_id,species_name,full_name} = x ; [species_id,species_name,full_name] end)
-    nlist
+    for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
   end
 
   def datasets do
     {:ok, rows} = DB.query("select InbredSet.inbredsetid,InbredSet.speciesid,InbredSet.name,ProbeFreeze.name from InbredSet,ProbeFreeze where InbredSet.inbredsetid=ProbeFreeze.inbredsetid")
-    # IO.inspect rows
-    nlist = Enum.map(rows, fn(x) -> {inbredset_id,species_id,inbredset_name,full_name} = x ; [inbredset_id,species_id,inbredset_name,full_name] end)
-    nlist
+    for r <- rows, do: ( {inbredset_id,species_id,inbredset_name,full_name} = r ; [inbredset_id,species_id,inbredset_name,full_name] )
   end
 
   def menu_species do
     {:ok, rows} = DB.query("SELECT speciesid,name,menuname FROM Species")
-    # IO.inspect rows
-    nlist = Enum.map(rows, fn(x) -> {species_id,species_name,full_name} = x ; [species_id,species_name,full_name] end)
-    nlist
+    for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
   end
 
   def menu_groups(species) do
@@ -42,8 +37,8 @@ defmodule GnServer.Data.Store do
                         group by InbredSet.Name
                         order by InbredSet.Name
 """
-      {:ok, rows} = DB.query(query)
-      Enum.map(rows, fn(x) -> {id,name,fullname} = x ; [id,name,fullname] end)
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
   end
 
   def menu_types(species, group) do
@@ -59,7 +54,6 @@ defmodule GnServer.Data.Store do
       order by Tissue.Name
     """
     {:ok, rows} = DB.query(query)
-    # Enum.map(rows, fn(x) -> {tissue} = x ; [tissue] end)
-    for x <- rows, do: ( {tissue} = x; [tissue] )
+    for r <- rows, do: ( {tissue} = r; [tissue] )
   end
 end
