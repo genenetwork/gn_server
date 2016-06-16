@@ -11,7 +11,7 @@ defmodule InternalAPITest do
     assert state == value
   end
 
-  test "int/menu/main", %{hello: state} do
+  test "int/menu/main" do
     %Plug.Conn{resp_body: value} = conn(:get, "int/menu/main.json") |> make_response
     assert Poison.decode!(value) ==
       %{"species" => [[1,"mouse","Mouse"],[4,"human","Human"]],
