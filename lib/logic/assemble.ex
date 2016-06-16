@@ -32,7 +32,6 @@ defmodule GnServer.Logic.Assemble do
                )}
 
         )}
-    # IO.puts "^^^"
     %{ species: species,
        groups: groups,
        types: types,
