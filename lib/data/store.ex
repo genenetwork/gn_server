@@ -59,18 +59,20 @@ defmodule GnServer.Data.Store do
 
   def menu_datasets(species, group, type) do
     query = """
-    select distinct Tissue.Name
-    from ProbeFreeze,ProbeSetFreeze,InbredSet,Tissue,Species
-    where Species.Name = '#{species}' and Species.Id = InbredSet.SpeciesId and
-      InbredSet.Name = '#{group}' and
-      ProbeFreeze.TissueId = Tissue.Id and
-      ProbeFreeze.InbredSetId = InbredSet.Id and
-      ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-      ProbeSetFreeze.public > 0
-      order by Tissue.Name
+    select ProbeSetFreeze.Id,ProbeSetFreeze.Name,ProbeSetFreeze.FullName
+    from ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species
+    where
+    Species.Name = '#{species}' and Species.Id = InbredSet.SpeciesId and
+    InbredSet.Name = '#{group}' and
+    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
+    Tissue.Name = '#{type}' and
+    ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id and
+    ProbeSetFreeze.confidentiality < 1 and ProbeSetFreeze.public > 0 order by
+    ProbeSetFreeze.CreateTime desc
     """
     {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {tissue} = r; [tissue] )
+    IO.inspect(rows)
+    for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
   end
 
 end

@@ -25,9 +25,14 @@ defmodule GnServer.Logic.Assemble do
           do: { s, (
               for [_,gname,_] <- gs,
                 into: %{},
-                do: { gname, Store.menu_types(s,gname) } )
-        }
-    IO.puts "^^^"
+                do: { gname, (
+                   for [t] <- Store.menu_types(s,gname),
+                     into: %{},
+                     do: { t, Store.menu_datasets(s,gname,t) }
+               )}
+
+        )}
+    # IO.puts "^^^"
     %{ species: species,
        groups: groups,
        types: types,
