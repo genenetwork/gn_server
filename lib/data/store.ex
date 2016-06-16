@@ -71,7 +71,6 @@ defmodule GnServer.Data.Store do
     ProbeSetFreeze.CreateTime desc
     """
     {:ok, rows} = DB.query(query)
-    IO.inspect(rows)
     for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
   end
 

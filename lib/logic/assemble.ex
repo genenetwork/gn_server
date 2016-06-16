@@ -4,23 +4,23 @@ defmodule GnServer.Logic.Assemble do
 
   def menu_main do
     species = Store.menu_species
-    nlist = Enum.map(species, fn(x) -> [_,sname,_]=x ;
-        [sname,Store.menu_groups(sname)]
+    nlist = Enum.map(species, fn(x) -> [_,sname,menu]=x ;
+        [sname,menu,Store.menu_groups(sname)]
       end
     );
-    groups = for [s,gs] <- nlist, into: %{}, do: { s, gs }
+    groups = for [s,_,gs] <- nlist, into: %{}, do: { s, gs }
 
     types =
-      for [s,gs] <- nlist, # for every species,group combi
+      for [s,smenu,gs] <- nlist, # for every species,group combi
         into: %{},
-        do: { s, (
+        do: { s, [smenu , (
               for [_,gname,_] <- gs,
                 into: %{},
-                do: { gname, Store.menu_types(s,gname) } )
+                do: { gname, Store.menu_types(s,gname) } ) ]
         }
 
     datasets =
-        for [s, gs] <- nlist,
+        for [s, smenu, gs] <- nlist,
           into: %{},
           do: { s, (
               for [_,gname,_] <- gs,
@@ -32,7 +32,7 @@ defmodule GnServer.Logic.Assemble do
                )}
 
         )}
-    %{ species: species,
+    %{ # species: species,
        groups: groups,
        types: types,
        datasets: datasets }
