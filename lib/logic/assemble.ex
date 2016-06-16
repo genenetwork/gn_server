@@ -10,7 +10,7 @@ defmodule GnServer.Logic.Assemble do
     );
     groups = for [k,v] <- nlist, into: %{}, do: { k, v }
 
-    IO.inspect nlist
+    # IO.inspect nlist
     h =
       for [s,gs] <- nlist, # for every species,group combi
         into: %{},
@@ -25,8 +25,8 @@ defmodule GnServer.Logic.Assemble do
             #   %{gname => ts}
             # end)
         }
-        IO.inspect h
-        IO.puts "^^^"
+        # IO.inspect h
+        # IO.puts "^^^"
     %{ species: species,
        groups: groups,
        types: h }

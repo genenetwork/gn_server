@@ -15,7 +15,7 @@ defmodule GnServer.Backend.MySQL do
     {:ok, pid} = Mysqlex.Connection.start_link(username: db.user, database: db.database, password: db.password, hostname: db.hostname)
     {:ok, result} = Mysqlex.Connection.query(pid, str)
     rec = Map.from_struct(result)
-    IO.inspect rec
+    # IO.inspect rec
     %Mysqlex.Result{rows: rows} = result
     {:ok, rows}
   end

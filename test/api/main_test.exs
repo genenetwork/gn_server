@@ -24,7 +24,7 @@ defmodule APITest do
 
   test "/genotype/mouse/iron/?file=geno" do
     %Plug.Conn{resp_body: value} = conn(:get, "/genotype/mouse/iron?file=geno&chr=11") |> make_response
-    IO.inspect value
+    # IO.inspect value
     assert true
   end
 
