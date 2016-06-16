@@ -60,9 +60,8 @@ defmodule GnServer.Data.Store do
     """
     {:ok, rows} = DB.query(query)
     # Enum.map(rows, fn(x) -> {tissue} = x ; [tissue] end)
-    for x <- rows do
-      {tissue} = x
+    for x <- rows, do: ({tissue} = x
       [tissue]
-    end
+    )
   end
 end
