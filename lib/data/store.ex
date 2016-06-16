@@ -56,4 +56,21 @@ defmodule GnServer.Data.Store do
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {tissue} = r; [tissue] )
   end
+
+  def menu_datasets(species, group, type) do
+    query = """
+    select distinct Tissue.Name
+    from ProbeFreeze,ProbeSetFreeze,InbredSet,Tissue,Species
+    where Species.Name = '#{species}' and Species.Id = InbredSet.SpeciesId and
+      InbredSet.Name = '#{group}' and
+      ProbeFreeze.TissueId = Tissue.Id and
+      ProbeFreeze.InbredSetId = InbredSet.Id and
+      ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
+      ProbeSetFreeze.public > 0
+      order by Tissue.Name
+    """
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {tissue} = r; [tissue] )
+  end
+
 end

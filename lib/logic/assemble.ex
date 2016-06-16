@@ -8,28 +8,30 @@ defmodule GnServer.Logic.Assemble do
         [sname,Store.menu_groups(sname)]
       end
     );
-    groups = for [k,v] <- nlist, into: %{}, do: { k, v }
+    groups = for [s,gs] <- nlist, into: %{}, do: { s, gs }
 
-    # IO.inspect nlist
-    h =
+    types =
       for [s,gs] <- nlist, # for every species,group combi
         into: %{},
         do: { s, (
               for [_,gname,_] <- gs,
                 into: %{},
                 do: { gname, Store.menu_types(s,gname) } )
-              
-            # Enum.map(gs, fn(g) -> # for every group
-            #   [_,gname,_] = g
-            #   ts = Store.menu_types(s,gname) # fetch types
-            #   %{gname => ts}
-            # end)
         }
-        # IO.inspect h
-        # IO.puts "^^^"
+
+    datasets =
+        for [s, gs] <- nlist,
+          into: %{},
+          do: { s, (
+              for [_,gname,_] <- gs,
+                into: %{},
+                do: { gname, Store.menu_types(s,gname) } )
+        }
+    IO.puts "^^^"
     %{ species: species,
        groups: groups,
-       types: h }
+       types: types,
+       datasets: datasets }
   end
 
 end
