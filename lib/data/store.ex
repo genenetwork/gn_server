@@ -19,6 +19,12 @@ defmodule GnServer.Data.Store do
     for r <- rows, do: ( {inbredset_id,species_id,inbredset_name,full_name} = r ; [inbredset_id,species_id,inbredset_name,full_name] )
   end
 
+
+  def cross_get_species_name(group) do
+    {:ok, rows} = DB.query("select Species.Name from Species, InbredSet where InbredSet.Name = #{group} and InbredSet.SpeciesId = Species.Id")
+    for r <- rows, do: ( {name} = r; [name] )
+  end
+
   def menu_species do
     {:ok, rows} = DB.query("SELECT speciesid,name,menuname FROM Species")
     for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )

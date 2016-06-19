@@ -2,6 +2,14 @@ defmodule GnServer.Logic.Assemble do
 
   alias GnServer.Data.Store, as: Store
 
+  @doc """
+  Assemble cross information
+  """
+  
+  def cross(group) do
+    Store.cross_get_species_name(group)
+  end
+  
   def menu_main do
     species = Store.menu_species
     nlist = Enum.map(species, fn(x) -> [_,sname,menu]=x ;
