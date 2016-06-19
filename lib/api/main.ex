@@ -6,11 +6,23 @@ defmodule GnServer.Router.MainAPI do
 
   alias GnServer.Data.Store, as: Store
 
+  @doc """
+  Fetch all species in the database 
+  """
+  
   get "/species" do
     # CSV version: text(conn,Enum.join(nlist,"\n"))
     json(conn, Store.species)
   end
 
+  @doc """ 
+  Get the properties of a cross 
+  """
+  
+  get "/cross/BXD" do
+    json(conn, Assemble.cross("BXD"))
+  end
+  
   get "/datasets" do
     json(conn, Store.datasets)
   end

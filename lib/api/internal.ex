@@ -1,6 +1,7 @@
 defmodule GnServer.Router.IntAPI do
 
   use Maru.Router
+  plug CORSPlug, origin: ["*"]
   
   IO.puts "Setup routing"
 
@@ -13,6 +14,7 @@ defmodule GnServer.Router.IntAPI do
     end
   
     get "menu/main.json" do
+      json(conn, Assemble.menu_main)
       json(conn, Assemble.menu_main)
     end
   end

@@ -2,32 +2,48 @@ defmodule GnServer.Logic.Assemble do
 
   alias GnServer.Data.Store, as: Store
 
+  @doc """
+  Assemble cross information
+  """
+  
+  def cross(group) do
+    Store.cross_get_species_name(group)
+  end
+  
   def menu_main do
     species = Store.menu_species
-    nlist = Enum.map(species, fn(x) -> [_,sname,_]=x ;
-        [sname,Store.menu_groups(sname)]
+    nlist = Enum.map(species, fn(x) -> [_,sname,menu]=x ;
+        [sname,menu,Store.menu_groups(sname)]
       end
     );
-    groups = for [k,v] <- nlist, into: %{}, do: { k, v }
+    groups = for [s,_,gs] <- nlist, into: %{}, do: { s, gs }
 
-    IO.inspect nlist
-    list =
-      for [s,gs] <- nlist, # for every species,group combi
-        do: Enum.map(gs, fn(g) -> # for every group
-              [_,gname,_] = g
-              ts = Store.menu_types(s,gname) # fetch types
-              {s,gname,ts}
-            end)
-    # list contains a list of tuples {s,g,ts}
-    types = %{}
-    Enum.each(list, fn(tup) ->
-      IO.inspect "***"
-      IO.inspect(tup)
-    end)
+    types =
+      for [s,smenu,gs] <- nlist, # for every species,group combi
+        into: %{},
+        do: { s, %{ "menu" => smenu , "types" => (
+              for [_,gname,_] <- gs,
+                into: %{},
+                do: { gname, Store.menu_types(s,gname) } ) }
+        }
 
-    %{ species: species,
+    datasets =
+        for [s, smenu, gs] <- nlist,
+          into: %{},
+          do: { s, (
+              for [_,gname,_] <- gs,
+                into: %{},
+                do: { gname, (
+                   for [t] <- Store.menu_types(s,gname),
+                     into: %{},
+                     do: { t, Store.menu_datasets(s,gname,t) }
+               )}
+
+        )}
+    %{ # species: species,
        groups: groups,
-       types: types }
+       menu: types,
+       datasets: datasets }
   end
 
 end

@@ -10,7 +10,8 @@ defmodule BiodallianceTest do
     keys = ["crosstype", "geno", "pheno", "phenocovar",
             "covar", "gmap", "alleles", "genotypes", "sex",
             "cross_info", "x_chr", "na.strings"]
-    Enum.map(keys, fn(x) -> IO.puts x; assert Map.has_key?(state[:ctrl], x) end)
+    Enum.map(keys, fn(x) -> # IO.puts x; 
+      assert Map.has_key?(state[:ctrl], x) end)
   end
 
 end
