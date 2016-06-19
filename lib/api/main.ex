@@ -5,24 +5,25 @@ defmodule GnServer.Router.MainAPI do
   IO.puts "Setup routing"
 
   alias GnServer.Data.Store, as: Store
+  alias GnServer.Logic.Assemble, as: Assemble
 
   @doc """
-  Fetch all species in the database 
+  Fetch all species in the database
   """
-  
+
   get "/species" do
     # CSV version: text(conn,Enum.join(nlist,"\n"))
     json(conn, Store.species)
   end
 
-  @doc """ 
-  Get the properties of a cross 
+  @doc """
+  Get the properties of a cross
   """
-  
+
   get "/cross/BXD" do
-    json(conn, Assemble.cross("BXD"))
+    json(conn, Assemble.cross_info("BXD"))
   end
-  
+
   get "/datasets" do
     json(conn, Store.datasets)
   end
@@ -36,4 +37,3 @@ defmodule GnServer.Router.MainAPI do
   end
 
 end
-

@@ -19,13 +19,12 @@ defmodule APITest do
 
   test "/species" do
     %Plug.Conn{resp_body: value} = conn(:get, "/species") |> make_response
-    assert value == Poison.encode!([[1,"mouse","Mus musculus"],[4,"human","Homo sapiens"]])
+    assert Poison.decode!(value) == [[1,"mouse","Mus musculus"],[4,"human","Homo sapiens"]]
   end
 
-  test "/genotype/mouse/iron/?file=geno" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/genotype/mouse/iron?file=geno&chr=11") |> make_response
-    IO.inspect value
-    assert value == true
+  test "/cross/BXD" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/cross/BXD") |> make_response
+    assert Poison.decode!(value) == %{"group" => "BXD", "species" => "mouse"}
   end
 
 end

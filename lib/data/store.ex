@@ -21,7 +21,7 @@ defmodule GnServer.Data.Store do
 
 
   def cross_get_species_name(group) do
-    {:ok, rows} = DB.query("select Species.Name from Species, InbredSet where InbredSet.Name = #{group} and InbredSet.SpeciesId = Species.Id")
+    {:ok, rows} = DB.query("select Species.Name from Species, InbredSet where InbredSet.Name = '#{group}' and InbredSet.SpeciesId = Species.Id")
     for r <- rows, do: ( {name} = r; [name] )
   end
 

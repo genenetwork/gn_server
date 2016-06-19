@@ -15,4 +15,5 @@ defmodule MySQLTest do
     # IO.puts Enum.join(nlist,"\n")
     assert length(nlist) == 2
   end
+
 end
