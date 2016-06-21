@@ -2,7 +2,7 @@ defmodule GnServer.Router.IntAPI do
 
   use Maru.Router
   plug CORSPlug, origin: ["*"]
-  
+
   IO.puts "Setup routing"
 
   alias GnServer.Data.Store, as: Store
@@ -12,7 +12,7 @@ defmodule GnServer.Router.IntAPI do
     get "/" do
       json(conn, %{"I am": :genenetwork, api: :internal})
     end
-  
+
     get "menu/main.json" do
       json(conn, Assemble.menu_main)
       json(conn, Assemble.menu_main)

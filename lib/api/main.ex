@@ -20,8 +20,13 @@ defmodule GnServer.Router.MainAPI do
   Get the properties of a cross
   """
 
-  get "/cross/BXD" do
-    json(conn, Assemble.cross_info("BXD"))
+  namespace :cross do
+    route_param :name, type: String do
+      get do
+        [_,group] = Regex.run ~r/(.*)\.json$/, params[:name]
+        json(conn, Assemble.cross_info(group))
+      end
+    end
   end
 
   get "/datasets" do

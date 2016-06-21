@@ -7,9 +7,13 @@ defmodule GnServer.Logic.Assemble do
   """
 
   def cross_info(group) do
-    [[name]] = Store.cross_get_species_name(group)
-    %{ group: group,
-       species: name
+    [[groupid,speciesid,species,methodid,genetic_type]] = Store.cross_info(group)
+    %{ groupid:      groupid,
+       group:        group,
+       speciesid:    speciesid,
+       species:      species,
+       methodid:     methodid,
+       genetic_type: genetic_type
     }
   end
 
