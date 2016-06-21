@@ -7,13 +7,13 @@ defmodule GnServer.Logic.Assemble do
   """
 
   def cross_info(group) do
-    [[groupid,speciesid,species,methodid,genetic_type]] = Store.cross_info(group)
-    %{ groupid:      groupid,
-       group:        group,
-       speciesid:    speciesid,
-       species:      species,
-       methodid:     methodid,
-       genetic_type: genetic_type
+    [[group_id,species_id,species,method_id,genetic_type]] = Store.cross_info(group)
+    %{ group_id:             group_id,
+       group:                group,
+       species_id:           species_id,
+       species:              species,
+       mapping_method_id:    String.to_integer(method_id),
+       genetic_type:         genetic_type
     }
   end
 

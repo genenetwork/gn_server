@@ -26,8 +26,9 @@ defmodule APITest do
     %Plug.Conn{resp_body: value} = conn(:get, "/cross/BXD.json") |> make_response
 
     assert Poison.decode!(value) == %{"genetic_type" => "riset",
-                                      "group" => "BXD", "groupid" => 1, "methodid" => "1",
-                                      "species" => "mouse", "speciesid" => 1}
+                                      "group" => "BXD", "group_id" => 1,
+                                      "mapping_method_id" => 1,
+                                      "species" => "mouse", "species_id" => 1}
   end
 
 end

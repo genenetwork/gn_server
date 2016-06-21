@@ -21,7 +21,7 @@ defmodule GnServer.Data.Store do
 
   def cross_info(group) do
     {:ok, rows} = DB.query("select Species.speciesid,Species.Name,InbredSet.InbredSetid,InbredSet.mappingmethodid,InbredSet.genetictype from Species, InbredSet where InbredSet.Name = '#{group}' and InbredSet.SpeciesId = Species.Id")
-    for r <- rows, do: ( {speciesid,species,groupid,methodid,genetictype} = r; [groupid,speciesid,species,methodid,genetictype] )
+    for r <- rows, do: ( {species_id,species,group_id,method_id,genetic_type} = r; [group_id,species_id,species,method_id,genetic_type] )
   end
 
   def menu_species do
