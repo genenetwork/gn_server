@@ -19,7 +19,22 @@ defmodule GnServer.Data.Store do
     for r <- rows, do: ( {inbredset_id,species_id,inbredset_name,full_name} = r ; [inbredset_id,species_id,inbredset_name,full_name] )
   end
 
-  def cross_info(group) do
+  def groups(species) do
+    query = """
+    select distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
+    from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
+    where Species.Name = '#{species}'
+      and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300'
+      and
+                       (PublishFreeze.InbredSetId = InbredSet.Id
+                        or GenoFreeze.InbredSetId = InbredSet.Id
+                        or ProbeFreeze.InbredSetId = InbredSet.Id)
+    """
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
+  end
+
+  def group_info(group) do
     {:ok, rows} = DB.query("select Species.speciesid,Species.Name,InbredSet.InbredSetid,InbredSet.mappingmethodid,InbredSet.genetictype from Species, InbredSet where InbredSet.Name = '#{group}' and InbredSet.SpeciesId = Species.Id")
     for r <- rows, do: ( {species_id,species,group_id,method_id,genetic_type} = r; [group_id,species_id,species,method_id,genetic_type] )
   end
@@ -31,7 +46,7 @@ defmodule GnServer.Data.Store do
 
   def menu_groups(species) do
     query = """
-    select InbredSet.id,InbredSet.Name,InbredSet.FullName
+    select distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
     from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
     where Species.Name = '#{species}'
       and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300'

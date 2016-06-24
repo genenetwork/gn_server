@@ -17,14 +17,36 @@ defmodule GnServer.Router.MainAPI do
   end
 
   @doc """
-  Get the properties of a cross
+  List all groups/crosses with ids
   """
+
+  namespace :groups do
+    route_param :species, type: String do
+      get do
+        json(conn, Store.groups(params[:species]))
+      end
+    end
+  end
+
+
+  @doc """
+  Get the properties of a group/cross
+  """
+
+  namespace :group do
+    route_param :name, type: String do
+      get do
+        [_,group] = Regex.run ~r/(.*)\.json$/, params[:name]
+        json(conn, Assemble.group_info(group))
+      end
+    end
+  end
 
   namespace :cross do
     route_param :name, type: String do
       get do
         [_,group] = Regex.run ~r/(.*)\.json$/, params[:name]
-        json(conn, Assemble.cross_info(group))
+        json(conn, Assemble.group_info(group))
       end
     end
   end
