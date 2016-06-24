@@ -41,6 +41,16 @@ defmodule APITest do
                                       "species" => "mouse", "species_id" => 1}
   end
 
+  test "/group/1.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/group/1.json") |> make_response
+
+    assert Poison.decode!(value) == %{"genetic_type" => "riset",
+                                      "group" => "BXD", "group_id" => 1,
+                                      "mapping_method_id" => 1,
+                                      "species" => "mouse", "species_id" => 1}
+  end
+
+
   test "/datasets/'group'" do
     %Plug.Conn{resp_body: value} = conn(:get, "/datasets/mouse") |> make_response
     assert Poison.decode!(value) == [[1,"mouse","Mus musculus"],[4,"human","Homo sapiens"]]

@@ -7,9 +7,9 @@ defmodule GnServer.Logic.Assemble do
   """
 
   def group_info(group) do
-    [[group_id,species_id,species,method_id,genetic_type]] = Store.group_info(group)
+    [[group_id,group_name,species_id,species,method_id,genetic_type]] = Store.group_info(group)
     %{ group_id:             group_id,
-       group:                group,
+       group:                group_name,
        species_id:           species_id,
        species:              species,
        mapping_method_id:    String.to_integer(method_id),

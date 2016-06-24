@@ -9,6 +9,14 @@ defmodule GnServer.Data.Store do
 
   alias GnServer.Backend.MySQL, as: DB
 
+  defp use_type(id) do
+    try do
+      { :integer, String.to_integer(id) }
+    rescue
+      _ in ArgumentError -> { :string, id }
+    end
+  end
+
   def species do
     {:ok, rows} = DB.query("SELECT speciesid,name,fullname FROM Species")
     for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
@@ -22,30 +30,36 @@ defmodule GnServer.Data.Store do
   def groups(species) do
 
     subq =
-      try do
-        species_id = String.to_integer(species)
-        "Species.id = #{species_id}"
-      rescue
-        e in ArgumentError -> "Species.Name = '#{species}'"
+      case use_type(species) do
+        { :integer, i } -> "Species.id = #{i}"
+        { :string, s }  -> "Species.Name = '#{s}'"
       end
 
     query = """
-select distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
-from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
-where #{subq}
+SELECT distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
+FROM InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
+WHERE #{subq}
 and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300'
 and (PublishFreeze.InbredSetId = InbredSet.Id
      or GenoFreeze.InbredSetId = InbredSet.Id
      or ProbeFreeze.InbredSetId = InbredSet.Id)
 """
-    IO.puts query
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
   end
 
   def group_info(group) do
-    {:ok, rows} = DB.query("select Species.speciesid,Species.Name,InbredSet.InbredSetid,InbredSet.mappingmethodid,InbredSet.genetictype from Species, InbredSet where InbredSet.Name = '#{group}' and InbredSet.SpeciesId = Species.Id")
-    for r <- rows, do: ( {species_id,species,group_id,method_id,genetic_type} = r; [group_id,species_id,species,method_id,genetic_type] )
+    subq =
+      case use_type(group) do
+        { :integer, i } -> "InbredSet.id = #{i}"
+        { :string, s }  -> "InbredSet.Name = '#{s}'"
+      end
+    query = "
+SELECT DISTINCT Species.speciesid,Species.Name,InbredSet.InbredSetid,InbredSet.name,InbredSet.mappingmethodid,InbredSet.genetictype
+FROM Species, InbredSet
+WHERE #{subq} and InbredSet.SpeciesId = Species.Id"
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
   end
 
   def menu_species do
