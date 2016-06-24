@@ -23,7 +23,20 @@ defmodule GnServer.Data.Store do
   end
 
   def datasets(group) do
-    nil
+    query = """
+SELECT DISTINCT ProbeSetFreeze.Id,ProbeSetFreeze.Name,ProbeSetFreeze.FullName
+FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species
+WHERE
+    InbredSet.Name = '#{group}' and
+    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
+    AND ProbeFreeze.TissueId = Tissue.Id
+    AND ProbeFreeze.InbredSetId = InbredSet.Id
+    AND ProbeSetFreeze.confidentiality < 1
+    AND ProbeSetFreeze.public > 0
+"""
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
+
   end
 
   def groups(species) do
@@ -62,17 +75,21 @@ WHERE #{subq} and InbredSet.SpeciesId = Species.Id"
     for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
   end
 
-  def dataset_info(dataset) do
+  def dataset_info(dataset_name) do
+    subq =
+      case use_type(dataset_name) do
+        { :integer, i } -> "ProbeSetFreeze.id = #{i}"
+        { :string, s }  -> "ProbeSetFreeze.Name = '#{s}'"
+      end
+
       query = """
 SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name, ProbeSetFreeze.public
 FROM ProbeSetFreeze, ProbeFreeze, Tissue
-WHERE ProbeSetFreeze.public > 0 AND
-    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
-    ProbeFreeze.TissueId = Tissue.Id AND
-    (ProbeSetFreeze.Name = '#{dataset}' OR
-      ProbeSetFreeze.FullName = '#{dataset}' OR
-      ProbeSetFreeze.ShortName = '#{dataset}')
-    """
+WHERE #{subq}
+    AND ProbeSetFreeze.public > 0
+    AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
+    AND ProbeFreeze.TissueId = Tissue.Id
+      """
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {id,name,full_name,short_name,data_scale,tissue_name,public} = r; [id,name,full_name,short_name,data_scale,tissue_name,public] )
   end

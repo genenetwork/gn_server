@@ -18,7 +18,6 @@ defmodule GnServer.Logic.Assemble do
   end
 
   def dataset_info(dataset_name) do
-
     [[id,name,full_name,short_name,data_scale,tissue_name,public]] = Store.dataset_info(dataset_name)
     %{ id:           id,
        full_name:    full_name,

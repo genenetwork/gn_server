@@ -53,12 +53,24 @@ defmodule APITest do
 
   test "/datasets/BXD" do
     %Plug.Conn{resp_body: value} = conn(:get, "/datasets/BXD") |> make_response
-    assert Poison.decode!(value) == [[1,"mouse","Mus musculus"],[4,"human","Homo sapiens"]]
+    assert Poison.decode!(value) == [[112, "HC_M2_0606_P", "Hippocampus Consortium M430v2 (Jun06) PDNN"]]
   end
 
   test "/dataset/'name'.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/dataset/HC_M2_0606_P.json") |> make_response
 
+    assert Poison.decode!(value) ==
+      %{"data_scale" => "log2", "full_name" => "Hippocampus Consortium M430v2 (Jun06) PDNN", "id" => 112, "public" => 2, "short_name" => "Hippocampus M430v2 BXD 06/06 PDNN", "tissue" => "Hippocampus mRNA"}
+  end
+
+  test "/dataset/112.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/dataset/112.json") |> make_response
+    assert Poison.decode!(value) ==
+      %{"data_scale" => "log2", "full_name" => "Hippocampus Consortium M430v2 (Jun06) PDNN", "id" => 112, "public" => 2, "short_name" => "Hippocampus M430v2 BXD 06/06 PDNN", "tissue" => "Hippocampus mRNA"}
+  end
+
+  test "/dataset/1000.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/dataset/112.json") |> make_response
     assert Poison.decode!(value) ==
       %{"data_scale" => "log2", "full_name" => "Hippocampus Consortium M430v2 (Jun06) PDNN", "id" => 112, "public" => 2, "short_name" => "Hippocampus M430v2 BXD 06/06 PDNN", "tissue" => "Hippocampus mRNA"}
   end
