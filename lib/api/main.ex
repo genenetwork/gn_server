@@ -48,7 +48,8 @@ defmodule GnServer.Router.MainAPI do
   namespace :dataset do
     route_param :dataset_name, type: String do
       get do
-        json(conn, Assemble.dataset_info(params[:dataset_name]))
+        [_,dataset_name] = Regex.run ~r/(.*)\.json$/, params[:dataset_name]
+        json(conn, Assemble.dataset_info(dataset_name))
       end
     end
   end

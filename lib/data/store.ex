@@ -23,7 +23,7 @@ defmodule GnServer.Data.Store do
   end
 
   def datasets(group) do
-    [nil]
+    nil
   end
 
   def groups(species) do
@@ -59,6 +59,22 @@ FROM Species, InbredSet
 WHERE #{subq} and InbredSet.SpeciesId = Species.Id"
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
+    for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
+  end
+
+  def dataset_info(dataset) do
+      query = """
+SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name, ProbeSetFreeze.public
+FROM ProbeSetFreeze, ProbeFreeze, Tissue
+WHERE ProbeSetFreeze.public > 0 AND
+    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
+    ProbeFreeze.TissueId = Tissue.Id AND
+    (ProbeSetFreeze.Name = '#{dataset}' OR
+      ProbeSetFreeze.FullName = '#{dataset}' OR
+      ProbeSetFreeze.ShortName = '#{dataset}')
+    """
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {id,name,full_name,short_name,data_scale,tissue_name,public} = r; [id,name,full_name,short_name,data_scale,tissue_name,public] )
   end
 
   def menu_species do
