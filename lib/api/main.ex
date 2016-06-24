@@ -51,9 +51,18 @@ defmodule GnServer.Router.MainAPI do
     end
   end
 
-  get "/datasets" do
-    json(conn, Store.datasets)
+  @doc """
+  List all datasets with ids
+  """
+
+  namespace :datasets do
+    route_param :dataset_name, type: String do
+      get do
+        json(conn, Store.datasets(params[:dataset_name]))
+      end
+    end
   end
+
 
   get do
     json(conn, %{"I am": :genenetwork})

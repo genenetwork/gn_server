@@ -22,8 +22,13 @@ defmodule APITest do
     assert Poison.decode!(value) == [[1,"mouse","Mus musculus"],[4,"human","Homo sapiens"]]
   end
 
-  test "/groups/'species'" do
+  test "/groups/mouse" do
     %Plug.Conn{resp_body: value} = conn(:get, "/groups/mouse") |> make_response
+    assert Poison.decode!(value) == [[1,"BXD","BXD"]]
+  end
+
+  test "/groups/1" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/groups/1") |> make_response
     assert Poison.decode!(value) == [[1,"BXD","BXD"]]
   end
 

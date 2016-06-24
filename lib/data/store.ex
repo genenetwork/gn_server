@@ -20,16 +20,25 @@ defmodule GnServer.Data.Store do
   end
 
   def groups(species) do
+
+    subq =
+      try do
+        species_id = String.to_integer(species)
+        "Species.id = #{species_id}"
+      rescue
+        e in ArgumentError -> "Species.Name = '#{species}'"
+      end
+
     query = """
-    select distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
-    from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
-    where Species.Name = '#{species}'
-      and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300'
-      and
-                       (PublishFreeze.InbredSetId = InbredSet.Id
-                        or GenoFreeze.InbredSetId = InbredSet.Id
-                        or ProbeFreeze.InbredSetId = InbredSet.Id)
-    """
+select distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
+from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
+where #{subq}
+and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300'
+and (PublishFreeze.InbredSetId = InbredSet.Id
+     or GenoFreeze.InbredSetId = InbredSet.Id
+     or ProbeFreeze.InbredSetId = InbredSet.Id)
+"""
+    IO.puts query
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
   end
@@ -45,6 +54,7 @@ defmodule GnServer.Data.Store do
   end
 
   def menu_groups(species) do
+
     query = """
     select distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
     from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
