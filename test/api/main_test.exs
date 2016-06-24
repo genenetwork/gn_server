@@ -22,12 +22,32 @@ defmodule APITest do
     assert Poison.decode!(value) == [[1,"mouse","Mus musculus"],[4,"human","Homo sapiens"]]
   end
 
-  test "/cross/'name'.json" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/cross/BXD.json") |> make_response
+    test "/groups/'species'" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/groups/mouse") |> make_response
+    assert Poison.decode!(value) == [[1,"mouse","Mus musculus"],[4,"human","Homo sapiens"]]
+  end
+
+  test "/group/'name'.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/group/BXD.json") |> make_response
 
     assert Poison.decode!(value) == %{"genetic_type" => "riset",
                                       "group" => "BXD", "group_id" => 1,
                                       "mapping_method_id" => 1,
+                                      "species" => "mouse", "species_id" => 1}
+  end
+
+  test "/datasets/'group'" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/datasets/mouse") |> make_response
+    assert Poison.decode!(value) == [[1,"mouse","Mus musculus"],[4,"human","Homo sapiens"]]
+    %Plug.Conn{resp_body: value} = conn(:get, "/datasets/BXD") |> make_response
+    assert Poison.decode!(value) == [[1,"mouse","Mus musculus"],[4,"human","Homo sapiens"]]
+  end
+
+  test "/dataset/'name'.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/dataset/HC_M2_0606_P.json") |> make_response
+
+    assert Poison.decode!(value) == %{
+                                      "group" => "BXD", "group_id" => 1,
                                       "species" => "mouse", "species_id" => 1}
   end
 
