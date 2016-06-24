@@ -7,18 +7,9 @@ defmodule GnServer.Router.MainAPI do
   alias GnServer.Data.Store, as: Store
   alias GnServer.Logic.Assemble, as: Assemble
 
-  @doc """
-  Fetch all species in the database
-  """
-
   get "/species" do
-    # CSV version: text(conn,Enum.join(nlist,"\n"))
     json(conn, Store.species)
   end
-
-  @doc """
-  List all groups/crosses with ids
-  """
 
   namespace :groups do
     route_param :species, type: String do
@@ -27,11 +18,6 @@ defmodule GnServer.Router.MainAPI do
       end
     end
   end
-
-
-  @doc """
-  Get the properties of a group/cross
-  """
 
   namespace :group do
     route_param :name, type: String do
@@ -51,18 +37,21 @@ defmodule GnServer.Router.MainAPI do
     end
   end
 
-  @doc """
-  List all datasets with ids
-  """
-
   namespace :datasets do
-    route_param :dataset_name, type: String do
+    route_param :group, type: String do
       get do
-        json(conn, Store.datasets(params[:dataset_name]))
+        json(conn, Store.datasets(params[:group]))
       end
     end
   end
 
+  namespace :dataset do
+    route_param :dataset_name, type: String do
+      get do
+        json(conn, Assemble.dataset_info(params[:dataset_name]))
+      end
+    end
+  end
 
   get do
     json(conn, %{"I am": :genenetwork})

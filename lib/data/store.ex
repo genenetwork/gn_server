@@ -22,9 +22,8 @@ defmodule GnServer.Data.Store do
     for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
   end
 
-  def datasets do
-    {:ok, rows} = DB.query("select InbredSet.inbredsetid,InbredSet.speciesid,InbredSet.name,ProbeFreeze.name from InbredSet,ProbeFreeze where InbredSet.inbredsetid=ProbeFreeze.inbredsetid")
-    for r <- rows, do: ( {inbredset_id,species_id,inbredset_name,full_name} = r ; [inbredset_id,species_id,inbredset_name,full_name] )
+  def datasets(group) do
+    [nil]
   end
 
   def groups(species) do

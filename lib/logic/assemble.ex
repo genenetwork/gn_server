@@ -17,6 +17,10 @@ defmodule GnServer.Logic.Assemble do
     }
   end
 
+  def dataset_info(dataset_name) do
+    [ nil ]
+  end
+
   def menu_main do
     species = Store.menu_species
     nlist = Enum.map(species, fn(x) -> [_,sname,menu]=x ;
