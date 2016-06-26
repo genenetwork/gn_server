@@ -24,15 +24,15 @@ defmodule GnServer.Data.Store do
 
   def datasets(group) do
     query = """
-SELECT DISTINCT ProbeSetFreeze.Id,ProbeSetFreeze.Name,ProbeSetFreeze.FullName
-FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species
+SELECT DISTINCT D.Id,D.Name,D.FullName
+FROM ProbeSetFreeze AS D, ProbeFreeze as D2, InbredSet, Tissue, Species
 WHERE
     InbredSet.Name = '#{group}' and
-    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
-    AND ProbeFreeze.TissueId = Tissue.Id
-    AND ProbeFreeze.InbredSetId = InbredSet.Id
-    AND ProbeSetFreeze.confidentiality < 1
-    AND ProbeSetFreeze.public > 0
+    D.ProbeFreezeId = D2.Id
+    AND D2.TissueId = Tissue.Id
+    AND D2.InbredSetId = InbredSet.Id
+    AND D.confidentiality < 1
+    AND D.public > 0
 """
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
@@ -78,20 +78,20 @@ WHERE #{subq} and InbredSet.SpeciesId = Species.Id"
   def dataset_info(dataset_name) do
     subq =
       case use_type(dataset_name) do
-        { :integer, i } -> "ProbeSetFreeze.id = #{i}"
-        { :string, s }  -> "ProbeSetFreeze.Name = '#{s}'"
+        { :integer, i } -> "D.id = #{i}"
+        { :string, s }  -> "D.Name = '#{s}'"
       end
 
       query = """
-SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name, ProbeSetFreeze.public
-FROM ProbeSetFreeze, ProbeFreeze, Tissue
+SELECT D.Id, D.Name, D.FullName, D.ShortName, D.DataScale, D2.TissueId, Tissue.Name, D.public, D.confidentiality
+FROM ProbeSetFreeze as D, ProbeFreeze as D2, Tissue
 WHERE #{subq}
-    AND ProbeSetFreeze.public > 0
-    AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
-    AND ProbeFreeze.TissueId = Tissue.Id
+    AND D.public > 0
+    AND D.ProbeFreezeId = D2.Id
+    AND D2.TissueId = Tissue.Id
       """
     {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {id,name,full_name,short_name,data_scale,tissue_name,public} = r; [id,name,full_name,short_name,data_scale,tissue_name,public] )
+    for r <- rows, do: ( {id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential} = r; [id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential] )
   end
 
   def menu_species do
