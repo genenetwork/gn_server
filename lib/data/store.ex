@@ -109,7 +109,14 @@ WHERE #{subq}
     for r <- rows, do: ( {id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential} = r; [id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential] )
   end
 
-  def phenotypes(dataset_id, start, stop) do
+  def phenotypes(dataset_name, start, stop) do
+    dataset_id =
+      case use_type(dataset_name) do
+        { :integer, i } -> i
+        { :string, s }  -> ( [[id | tail_]] = dataset_info(dataset_name)
+                           id )
+      end
+
     start2 =
       if start == nil do
         0
@@ -124,7 +131,7 @@ WHERE #{subq}
         stop
       end
 
-    limit = stop2 - start2
+    limit = stop2 - start2 + 1
     query = """
 SELECT distinct ProbeSet.Name,
   ProbeSetXRef.Mean, ProbeSetXRef.LRS,

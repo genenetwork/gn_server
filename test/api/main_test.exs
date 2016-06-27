@@ -67,8 +67,15 @@ defmodule APITest do
       %{"data_scale" => "log2", "full_name" => "Hippocampus Consortium M430v2 (Jun06) PDNN", "id" => 112, "name" => "HC_M2_0606_P", "public" => 2, "short_name" => "Hippocampus M430v2 BXD 06/06 PDNN", "tissue" => "Hippocampus mRNA", "confidential" => 0, "tissue_id" => 9}
   end
 
-  test "/phenotypes/112.json" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/112.json?stop=1") |> make_response
+  test "/phenotypes/HC_M2_0606_P.json?start=100&stop=101" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/HC_M2_0606_P.json?start=100&stop=101") |> make_response
+    assert Poison.decode!(value) ==
+      [%{"symbol" => "null", "MAX_LRS" => 30.4944361132252, "Mb" => 12.6694, "chr" => 12, "mean" => 7.232, "name" => "1452452_at", "name_id" => 1452452, "p_value" => 6.09756097560421e-5},
+       %{"MAX_LRS" => 14.306552750747, "Mb" => 13.611444, "chr" => 1, "mean" => 7.2949696969697, "name" => "1460151_at", "name_id" => 1460151, "p_value" => 0.138, "symbol" => "null"}]
+  end
+
+  test "/phenotypes/112.json?stop=0" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/112.json?stop=0") |> make_response
     assert Poison.decode!(value) ==
       [%{"chr" => 8, "MAX_LRS" => 13.5417452764616, "Mb" => 75.077895, "mean" => 7.05679797979798, "name" => "1445618_at", "name_id" => 1445618, "p_value" => 0.17, "symbol" => "null"}]
   end
