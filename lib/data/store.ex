@@ -22,22 +22,6 @@ defmodule GnServer.Data.Store do
     for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
   end
 
-  def datasets(group) do
-    query = """
-SELECT DISTINCT D.Id,D.Name,D.FullName
-FROM ProbeSetFreeze AS D, ProbeFreeze as D2, InbredSet, Tissue, Species
-WHERE
-    InbredSet.Name = '#{group}' and
-    D.ProbeFreezeId = D2.Id
-    AND D2.TissueId = Tissue.Id
-    AND D2.InbredSetId = InbredSet.Id
-    AND D.confidentiality < 1
-    AND D.public > 0
-"""
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
-  end
-
   def groups(species) do
     subq =
       case use_type(species) do
@@ -90,6 +74,22 @@ ORDER BY Chr_Length.OrderId
     for r <- rows, do: ( {chr_name,chr_len} = r; [chr_name,chr_len] )
   end
 
+  def datasets(group) do
+    query = """
+SELECT DISTINCT D.Id,D.Name,D.FullName
+FROM ProbeSetFreeze AS D, ProbeFreeze as D2, InbredSet, Tissue, Species
+WHERE
+    InbredSet.Name = '#{group}' and
+    D.ProbeFreezeId = D2.Id
+    AND D2.TissueId = Tissue.Id
+    AND D2.InbredSetId = InbredSet.Id
+    AND D.confidentiality < 1
+    AND D.public > 0
+"""
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
+  end
+
   def dataset_info(dataset_name) do
     subq =
       case use_type(dataset_name) do
@@ -107,6 +107,46 @@ WHERE #{subq}
     """
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential} = r; [id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential] )
+  end
+
+  def phenotypes(dataset_id, start, stop) do
+    start2 =
+      if start == nil do
+        0
+      else
+        start
+      end
+
+    stop2 =
+      if stop == nil do
+        100
+      else
+        stop
+      end
+
+    limit = stop2 - start2
+    query = """
+SELECT distinct ProbeSet.Name,
+  ProbeSetXRef.Mean, ProbeSetXRef.LRS,
+  ProbeSetXRef.PVALUE, ProbeSet.Chr_num,
+  ProbeSet.Mb, ProbeSet.Symbol,
+  ProbeSet.name_num
+FROM ProbeSetXRef, ProbeSet
+WHERE ProbeSet.Id = ProbeSetXRef.ProbeSetId
+  and ProbeSetXRef.ProbeSetFreezeId = #{dataset_id}
+  ORDER BY ProbeSet.symbol ASC LIMIT #{limit}
+    """
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {name,mean,lrs,pvalue,chr,mb,symbol,name_num} = r ;
+      %{ name: name,
+         name_id: name_num,
+         mean: mean,
+         "MAX_LRS": lrs,
+         "p_value": pvalue,
+         chr: chr,
+         "Mb": mb,
+         symbol: symbol
+      })
   end
 
 

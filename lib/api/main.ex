@@ -54,6 +54,19 @@ defmodule GnServer.Router.MainAPI do
     end
   end
 
+  namespace :phenotypes do
+    route_param :dataset_name, type: String do
+      params do
+        optional :start, type: Integer
+        optional :stop, type: Integer
+      end
+      get do
+        [_,dataset_name] = Regex.run ~r/(.*)\.json$/, params[:dataset_name]
+        json(conn, Store.phenotypes(dataset_name,params[:start],params[:stop]))
+      end
+    end
+  end
+
   get do
     json(conn, %{"I am": :genenetwork})
   end

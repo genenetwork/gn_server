@@ -67,6 +67,12 @@ defmodule APITest do
       %{"data_scale" => "log2", "full_name" => "Hippocampus Consortium M430v2 (Jun06) PDNN", "id" => 112, "name" => "HC_M2_0606_P", "public" => 2, "short_name" => "Hippocampus M430v2 BXD 06/06 PDNN", "tissue" => "Hippocampus mRNA", "confidential" => 0, "tissue_id" => 9}
   end
 
+  test "/phenotypes/112.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/112.json?stop=1") |> make_response
+    assert Poison.decode!(value) ==
+      [%{"chr" => 8, "MAX_LRS" => 13.5417452764616, "Mb" => 75.077895, "mean" => 7.05679797979798, "name" => "1445618_at", "name_id" => 1445618, "p_value" => 0.17, "symbol" => "null"}]
+  end
+
   # Should add a test here for non-public
 
 end
