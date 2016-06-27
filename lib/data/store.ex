@@ -135,7 +135,7 @@ WHERE #{subq}
     query = """
 SELECT distinct ProbeSet.Name,
   ProbeSetXRef.Mean, ProbeSetXRef.LRS,
-  ProbeSetXRef.PVALUE, ProbeSet.Chr_num,
+  ProbeSetXRef.PVALUE, ProbeSetXRef.additive, ProbeSetXRef.locus, ProbeSet.Chr_num,
   ProbeSet.Mb, ProbeSet.Symbol,
   ProbeSet.name_num
 FROM ProbeSetXRef, ProbeSet
@@ -144,12 +144,14 @@ WHERE ProbeSet.Id = ProbeSetXRef.ProbeSetId
   ORDER BY ProbeSet.symbol ASC LIMIT #{limit}
     """
     {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {name,mean,lrs,pvalue,chr,mb,symbol,name_num} = r ;
+    for r <- rows, do: ( {name,mean,lrs,pvalue,additive,locus,chr,mb,symbol,name_num} = r ;
       %{ name: name,
          name_id: name_num,
          mean: mean,
          "MAX_LRS": lrs,
          "p_value": pvalue,
+         additive: additive,
+         locus: locus,
          chr: chr,
          "Mb": mb,
          symbol: symbol
