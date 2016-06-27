@@ -36,7 +36,6 @@ WHERE
 """
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
-
   end
 
   def groups(species) do
@@ -72,7 +71,6 @@ FROM Species, InbredSet
 WHERE #{subq} and InbredSet.SpeciesId = Species.Id"
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
-    for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
   end
 
   def dataset_info(dataset_name) do
@@ -82,16 +80,34 @@ WHERE #{subq} and InbredSet.SpeciesId = Species.Id"
         { :string, s }  -> "D.Name = '#{s}'"
       end
 
-      query = """
+    query = """
 SELECT D.Id, D.Name, D.FullName, D.ShortName, D.DataScale, D2.TissueId, Tissue.Name, D.public, D.confidentiality
 FROM ProbeSetFreeze as D, ProbeFreeze as D2, Tissue
 WHERE #{subq}
     AND D.public > 0
     AND D.ProbeFreezeId = D2.Id
     AND D2.TissueId = Tissue.Id
-      """
+    """
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential} = r; [id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential] )
+  end
+
+  def chr_info(dataset_name) do
+    subq =
+      case use_type(dataset_name) do
+        { :integer, i } -> "C.id = #{i}"
+        { :string, s }  -> "C.Name = '#{s}'"
+      end
+
+      query = """
+SELECT Chr_Length.Name, Length
+FROM Chr_Length, InbredSet as C
+WHERE #{subq}
+AND Chr_Length.SpeciesId = C.SpeciesId
+ORDER BY Chr_Length.OrderId
+      """
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {chr_name,chr_len} = r; [chr_name,chr_len] )
   end
 
   def menu_species do

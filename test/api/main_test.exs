@@ -35,19 +35,16 @@ defmodule APITest do
   test "/group/'name'.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/group/BXD.json") |> make_response
 
-    assert Poison.decode!(value) == %{"genetic_type" => "riset",
-                                      "group" => "BXD", "group_id" => 1,
-                                      "mapping_method_id" => 1,
-                                      "species" => "mouse", "species_id" => 1}
+    assert Poison.decode!(value) ==
+      %{"genetic_type" => "riset", "group" => "BXD", "group_id" => 1, "mapping_method_id" => 1, "species" => "mouse", "species_id" => 1, "chr_info" => [["1", 197195432], ["2", 181748087], ["3", 159599783], ["4", 155630120], ["5", 152537259], ["6", 149517037], ["7", 152524553], ["8", 131738871], ["9", 124076172], ["10", 129993255], ["11", 121843856], ["12", 121257530], ["13", 120284312], ["14", 125194864], ["15", 103494974], ["16", 98319150], ["17", 95272651], ["18", 90772031], ["19", 61342430], ["X", 166650296]]}
   end
 
   test "/group/1.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/group/1.json") |> make_response
 
-    assert Poison.decode!(value) == %{"genetic_type" => "riset",
-                                      "group" => "BXD", "group_id" => 1,
-                                      "mapping_method_id" => 1,
-                                      "species" => "mouse", "species_id" => 1}
+    assert Poison.decode!(value) ==
+      %{"genetic_type" => "riset", "group" => "BXD", "group_id" => 1, "mapping_method_id" => 1, "species" => "mouse", "species_id" => 1, "chr_info" => [["1", 197195432], ["2", 181748087], ["3", 159599783], ["4", 155630120], ["5", 152537259], ["6", 149517037], ["7", 152524553], ["8", 131738871], ["9", 124076172], ["10", 129993255], ["11", 121843856], ["12", 121257530], ["13", 120284312], ["14", 125194864], ["15", 103494974], ["16", 98319150], ["17", 95272651], ["18", 90772031], ["19", 61342430], ["X", 166650296]]}
+
   end
 
 

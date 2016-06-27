@@ -8,17 +8,21 @@ defmodule GnServer.Logic.Assemble do
 
   def group_info(group) do
     [[group_id,group_name,species_id,species,method_id,genetic_type]] = Store.group_info(group)
+    list = Store.chr_info(group)
+
     %{ group_id:             group_id,
        group:                group_name,
        species_id:           species_id,
        species:              species,
        mapping_method_id:    String.to_integer(method_id),
-       genetic_type:         genetic_type
+       genetic_type:         genetic_type,
+       chr_info:             list
     }
   end
 
   def dataset_info(dataset_name) do
     [[id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential]] = Store.dataset_info(dataset_name)
+
     %{ id:           id,
        name:         name,
        full_name:    full_name,
