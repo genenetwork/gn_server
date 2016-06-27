@@ -39,7 +39,6 @@ WHERE
   end
 
   def groups(species) do
-
     subq =
       case use_type(species) do
         { :integer, i } -> "Species.id = #{i}"
@@ -62,15 +61,33 @@ and (PublishFreeze.InbredSetId = InbredSet.Id
   def group_info(group) do
     subq =
       case use_type(group) do
-        { :integer, i } -> "InbredSet.id = #{i}"
-        { :string, s }  -> "InbredSet.Name = '#{s}'"
+        { :integer, i } -> "C.id = #{i}"
+        { :string, s }  -> "C.Name = '#{s}'"
       end
     query = "
-SELECT DISTINCT Species.speciesid,Species.Name,InbredSet.InbredSetid,InbredSet.name,InbredSet.mappingmethodid,InbredSet.genetictype
-FROM Species, InbredSet
-WHERE #{subq} and InbredSet.SpeciesId = Species.Id"
+SELECT DISTINCT Species.speciesid,Species.Name,C.InbredSetid,C.name,C.mappingmethodid,C.genetictype
+FROM Species, InbredSet as C
+WHERE #{subq} and C.SpeciesId = Species.Id"
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
+  end
+
+  def chr_info(dataset_name) do
+    subq =
+      case use_type(dataset_name) do
+        { :integer, i } -> "C.id = #{i}"
+        { :string, s }  -> "C.Name = '#{s}'"
+      end
+
+      query = """
+SELECT Chr_Length.Name, Length
+FROM Chr_Length, InbredSet as C
+WHERE #{subq}
+AND Chr_Length.SpeciesId = C.SpeciesId
+ORDER BY Chr_Length.OrderId
+      """
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {chr_name,chr_len} = r; [chr_name,chr_len] )
   end
 
   def dataset_info(dataset_name) do
@@ -92,23 +109,6 @@ WHERE #{subq}
     for r <- rows, do: ( {id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential} = r; [id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential] )
   end
 
-  def chr_info(dataset_name) do
-    subq =
-      case use_type(dataset_name) do
-        { :integer, i } -> "C.id = #{i}"
-        { :string, s }  -> "C.Name = '#{s}'"
-      end
-
-      query = """
-SELECT Chr_Length.Name, Length
-FROM Chr_Length, InbredSet as C
-WHERE #{subq}
-AND Chr_Length.SpeciesId = C.SpeciesId
-ORDER BY Chr_Length.OrderId
-      """
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {chr_name,chr_len} = r; [chr_name,chr_len] )
-  end
 
   def menu_species do
     {:ok, rows} = DB.query("SELECT speciesid,name,menuname FROM Species")
