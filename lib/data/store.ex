@@ -179,7 +179,7 @@ AND Geno.Name = '#{marker}'
 
   def phenotype_info(dataset,marker) do
       query = """
-SELECT Strain.Name, ProbeSetData.value, ProbeSetSE.error,
+SELECT Strain.id, Strain.Name, ProbeSetData.value, ProbeSetSE.error,
   ProbeSetData.Id
 FROM (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
 LEFT JOIN ProbeSetSE on (ProbeSetSE.DataId = ProbeSetData.Id
@@ -190,33 +190,39 @@ WHERE ProbeSet.Name = '#{marker}'
   AND ProbeSetFreeze.Name = '#{dataset}'
   AND ProbeSetXRef.DataId = ProbeSetData.Id
   AND ProbeSetData.StrainId = Strain.Id
-  ORDER BY Strain.Name
+  ORDER BY Strain.Id
       """
+    # IO.puts(query)
     {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {strain_name,value,stderr,id} = r;
-      [id,strain_name,value,stderr]
+    for r <- rows, do: ( {strain_id,strain_name,value,stderr,_} = r;
+      [strain_id,strain_name,value,stderr]
     )
   end
 
   def phenotype_info(dataset,marker,group) do
-    [group_id | tail ] = group_info(group)
+    [[group_id | _ ] | _] = group_info(group)
     query = """
-SELECT Strain.Name, ProbeSetData.value, ProbeSetSE.error,
-  ProbeSetData.Id
-FROM (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
-LEFT JOIN ProbeSetSE on (ProbeSetSE.DataId = ProbeSetData.Id
-  AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
+SELECT DISTINCT Strain.Id, SX.InbredSetId, Strain.Name, V.value, ProbeSetSE.error,
+  V.Id
+FROM (ProbeSetData as V, ProbeSetFreeze as D, ProbeFreeze as D2, Strain, StrainXRef as SX, ProbeSet, ProbeSetXRef as Locus)
+LEFT JOIN ProbeSetSE on (ProbeSetSE.DataId = V.Id
+  AND ProbeSetSE.StrainId = V.StrainId)
 WHERE ProbeSet.Name = '#{marker}'
-  AND ProbeSetXRef.ProbeSetId = ProbeSet.Id
-  AND ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id
-  AND ProbeSetFreeze.Name = '#{dataset}'
-  AND ProbeSetXRef.DataId = ProbeSetData.Id
-  AND ProbeSetData.StrainId = Strain.Id
-  ORDER BY Strain.Name
-      """
+  AND Locus.ProbeSetId = ProbeSet.Id
+  AND Locus.ProbeSetFreezeId = D.Id
+  AND SX.StrainId = Strain.Id
+  AND SX.InbredSetId = #{group_id}
+  AND D.Name = '#{dataset}'
+  AND Locus.DataId = V.Id
+  AND V.StrainId = Strain.Id
+  AND SX.StrainId = Strain.Id
+  ORDER BY Strain.Id
+    """
+
+    # IO.puts(query)
     {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {strain_name,value,stderr,id} = r;
-      [id,strain_name,value,stderr]
+    for r <- rows, do: ( {strain_id,_,strain_name,value,stderr,_} = r;
+      [strain_id,strain_name,value,stderr]
     )
   end
 
