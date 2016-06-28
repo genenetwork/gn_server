@@ -67,6 +67,19 @@ defmodule GnServer.Router.MainAPI do
     end
   end
 
+  namespace :genotype do
+    route_param :species, type: String do
+      namespace :marker do
+        route_param :marker, type: String do
+          get do
+            [_,marker] = Regex.run ~r/(.*)\.json$/, params[:marker]
+            json(conn, Store.marker_info(params[:species],marker))
+          end
+        end
+      end
+    end
+  end
+
   get do
     json(conn, %{"I am": :genenetwork})
   end

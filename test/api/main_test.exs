@@ -79,6 +79,12 @@ defmodule APITest do
     [%{"symbol" => "null", "MAX_LRS" => 30.4944361132252, "Mb" => 12.6694, "chr" => 12, "mean" => 7.232, "name" => "1452452_at", "name_id" => 1452452, "p_value" => 6.09756097560421e-5, "additive" => 0.392331541218638, "locus" => "gnf12.013.284"}]
   end
 
+  test "/genotype/mouse/marker/rs3693478.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/genotype/mouse/marker/rs3693478.json") |> make_response
+    assert Poison.decode!(value) ==
+    [%{"symbol" => "null", "MAX_LRS" => 30.4944361132252, "Mb" => 12.6694, "chr" => 12, "mean" => 7.232, "name" => "1452452_at", "name_id" => 1452452, "p_value" => 6.09756097560421e-5, "additive" => 0.392331541218638, "locus" => "gnf12.013.284"}]
+  end
+
   # Should add a test here for non-public
 
 end

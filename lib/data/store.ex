@@ -158,6 +158,24 @@ WHERE ProbeSet.Id = ProbeSetXRef.ProbeSetId
       })
   end
 
+  def marker_info(species,marker) do
+      query = """
+SELECT Geno.Chr, Geno.Mb, Species.Id,Geno.source FROM Geno, Species
+WHERE Species.Name = '#{species}'
+AND Geno.Name = '#{marker}'
+     """
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {chr_name,chr_len,species_id,source} = r;
+      %{
+        species: species,
+        species_id: species_id,
+        source: source,
+        marker: marker,
+        chr:     chr_name,
+        chr_len: chr_len
+      } )
+  end
+
 
   def menu_species do
     {:ok, rows} = DB.query("SELECT speciesid,name,menuname FROM Species")
