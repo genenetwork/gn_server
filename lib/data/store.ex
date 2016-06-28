@@ -177,9 +177,13 @@ AND Geno.Name = '#{marker}'
       } )
   end
 
+
   def phenotype_info(dataset,marker) do
+    # The GN1 querly looks like
+    # query = "SELECT Strain.Name, %sData.value from %sData, Strain, %s, %sXRef WHERE %s.Name = '%s' and %sXRef.%sId = %s.Id and %sXRef.%sFreezeId = %d and  %sXRef.DataId = %sData.Id and %sData.StrainId = Strain.Id order by Strain.Id"
+    # but it does not pick up the stderr.
       query = """
-SELECT Strain.id, Strain.Name, ProbeSetData.value, ProbeSetSE.error,
+SELECT DISTINCT Strain.id, Strain.Name, ProbeSetData.value, ProbeSetSE.error,
   ProbeSetData.Id
 FROM (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
 LEFT JOIN ProbeSetSE on (ProbeSetSE.DataId = ProbeSetData.Id
