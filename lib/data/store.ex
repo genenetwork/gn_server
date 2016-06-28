@@ -29,6 +29,7 @@ defmodule GnServer.Data.Store do
         { :string, s }  -> "Species.Name = '#{s}'"
       end
 
+    # note this query can be simplified
     query = """
 SELECT distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
 FROM InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
@@ -113,7 +114,7 @@ WHERE #{subq}
     dataset_id =
       case use_type(dataset_name) do
         { :integer, i } -> i
-        { :string, s }  -> ( [[id | tail_]] = dataset_info(dataset_name)
+        { :string, _ }  -> ( [[id | tail_]] = dataset_info(dataset_name)
                            id )
       end
 
@@ -176,6 +177,48 @@ AND Geno.Name = '#{marker}'
       } )
   end
 
+  def phenotype_info(dataset,marker) do
+      query = """
+SELECT Strain.Name, ProbeSetData.value, ProbeSetSE.error,
+  ProbeSetData.Id
+FROM (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
+LEFT JOIN ProbeSetSE on (ProbeSetSE.DataId = ProbeSetData.Id
+  AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
+WHERE ProbeSet.Name = '#{marker}'
+  AND ProbeSetXRef.ProbeSetId = ProbeSet.Id
+  AND ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id
+  AND ProbeSetFreeze.Name = '#{dataset}'
+  AND ProbeSetXRef.DataId = ProbeSetData.Id
+  AND ProbeSetData.StrainId = Strain.Id
+  ORDER BY Strain.Name
+      """
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {strain_name,value,stderr,id} = r;
+      [id,strain_name,value,stderr]
+    )
+  end
+
+  def phenotype_info(dataset,marker,group) do
+    [group_id | tail ] = group_info(group)
+    query = """
+SELECT Strain.Name, ProbeSetData.value, ProbeSetSE.error,
+  ProbeSetData.Id
+FROM (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
+LEFT JOIN ProbeSetSE on (ProbeSetSE.DataId = ProbeSetData.Id
+  AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
+WHERE ProbeSet.Name = '#{marker}'
+  AND ProbeSetXRef.ProbeSetId = ProbeSet.Id
+  AND ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id
+  AND ProbeSetFreeze.Name = '#{dataset}'
+  AND ProbeSetXRef.DataId = ProbeSetData.Id
+  AND ProbeSetData.StrainId = Strain.Id
+  ORDER BY Strain.Name
+      """
+    {:ok, rows} = DB.query(query)
+    for r <- rows, do: ( {strain_name,value,stderr,id} = r;
+      [id,strain_name,value,stderr]
+    )
+  end
 
   def menu_species do
     {:ok, rows} = DB.query("SELECT speciesid,name,menuname FROM Species")

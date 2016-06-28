@@ -79,12 +79,25 @@ defmodule APITest do
     [%{"symbol" => "null", "MAX_LRS" => 30.4944361132252, "Mb" => 12.6694, "chr" => 12, "mean" => 7.232, "name" => "1452452_at", "name_id" => 1452452, "p_value" => 6.09756097560421e-5, "additive" => 0.392331541218638, "locus" => "gnf12.013.284"}]
   end
 
+  test "/phenotype/HC_M2_0606_P/1443823_s_at.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/HC_M2_0606_P/1443823_s_at.json") |> make_response
+    # result = Poison.decode!(value)
+    [result | tail] = Poison.decode!(value)
+    assert result == [23422417, "129S1/SvImJ", 14.552, "null"]
+    assert(Enum.count(tail)==98)
+  end
+
+  test "/phenotype/HC_M2_0606_P/BXD/1443823_s_at.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/HC_M2_0606_P/BXD/1443823_s_at.json") |> make_response
+    # [result | tail] = Poison.decode!(value)
+    # assert result == []
+    # assert(Enum.count(tail)==30)
+  end
+
   test "/genotype/mouse/marker/rs3693478.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/genotype/mouse/marker/rs3693478.json") |> make_response
     assert Poison.decode!(value) ==
      [%{"chr" => "7", "chr_len" => 67.179978, "marker" => "rs3693478", "source" => "Illumina_5530", "species" => "mouse", "species_id" => 1}]
-
-
   end
 
   # Should add a test here for non-public

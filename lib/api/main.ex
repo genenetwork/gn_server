@@ -67,6 +67,30 @@ defmodule GnServer.Router.MainAPI do
     end
   end
 
+  namespace :phenotype do
+    route_param :dataset, type: String do
+      route_param :group, type: String do
+        route_param :trait, type: String do
+          get do
+            [_,trait] = Regex.run ~r/(.*)\.json$/, params[:trait]
+            json(conn, Store.phenotype_info(params[:dataset],trait,params[:group]))
+          end
+        end
+      end
+    end
+  end
+
+  namespace :phenotype do
+    route_param :dataset, type: String do
+      route_param :trait, type: String do
+        get do
+          [_,trait] = Regex.run ~r/(.*)\.json$/, params[:trait]
+          json(conn, Store.phenotype_info(params[:dataset],trait))
+        end
+      end
+    end
+  end
+
   namespace :genotype do
     route_param :species, type: String do
       namespace :marker do
