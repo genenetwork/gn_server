@@ -103,6 +103,16 @@ defmodule APITest do
      [%{"chr" => "7", "chr_len" => 67.179978, "marker" => "rs3693478", "source" => "Illumina_5530", "species" => "mouse", "species_id" => 1}]
   end
 
-  # Should add a test here for non-public
+  test "HC_M2_0606_P, public 2, confidentiality 0" do
+    # we know this works already from above
+  end
+
+  test "EPFL-LISP_MusPMetHFD1213, public 1, confidentiality 1" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/dataset/EPFL-LISP_MusPMetHFD1213.json") |> make_response
+    assert value == "Server error"
+  end
+
+  # HC_M2_1205_R, public 0, confidentiality 0
+  # EPFLBXDprot0513, public 0, confidentiality 1
 
 end

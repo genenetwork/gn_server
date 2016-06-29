@@ -17,6 +17,26 @@ defmodule GnServer.Data.Store do
     end
   end
 
+  defp authorize(dataset_name) do
+    subq =
+      case use_type(dataset_name) do
+        { :integer, i } -> "D.id = #{i}"
+        { :string, s }  -> "D.Name = '#{s}'"
+      end
+    query = """
+SELECT DISTINCT D.confidentiality,D.public FROM ProbeSetFreeze AS D
+WHERE #{subq}
+"""
+    {:ok, rows} = DB.query(query)
+    if Enum.count(rows) != 1 do
+      raise "Access error"
+    end
+    [{confidentiality,public}] = rows
+    if public == 0 or confidentiality > 0 do
+      raise "Authorization error"
+    end
+  end
+
   def species do
     {:ok, rows} = DB.query("SELECT speciesid,name,fullname FROM Species")
     for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
@@ -92,6 +112,7 @@ WHERE
   end
 
   def dataset_info(dataset_name) do
+    authorize(dataset_name)
     subq =
       case use_type(dataset_name) do
         { :integer, i } -> "D.id = #{i}"
@@ -111,6 +132,7 @@ WHERE #{subq}
   end
 
   def phenotypes(dataset_name, start, stop) do
+    authorize(dataset_name)
     dataset_id =
       case use_type(dataset_name) do
         { :integer, i } -> i
@@ -178,7 +200,8 @@ AND Geno.Name = '#{marker}'
   end
 
 
-  def phenotype_info(dataset,marker) do
+  def phenotype_info(dataset_name,marker) do
+    authorize(dataset_name)
     # The GN1 querly looks like
     # query = "SELECT Strain.Name, %sData.value from %sData, Strain, %s, %sXRef WHERE %s.Name = '%s' and %sXRef.%sId = %s.Id and %sXRef.%sFreezeId = %d and  %sXRef.DataId = %sData.Id and %sData.StrainId = Strain.Id order by Strain.Id"
     # but it does not pick up the stderr.
@@ -191,7 +214,7 @@ LEFT JOIN ProbeSetSE on (ProbeSetSE.DataId = ProbeSetData.Id
 WHERE ProbeSet.Name = '#{marker}'
   AND ProbeSetXRef.ProbeSetId = ProbeSet.Id
   AND ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id
-  AND ProbeSetFreeze.Name = '#{dataset}'
+  AND ProbeSetFreeze.Name = '#{dataset_name}'
   AND ProbeSetXRef.DataId = ProbeSetData.Id
   AND ProbeSetData.StrainId = Strain.Id
   ORDER BY Strain.Id
@@ -203,7 +226,8 @@ WHERE ProbeSet.Name = '#{marker}'
     )
   end
 
-  def phenotype_info(dataset,marker,group) do
+  def phenotype_info(dataset_name,marker,group) do
+    authorize(dataset_name)
     [[group_id | _ ] | _] = group_info(group)
     query = """
 SELECT DISTINCT Strain.Id, SX.InbredSetId, Strain.Name, V.value, ProbeSetSE.error,
@@ -216,7 +240,7 @@ WHERE ProbeSet.Name = '#{marker}'
   AND Locus.ProbeSetFreezeId = D.Id
   AND SX.StrainId = Strain.Id
   AND SX.InbredSetId = #{group_id}
-  AND D.Name = '#{dataset}'
+  AND D.Name = '#{dataset_name}'
   AND Locus.DataId = V.Id
   AND V.StrainId = Strain.Id
   AND SX.StrainId = Strain.Id
