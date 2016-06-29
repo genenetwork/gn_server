@@ -17,7 +17,13 @@ defmodule GnServer.Data.Store do
     end
   end
 
-  defp authorize(dataset_name) do
+  defp authorize_group(group_name) do
+    if group_name != "BXD" do
+      raise "Authorization error for " <> group_name
+    end
+  end
+
+  defp authorize_dataset(dataset_name) do
     subq =
       case use_type(dataset_name) do
         { :integer, i } -> "D.id = #{i}"
@@ -96,6 +102,7 @@ ORDER BY Chr_Length.OrderId
   end
 
   def datasets(group) do
+    authorize_group(group)
     query = """
 SELECT DISTINCT D.Id,D.Name,D.FullName
 FROM ProbeSetFreeze AS D, ProbeFreeze as D2, InbredSet, Tissue, Species
@@ -112,7 +119,7 @@ WHERE
   end
 
   def dataset_info(dataset_name) do
-    authorize(dataset_name)
+    authorize_dataset(dataset_name)
     subq =
       case use_type(dataset_name) do
         { :integer, i } -> "D.id = #{i}"
@@ -132,7 +139,7 @@ WHERE #{subq}
   end
 
   def phenotypes(dataset_name, start, stop) do
-    authorize(dataset_name)
+    authorize_dataset(dataset_name)
     dataset_id =
       case use_type(dataset_name) do
         { :integer, i } -> i
@@ -201,7 +208,7 @@ AND Geno.Name = '#{marker}'
 
 
   def phenotype_info(dataset_name,marker) do
-    authorize(dataset_name)
+    authorize_dataset(dataset_name)
     # The GN1 querly looks like
     # query = "SELECT Strain.Name, %sData.value from %sData, Strain, %s, %sXRef WHERE %s.Name = '%s' and %sXRef.%sId = %s.Id and %sXRef.%sFreezeId = %d and  %sXRef.DataId = %sData.Id and %sData.StrainId = Strain.Id order by Strain.Id"
     # but it does not pick up the stderr.
@@ -227,7 +234,8 @@ WHERE ProbeSet.Name = '#{marker}'
   end
 
   def phenotype_info(dataset_name,marker,group) do
-    authorize(dataset_name)
+    authorize_dataset(dataset_name)
+    authorize_group(group)
     [[group_id | _ ] | _] = group_info(group)
     query = """
 SELECT DISTINCT Strain.Id, SX.InbredSetId, Strain.Name, V.value, ProbeSetSE.error,
