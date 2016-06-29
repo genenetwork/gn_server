@@ -32,3 +32,12 @@ use Mix.Config
 
 config :maru, GnServer.API,
   http: [port: 8880]
+
+config :gn_server, ecto_repos: [GnServer.Repo]
+
+config :gn_server, GnServer.Repo,
+  adapter: Ecto.Adapters.MySQL,
+  database: "db_webqtl_s",
+  username: "gn2",
+  password: "mysql_password",
+  hostname: "localhost"
