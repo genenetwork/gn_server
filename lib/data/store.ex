@@ -8,6 +8,9 @@
 defmodule GnServer.Data.Store do
 
   alias GnServer.Backend.MySQL, as: DB
+  import Ecto.Query
+  alias GnServer.Repo
+  alias GnServer.Schema.Species
 
   defp use_type(id) do
     try do
@@ -44,8 +47,11 @@ WHERE #{subq}
   end
 
   def species do
-    {:ok, rows} = DB.query("SELECT speciesid,name,fullname FROM Species")
-    for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
+    #{:ok, rows} = DB.query("SELECT speciesid,name,fullname FROM Species")
+    query = from s in Species,
+    select: s
+
+    for r <- Repo.all(query), do: ( [r.id,r."Name",r."FullName"] )
   end
 
   def groups(species) do
