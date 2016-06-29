@@ -7,6 +7,7 @@ API. GnServer can execute remote commands.
 GnServer is implemented in the highly parallel and robust Elixir
 programming language on top of the Erlang VM.
 
+The API documentation can be found [here](./doc/API.md)
 Note: GnServer is a work in progress (YMMV).
 
 ## GNU Guix installation
@@ -86,4 +87,4 @@ For more information visit http://www.genenetwork.org/
 IRC on #genenetwork on irc.freenode.net.
 
 Code and primary web service managed by Dr. Robert W. Williams and the
-University of Tennessee Health Science Center, Memphis TN, USA. 
+University of Tennessee Health Science Center, Memphis TN, USA.
