@@ -17,6 +17,7 @@ defmodule GnServer.Data.Store do
   alias GnServer.Schema.GenoFreeze
   alias GnServer.Schema.PublishFreeze
   alias GnServer.Schema.Tissue
+  alias GnServer.Schema.Geno
 
   defp use_type(id) do
     try do
@@ -248,20 +249,21 @@ WHERE ProbeSet.Id = ProbeSetXRef.ProbeSetId
   end
 
   def marker_info(species,marker) do
-      query = """
-SELECT Geno.Chr, Geno.Mb, Species.Id,Geno.source FROM Geno, Species
-WHERE Species.Name = '#{species}'
-AND Geno.Name = '#{marker}'
-     """
+#       query = """
+# SELECT Geno.Chr, Geno.Mb, Species.Id,Geno.source FROM Geno, Species
+# WHERE Species.Name = '#{species}'
+# AND Geno.Name = '#{marker}'
+#      """
      query = from tab_species in Species,
      join: geno in Geno,
      on: tab_species."SpeciesId" == geno."SpeciesId",
-     where: tab_species."Name" == ^species and geno."Name" == marker,
-     select: {geno."Chr", geno."Mb", tab_species.id, geno.source}
+     where: tab_species."Name" == ^species and geno."Name" == ^marker,
+     select: {geno."Chr", geno."Mb", tab_species.id, geno."Source"}
 
     # {:ok, rows} = DB.query(query)
-    Repo.all(query) |> Enum.map(&(
-      {chr_name,chr_len,species_id,source} = &1
+
+    from_tuple_to_structure = fn(query_result) ->
+      {chr_name,chr_len,species_id,source} = query_result
       %{
         species: species,
         species_id: species_id,
@@ -270,7 +272,9 @@ AND Geno.Name = '#{marker}'
         chr:     chr_name,
         chr_len: chr_len
       } 
-    ))
+    end
+
+    Repo.all(query) |> Enum.map(from_tuple_to_structure)
 
     
     # for r <- rows, do: ( {chr_name,chr_len,species_id,source} = r;
@@ -341,8 +345,11 @@ WHERE ProbeSet.Name = '#{marker}'
   end
 
   def menu_species do
-    {:ok, rows} = DB.query("SELECT speciesid,name,menuname FROM Species")
-    for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
+    query = form species in Species,
+      select: {species."SpeciesId", species."Name", species."MenuName"}
+    # {:ok, rows} = DB.query("SELECT speciesid,name,menuname FROM Species")
+    # for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
+    Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
   end
 
   def menu_groups(species) do
@@ -364,19 +371,38 @@ WHERE ProbeSet.Name = '#{marker}'
   end
 
   def menu_types(species, group) do
-    query = """
-    select distinct Tissue.Name
-    from ProbeFreeze,ProbeSetFreeze,InbredSet,Tissue,Species
-    where Species.Name = '#{species}' and Species.Id = InbredSet.SpeciesId and
-      InbredSet.Name = '#{group}' and
-      ProbeFreeze.TissueId = Tissue.Id and
-      ProbeFreeze.InbredSetId = InbredSet.Id and
-      ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-      ProbeSetFreeze.public > 0
-      order by Tissue.Name
-    """
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {tissue} = r; [tissue] )
+    # query = """
+    # select distinct Tissue.Name
+    # from ProbeFreeze,ProbeSetFreeze,InbredSet,Tissue,Species
+    # where Species.Name = '#{species}' and
+      # Species.Id = InbredSet.SpeciesId and
+      # InbredSet.Name = '#{group}' and
+      # ProbeFreeze.TissueId = Tissue.Id and
+      # ProbeFreeze.InbredSetId = InbredSet.Id and
+      # ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
+      # ProbeSetFreeze.public > 0
+      # order by Tissue.Name
+    # """
+    # {:ok, rows} = DB.query(query)
+    # for r <- rows, do: ( {tissue} = r; [tissue] )
+
+    query = from tab_species in Species,
+      join: inbredset in InbredSet,
+      on: tab_species.id == inbredset."SpeciesId",
+      join: probefreeze in ProbeFreeze,
+      on: probefreeze."InbredSetId" == inbredset.id,
+      join: tissue in Tissue,
+      on: probefreeze."TissueId" == tissue.id,
+      join: probesetfreeze in ProbeSetFreeze,
+      on: probesetfreeze."ProbeFreezeId" == probefreeze.id,
+      where: tab_species."Name" == ^species and
+             inbredset."Name" == ^group and
+             probesetfreeze.public > 0,
+      select: {tissue."Name"},
+      distinct: true,
+      order_by: tissue."Name"
+
+      Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
   end
 
   def menu_datasets(species, group, type) do
