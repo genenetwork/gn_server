@@ -253,8 +253,15 @@ SELECT Geno.Chr, Geno.Mb, Species.Id,Geno.source FROM Geno, Species
 WHERE Species.Name = '#{species}'
 AND Geno.Name = '#{marker}'
      """
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {chr_name,chr_len,species_id,source} = r;
+     query = from tab_species in Species,
+     join: geno in Geno,
+     on: tab_species."SpeciesId" == geno."SpeciesId",
+     where: tab_species."Name" == ^species and geno."Name" == marker,
+     select: {geno."Chr", geno."Mb", tab_species.id, geno.source}
+
+    # {:ok, rows} = DB.query(query)
+    Repo.all(query) |> Enum.map(&(
+      {chr_name,chr_len,species_id,source} = &1
       %{
         species: species,
         species_id: species_id,
@@ -262,7 +269,19 @@ AND Geno.Name = '#{marker}'
         marker: marker,
         chr:     chr_name,
         chr_len: chr_len
-      } )
+      } 
+    ))
+
+    
+    # for r <- rows, do: ( {chr_name,chr_len,species_id,source} = r;
+    #   %{
+    #     species: species,
+    #     species_id: species_id,
+    #     source: source,
+    #     marker: marker,
+    #     chr:     chr_name,
+    #     chr_len: chr_len
+    #   } )
   end
 
 
