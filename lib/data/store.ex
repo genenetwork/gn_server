@@ -11,6 +11,7 @@ defmodule GnServer.Data.Store do
   import Ecto.Query
   alias GnServer.Repo
   alias GnServer.Schema.Species
+  alias GnServer.Schema.ProbeSetFreeze
 
   defp use_type(id) do
     try do
@@ -27,19 +28,27 @@ defmodule GnServer.Data.Store do
   end
 
   defp authorize_dataset(dataset_name) do
-    subq =
+    {field_name, field_value} =
       case use_type(dataset_name) do
-        { :integer, i } -> "D.id = #{i}"
-        { :string, s }  -> "D.Name = '#{s}'"
+        { :integer, i } -> {:id, i}
+        { :string, s }  -> {:Name,s}
       end
-    query = """
-SELECT DISTINCT D.confidentiality,D.public FROM ProbeSetFreeze AS D
-WHERE #{subq}
-"""
-    {:ok, rows} = DB.query(query)
+#     query = """
+# SELECT DISTINCT D.confidentiality,D.public FROM ProbeSetFreeze AS D
+# WHERE #{subq}
+# """
+
+    query = from x in ProbeSetFreeze,
+      select: {x.confidentiality, x.public},
+      where: field(x, ^field_name) == ^field_value,
+      distinct: true
+
+    #{:ok, rows} = DB.query(query)
+    rows = Repo.all(query)
     if Enum.count(rows) != 1 do
       raise "Access error"
     end
+    
     [{confidentiality,public}] = rows
     if public == 0 or confidentiality > 0 do
       raise "Authorization error"
