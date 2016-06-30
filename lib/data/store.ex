@@ -168,22 +168,33 @@ ORDER BY Chr_Length.OrderId
 
   def dataset_info(dataset_name) do
     authorize_dataset(dataset_name)
-    subq =
+    {probesetfreeze_field, probesetfreeze_value} =
       case use_type(dataset_name) do
-        { :integer, i } -> "D.id = #{i}"
-        { :string, s }  -> "D.Name = '#{s}'"
+        { :integer, i } -> {:id, i}
+        { :string, s }  -> {:Name, s}
       end
 
-    query = """
-SELECT D.Id, D.Name, D.FullName, D.ShortName, D.DataScale, D2.TissueId, Tissue.Name, D.public, D.confidentiality
-FROM ProbeSetFreeze as D, ProbeFreeze as D2, Tissue
-WHERE #{subq}
-    AND D.public > 0
-    AND D.ProbeFreezeId = D2.Id
-    AND D2.TissueId = Tissue.Id
-    """
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential} = r; [id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential] )
+#     query = """
+# SELECT D.Id, D.Name, D.FullName, D.ShortName, D.DataScale, D2.TissueId, Tissue.Name, D.public, D.confidentiality
+# FROM ProbeSetFreeze as D, ProbeFreeze as D2, Tissue
+# WHERE #{subq}
+#     AND D.public > 0
+#     AND D.ProbeFreezeId = D2.Id
+#     AND D2.TissueId = Tissue.Id
+#     """
+#     {:ok, rows} = DB.query(query)
+#     for r <- rows, do: ( {id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential} = r; [id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential] )
+
+    query = from probesetfreeze in ProbeSetFreeze,
+      join: probefreeze in ProbeFreeze,
+      on: probesetfreeze."ProbeFreezeId" == probefreeze."Id",
+      join: tissue in Tissue,
+      on: probefreeze."TissueId" == tissue."Id",
+      where: field(probesetfreeze, ^probesetfreeze_field) == ^probesetfreeze_value and probesetfreeze.public > 0,
+      select: {probesetfreeze.id, probesetfreeze."Name", probesetfreeze."FullName",
+               probesetfreeze."ShortName", probesetfreeze."DataScale", probefreeze."TissueId",
+               tissue."Name", probesetfreeze.public, probesetfreeze.confidentiality}
+    Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
   end
 
   def phenotypes(dataset_name, start, stop) do
