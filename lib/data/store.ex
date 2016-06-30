@@ -49,9 +49,10 @@ WHERE #{subq}
   def species do
     #{:ok, rows} = DB.query("SELECT speciesid,name,fullname FROM Species")
     query = from s in Species,
-    select: s
+    select: {s.id, s."Name", s."FullName"}
 
-    for r <- Repo.all(query), do: ( [r.id,r."Name",r."FullName"] )
+    # for r <- Repo.all(query), do: ( [r.id,r."Name",r."FullName"] )
+    Repo.all(query)
   end
 
   def groups(species) do
