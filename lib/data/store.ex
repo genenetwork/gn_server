@@ -16,6 +16,7 @@ defmodule GnServer.Data.Store do
   alias GnServer.Schema.ProbeFreeze
   alias GnServer.Schema.GenoFreeze
   alias GnServer.Schema.PublishFreeze
+  alias GnServer.Schema.Tissue
 
   defp use_type(id) do
     try do
@@ -137,19 +138,32 @@ ORDER BY Chr_Length.OrderId
 
   def datasets(group) do
     authorize_group(group)
-    query = """
-SELECT DISTINCT D.Id,D.Name,D.FullName
-FROM ProbeSetFreeze AS D, ProbeFreeze as D2, InbredSet, Tissue, Species
-WHERE
-    InbredSet.Name = '#{group}' and
-    D.ProbeFreezeId = D2.Id
-    AND D2.TissueId = Tissue.Id
-    AND D2.InbredSetId = InbredSet.Id
-    AND D.confidentiality < 1
-    AND D.public > 0
-"""
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
+#     query = """
+# SELECT DISTINCT D.Id,D.Name,D.FullName
+# FROM ProbeSetFreeze AS D, ProbeFreeze as D2, InbredSet, Tissue, Species
+# WHERE
+#     InbredSet.Name = '#{group}' and
+#     D.ProbeFreezeId = D2.Id
+#     AND D2.TissueId = Tissue.Id
+#     AND D2.InbredSetId = InbredSet.Id
+#     AND D.confidentiality < 1
+#     AND D.public > 0
+# """
+    query = from probesetfreeze in ProbeSetFreeze,
+      join: probefreeze in ProbeFreeze,
+      on: probesetfreeze."ProbeFreezeId" == probefreeze."Id",
+      join: tissue in Tissue,
+      on: probefreeze."TissueId" == tissue."Id",
+      join: inbredset in InbredSet,
+      on:  probefreeze."InbredSetId" == inbredset."Id",
+      where: inbredset."Name" == ^group and probesetfreeze.confidentiality < 1 and probesetfreeze.public > 0,
+      select: {probesetfreeze.id, probesetfreeze."Name", probesetfreeze."FullName"},
+      distinct: true
+
+      Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+
+    # {:ok, rows} = DB.query(query)
+    # for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
   end
 
   def dataset_info(dataset_name) do
