@@ -12,6 +12,10 @@ defmodule GnServer.Data.Store do
   alias GnServer.Repo
   alias GnServer.Schema.Species
   alias GnServer.Schema.ProbeSetFreeze
+  alias GnServer.Schema.InbredSet
+  alias GnServer.Schema.ProbeFreeze
+  alias GnServer.Schema.GenoFreeze
+  alias GnServer.Schema.PublishFreeze
 
   defp use_type(id) do
     try do
@@ -43,12 +47,11 @@ defmodule GnServer.Data.Store do
       where: field(x, ^field_name) == ^field_value,
       distinct: true
 
-    #{:ok, rows} = DB.query(query)
     rows = Repo.all(query)
     if Enum.count(rows) != 1 do
       raise "Access error"
     end
-    
+
     [{confidentiality,public}] = rows
     if public == 0 or confidentiality > 0 do
       raise "Authorization error"
@@ -56,33 +59,42 @@ defmodule GnServer.Data.Store do
   end
 
   def species do
-    #{:ok, rows} = DB.query("SELECT speciesid,name,fullname FROM Species")
     query = from s in Species,
-    select: {s."SpeciesId", s."Name", s."FullName"}
-
-    # for r <- Repo.all(query), do: ( [r.id,r."Name",r."FullName"] )
-    Repo.all(query)
+      select: {s."SpeciesId", s."Name", s."FullName"}
+    Repo.all(query) |> Enum.map(&(Tuple.to_list &1))
   end
 
   def groups(species) do
-    subq =
+    {species_field, species_value} =
       case use_type(species) do
-        { :integer, i } -> "Species.id = #{i}"
-        { :string, s }  -> "Species.Name = '#{s}'"
+        { :integer, i } -> {:id, i}
+        { :string, s }  -> {:Name, s}
       end
 
     # note this query can be simplified
-    query = """
-SELECT distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
-FROM InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
-WHERE #{subq}
-and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300'
-and (PublishFreeze.InbredSetId = InbredSet.Id
-     or GenoFreeze.InbredSetId = InbredSet.Id
-     or ProbeFreeze.InbredSetId = InbredSet.Id)
-"""
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
+#     query = """
+# SELECT distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
+# FROM InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
+# WHERE #{subq}
+# and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300'
+# and (PublishFreeze.InbredSetId = InbredSet.Id
+#      or GenoFreeze.InbredSetId = InbredSet.Id
+#      or ProbeFreeze.InbredSetId = InbredSet.Id)
+# """
+    query = from species in Species,
+      join: inbredset in InbredSet,
+      on: species.id == inbredset."SpeciesId",
+      left_join: publishfreeze in PublishFreeze,
+      on: publishfreeze."InbredSetId" == inbredset.id,
+      left_join: genofreeze in GenoFreeze,
+      on: genofreeze."InbredSetId" == inbredset.id,
+      left_join: probefreeze in ProbeFreeze,
+      on: probefreeze."InbredSetId" == inbredset.id,
+      where: field(species, ^species_field) == ^species_value and inbredset."Name" != "BXD300",
+      select: {inbredset.id,inbredset."Name",inbredset."FullName"},
+      distinct: true
+
+    Repo.all(query) |> Enum.map(&(Tuple.to_list &1))
   end
 
   def group_info(group) do
