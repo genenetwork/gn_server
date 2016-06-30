@@ -98,17 +98,23 @@ defmodule GnServer.Data.Store do
   end
 
   def group_info(group) do
-    subq =
+    {inbredset_field, inbredset_value} =
       case use_type(group) do
-        { :integer, i } -> "C.id = #{i}"
-        { :string, s }  -> "C.Name = '#{s}'"
+        { :integer, i } -> {:id, i}
+        { :string, s }  -> {:Name, s}
       end
-    query = "
-SELECT DISTINCT Species.speciesid,Species.Name,C.InbredSetid,C.name,C.mappingmethodid,C.genetictype
-FROM Species, InbredSet as C
-WHERE #{subq} and C.SpeciesId = Species.Id"
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
+#     query = "
+# SELECT DISTINCT Species.speciesid,Species.Name,C.InbredSetid,C.name,C.mappingmethodid,C.genetictype
+# FROM Species, InbredSet as C
+# WHERE #{subq} and C.SpeciesId = Species.Id"
+    query = from species in Species,
+      join: inbredset in InbredSet,
+      on: species.id == inbredset."SpeciesId",
+      where: field(inbredset, ^inbredset_field) == ^inbredset_value,
+      select: {species."SpeciesId", species."Name", inbredset."InbredSetId", inbredset."Name", inbredset."MappingMethodId", inbredset."GeneticType"},
+      distinct: true
+    # for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
+    Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
   end
 
   def chr_info(dataset_name) do
