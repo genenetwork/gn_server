@@ -19,6 +19,8 @@ defmodule GnServer.Data.Store do
   alias GnServer.Schema.Tissue
   alias GnServer.Schema.Geno
   alias GnServer.Schema.Chr_Length
+  alias GnServer.Schema.ProbeSet
+  alias GnServer.Schema.ProbeSetXRef
 
   defp use_type(id) do
     try do
@@ -231,19 +233,44 @@ defmodule GnServer.Data.Store do
       end
 
     limit = stop2 - start2 + 1
-    query = """
-SELECT distinct ProbeSet.Name,
-  ProbeSetXRef.Mean, ProbeSetXRef.LRS,
-  ProbeSetXRef.PVALUE, ProbeSetXRef.additive, ProbeSetXRef.locus, ProbeSet.Chr_num,
-  ProbeSet.Mb, ProbeSet.Symbol,
-  ProbeSet.name_num
-FROM ProbeSetXRef, ProbeSet
-WHERE ProbeSet.Id = ProbeSetXRef.ProbeSetId
-  and ProbeSetXRef.ProbeSetFreezeId = #{dataset_id}
-  ORDER BY ProbeSet.symbol ASC LIMIT #{limit}
-    """
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {name,mean,lrs,pvalue,additive,locus,chr,mb,symbol,name_num} = r ;
+#     query = """
+# SELECT distinct ProbeSet.Name,
+#   ProbeSetXRef.Mean, ProbeSetXRef.LRS,
+#   ProbeSetXRef.PVALUE, ProbeSetXRef.additive, ProbeSetXRef.locus, ProbeSet.Chr_num,
+#   ProbeSet.Mb, ProbeSet.Symbol,
+#   ProbeSet.name_num
+# FROM ProbeSetXRef, ProbeSet
+# WHERE ProbeSet.Id = ProbeSetXRef.ProbeSetId
+#   and ProbeSetXRef.ProbeSetFreezeId = #{dataset_id}
+#   ORDER BY ProbeSet.symbol ASC LIMIT #{limit}
+#     """
+#     {:ok, rows} = DB.query(query)
+    # for r <- rows, do: ( {name,mean,lrs,pvalue,additive,locus,chr,mb,symbol,name_num} = r ;
+    #   %{ name: name,
+    #      name_id: name_num,
+    #      mean: mean,
+    #      "MAX_LRS": lrs,
+    #      "p_value": pvalue,
+    #      additive: additive,
+    #      locus: locus,
+    #      chr: chr,
+    #      "Mb": mb,
+    #      symbol: symbol
+    #   })
+
+    query = from probeset in ProbeSet,
+      join: probesetxref in ProbeSetXRef,
+      on: probeset.id == probesetxref."ProbeSetId",
+      where: probesetxref."ProbeSetFreezeId" == ^dataset_id,
+      select: {probeset."Name", probesetxref.mean, probesetxref."LRS",
+               probesetxref.pValue, probesetxref.additive, probesetxref."Locus",
+               probeset.chr_num, probeset."Mb", probeset."Symbol", probeset.name_num},
+      distinct: true,
+      order_by: probeset."symbol",
+      limit: ^limit
+
+    from_tuple_to_structure = fn(query_result) ->
+      {name,mean,lrs,pvalue,additive,locus,chr,mb,symbol,name_num} = query_result
       %{ name: name,
          name_id: name_num,
          mean: mean,
@@ -254,7 +281,11 @@ WHERE ProbeSet.Id = ProbeSetXRef.ProbeSetId
          chr: chr,
          "Mb": mb,
          symbol: symbol
-      })
+      }
+    end
+
+    Repo.all(query) |> Enum.map(from_tuple_to_structure)
+
   end
 
   def marker_info(species,marker) do
