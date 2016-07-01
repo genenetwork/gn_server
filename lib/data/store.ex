@@ -23,6 +23,7 @@ defmodule GnServer.Data.Store do
   alias GnServer.Schema.ProbeSetXRef
   alias GnServer.Schema.ProbeSetData
   alias GnServer.Schema.ProbeSetSE
+  alias GnServer.Schema.StrainXRef
 
   defp use_type(id) do
     try do
@@ -385,29 +386,53 @@ defmodule GnServer.Data.Store do
     authorize_dataset(dataset_name)
     authorize_group(group)
     [[group_id | _ ] | _] = group_info(group)
-    query = """
-SELECT DISTINCT Strain.Id, SX.InbredSetId, Strain.Name, V.value, ProbeSetSE.error,
-  V.Id
-FROM (ProbeSetData as V, ProbeSetFreeze as D, ProbeFreeze as D2, Strain, StrainXRef as SX, ProbeSet, ProbeSetXRef as Locus)
-LEFT JOIN ProbeSetSE on (ProbeSetSE.DataId = V.Id
-  AND ProbeSetSE.StrainId = V.StrainId)
-WHERE ProbeSet.Name = '#{marker}'
-  AND Locus.ProbeSetId = ProbeSet.Id
-  AND Locus.ProbeSetFreezeId = D.Id
-  AND SX.StrainId = Strain.Id
-  AND SX.InbredSetId = #{group_id}
-  AND D.Name = '#{dataset_name}'
-  AND Locus.DataId = V.Id
-  AND V.StrainId = Strain.Id
-  AND SX.StrainId = Strain.Id
-  ORDER BY Strain.Id
-    """
+    # query = """
+# SELECT DISTINCT Strain.Id, StrainXRef.InbredSetId, Strain.Name, ProbeSetData.value, ProbeSetSE.error,
+  # ProbeSetData.Id
+# FROM (ProbeSetData as V, ProbeSetFreeze as D, ProbeFreeze as D2, Strain, StrainXRef as SX, ProbeSet, ProbeSetXRef as Locus)
+# LEFT JOIN ProbeSetSE on (ProbeSetSE.DataId = ProbeSetData.Id
+#   AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
+# WHERE ProbeSet.Name = '#{marker}'
+  # AND ProbeSetXRef.ProbeSetId = ProbeSet.Id
+  # AND ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id
+  # AND StrainXRef.StrainId = Strain.Id
+  # AND StrainXRef.InbredSetId = #{group_id}
+  # AND ProbeSetFreeze.Name = '#{dataset_name}'
+  # AND ProbeSetXRef.DataId = ProbeSetData.Id
+  # AND ProbeSetData.StrainId = Strain.Id
+  # AND StrainXRef.StrainId = Strain.Id
+  # ORDER BY Strain.Id
+    # """
 
     # IO.puts(query)
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {strain_id,_,strain_name,value,stderr,_} = r;
+    # {:ok, rows} = DB.query(query)
+    # for r <- rows, do: ( {strain_id,_,strain_name,value,stderr,_} = r;
+    #   [strain_id,strain_name,value,stderr]
+    # )
+
+    query = from probesetdata in ProbeSetData,
+      left_join: probesetse in ProbeSetSE,
+      on: probesetdata.id == probesetse."DataId" and probesetdata."StrainId" == probesetse."StrainId",
+      join: probesetxref in ProbeSetXRef,
+      on: probesetdata.id == probesetxref."DataId",
+      join: probeset in ProbeSet,
+      on: probesetxref."ProbeSetId" == probeset.id,
+      join: probesetfreeze in ProbeSetFreeze,
+      on: probesetxref."ProbeSetFreezeId" == probesetfreeze.id,
+      join: strain in Strain,
+      on: probesetdata."StrainId" == strain.id,
+      join: strainxref in StrainXRef,
+      on: strain.id == strainxref."StrainId",
+      where: probeset."Name" == ^marker and probesetfreeze."Name" == ^dataset_name and strainxref."InbredSetId" == ^group_id,
+      select: {strain.id, strainxref."InbredSetId", strain."Name", probesetdata.value, probesetse.error, probesetdata.id},
+      distinct: true,
+      order_by: strain.id
+    from_tuple_to_structure = fn(query_result) ->
+      {strain_id,_,strain_name,value,stderr,_} = query_result
       [strain_id,strain_name,value,stderr]
-    )
+    end
+
+    Repo.all(query) |> Enum.map(from_tuple_to_structure)
   end
 
   def menu_species do
