@@ -446,20 +446,46 @@ WHERE ProbeSet.Name = '#{marker}'
   end
 
   def menu_datasets(species, group, type) do
-    query = """
-    select ProbeSetFreeze.Id,ProbeSetFreeze.Name,ProbeSetFreeze.FullName
-    from ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species
-    where
-    Species.Name = '#{species}' and Species.Id = InbredSet.SpeciesId and
-    InbredSet.Name = '#{group}' and
-    ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-    Tissue.Name = '#{type}' and
-    ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id and
-    ProbeSetFreeze.confidentiality < 1 and ProbeSetFreeze.public > 0 order by
-    ProbeSetFreeze.CreateTime desc
-    """
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
+    # query = """
+    # select ProbeSetFreeze.Id,ProbeSetFreeze.Name,ProbeSetFreeze.FullName
+    # from ProbeSetFreeze, 
+    # ProbeFreeze, 
+    # InbredSet, 
+    # Tissue,
+     # Species
+    # where
+    # Species.Name = '#{species}' and 
+    # Species.Id = InbredSet.SpeciesId and
+    # InbredSet.Name = '#{group}' and
+    # ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
+    # Tissue.Name = '#{type}' and
+    # ProbeFreeze.TissueId = Tissue.Id and
+     # ProbeFreeze.InbredSetId = InbredSet.Id and
+    # ProbeSetFreeze.confidentiality < 1 and 
+    # ProbeSetFreeze.public > 0 
+    # order by ProbeSetFreeze.CreateTime desc
+    # """
+    # {:ok, rows} = DB.query(query)
+    # for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
+
+    query = from tab_species in Species,
+      join: inbredset in InbredSet,
+      on: tab_species.id == inbredset."SpeciesId",
+      join: probefreeze in ProbeFreeze,
+      on: inbredset.id == probefreeze."InbredSetId",
+      join: probesetfreeze in ProbeSetFreeze,
+      on: probefreeze.id == probesetfreeze."ProbeFreezeId",
+      join: tissue in Tissue,
+      on: probefreeze."TissueId" == tissue.id,
+      where: tab_species."Name" == ^species and
+             inbredset."Name" == ^group and 
+             tissue."Name" == ^type and
+             probesetfreeze.confidentiality < 1 and
+             probesetfreeze.public > 0,
+      select: {probesetfreeze.id, probesetfreeze."Name", probesetfreeze."FullName"},
+      order_by: [desc: probesetfreeze."CreateTime"]
+
+    Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
   end
 
 end

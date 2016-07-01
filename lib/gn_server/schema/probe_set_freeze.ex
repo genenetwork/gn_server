@@ -8,6 +8,7 @@ defmodule GnServer.Schema.ProbeSetFreeze do
     field :Name2
     field :FullName
     field :ShortName
+    field :CreateTime, Ecto.Date
     field :OrderList, :float
     field :public, :integer
     field :confidentiality, :integer
