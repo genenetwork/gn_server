@@ -23,6 +23,7 @@ defmodule GnServer.Data.Store do
   alias GnServer.Schema.ProbeSetXRef
   alias GnServer.Schema.ProbeSetData
   alias GnServer.Schema.ProbeSetSE
+  alias GnServer.Schema.Strain
   alias GnServer.Schema.StrainXRef
 
   defp use_type(id) do
