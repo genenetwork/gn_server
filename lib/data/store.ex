@@ -18,6 +18,7 @@ defmodule GnServer.Data.Store do
   alias GnServer.Schema.PublishFreeze
   alias GnServer.Schema.Tissue
   alias GnServer.Schema.Geno
+  alias GnServer.Schema.Chr_Length
 
   defp use_type(id) do
     try do
@@ -120,21 +121,29 @@ defmodule GnServer.Data.Store do
   end
 
   def chr_info(dataset_name) do
-    subq =
+    {inbredset_field, inbredset_value} =
       case use_type(dataset_name) do
-        { :integer, i } -> "C.id = #{i}"
-        { :string, s }  -> "C.Name = '#{s}'"
+        { :integer, i } -> {:id, i}
+        { :string, s }  -> {:Name, s}
       end
 
-      query = """
-SELECT Chr_Length.Name, Length
-FROM Chr_Length, InbredSet as C
-WHERE #{subq}
-AND Chr_Length.SpeciesId = C.SpeciesId
-ORDER BY Chr_Length.OrderId
-      """
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {chr_name,chr_len} = r; [chr_name,chr_len] )
+    query = from chr_length in Chr_Length,
+      join: inbredset in InbredSet,
+      on: chr_length."SpeciesId" == inbredset."SpeciesId",
+      where: field(inbredset, ^inbredset_field) == ^inbredset_value,
+      select: {chr_length."Name", chr_length."Length"},
+      order_by: chr_length."OrderId"
+
+    Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+#       query = """
+# SELECT Chr_Length.Name, Length
+# FROM Chr_Length, InbredSet as C
+# WHERE #{subq}
+# AND Chr_Length.SpeciesId = C.SpeciesId
+# ORDER BY Chr_Length.OrderId
+#       """
+#     {:ok, rows} = DB.query(query)
+#     for r <- rows, do: ( {chr_name,chr_len} = r; [chr_name,chr_len] )
   end
 
   def datasets(group) do
@@ -345,7 +354,7 @@ WHERE ProbeSet.Name = '#{marker}'
   end
 
   def menu_species do
-    query = form species in Species,
+    query = from species in Species,
       select: {species."SpeciesId", species."Name", species."MenuName"}
     # {:ok, rows} = DB.query("SELECT speciesid,name,menuname FROM Species")
     # for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
