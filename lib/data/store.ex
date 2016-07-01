@@ -403,9 +403,9 @@ WHERE ProbeSet.Name = '#{marker}'
                        (PublishFreeze.InbredSetId = InbredSet.Id
                         or GenoFreeze.InbredSetId = InbredSet.Id
                         or ProbeFreeze.InbredSetId = InbredSet.Id)
-                        group by InbredSet.Name
                         order by InbredSet.Name
 """
+# group by InbredSet.Name
     {:ok, rows} = DB.query(query)
     for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
   end
