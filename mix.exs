@@ -14,7 +14,8 @@ defmodule GnServer.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :maru]]
+    [applications: [:logger, :maru, :mariaex, :ecto],
+     mod: {GnServer,[]}]
   end
 
   # Dependencies can be Hex packages:
@@ -30,6 +31,7 @@ defmodule GnServer.Mixfile do
   [ {:maru, "~> 0.9.5"} ,
     {:mysqlex, github: "tjheeta/mysqlex" },
     {:ecto, "~> 2.0.2"},
+    {:mariaex, "~> 0.7.3"},
     {:cors_plug, "~> 1.1"}]
   end
 end
