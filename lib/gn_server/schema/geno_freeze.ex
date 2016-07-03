@@ -1,7 +1,7 @@
 defmodule GnServer.Schema.GenoFreeze do
   use Ecto.Schema
 
-  schema "genofreeze" do
+  schema "GenoFreeze" do
     field :Name
     field :FullName
     field :ShortName

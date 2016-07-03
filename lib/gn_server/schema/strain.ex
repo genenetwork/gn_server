@@ -1,7 +1,7 @@
 defmodule GnServer.Schema.Strain do
   use Ecto.Schema
 
-  schema "strain" do
+  schema "Strain" do
     field :Name
     field :Name2
     field :SpeciesId, :integer

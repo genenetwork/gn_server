@@ -1,7 +1,7 @@
 defmodule GnServer.Schema.ProbeFreeze do
   use Ecto.Schema
 
-  schema "probefreeze" do
+  schema "ProbeFreeze" do
     field :ProbeFreezeId, :integer
     field :ChipId, :integer
     field :TissueId, :integer

@@ -1,7 +1,7 @@
 defmodule GnServer.Schema.ProbeSetXRef do
   use Ecto.Schema
 
-  schema "probesetxref" do
+  schema "ProbeSetXRef" do
     field :ProbeSetFreezeId, :integer, primary_key: true
     field :ProbeSetId, :integer
     field :DataId, :integer

@@ -1,7 +1,7 @@
 defmodule GnServer.Schema.Chr_Length do
   use Ecto.Schema
 
-  schema "chr_length" do
+  schema "Chr_Length" do
     field :Name
     field :SpeciesId, :integer, primary_key: true
     field :OrderId, :integer

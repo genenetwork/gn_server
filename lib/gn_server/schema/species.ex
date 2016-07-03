@@ -1,7 +1,7 @@
 defmodule GnServer.Schema.Species do
   use Ecto.Schema
 
-  schema "species" do
+  schema "Species" do
     field :SpeciesId, :integer
     field :SpeciesName
     field :Name
@@ -10,5 +10,5 @@ defmodule GnServer.Schema.Species do
     field :TaxonomyId, :integer
     field :OrderId, :integer
   end
-  
+
 end

@@ -1,7 +1,7 @@
 defmodule GnServer.Schema.ProbeSet do
   use Ecto.Schema
 
-  schema "probeset" do
+  schema "ProbeSet" do
     field :ChipId, :integer
     field :Name
     field :TargetId

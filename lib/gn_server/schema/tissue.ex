@@ -1,7 +1,7 @@
 defmodule GnServer.Schema.Tissue do
   use Ecto.Schema
 
-  schema "tissue" do
+  schema "Tissue" do
     field :TissueId, :integer
     field :TissueName
     field :Name

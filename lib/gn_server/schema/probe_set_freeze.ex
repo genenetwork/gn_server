@@ -1,7 +1,7 @@
 defmodule GnServer.Schema.ProbeSetFreeze do
   use Ecto.Schema
 
-  schema "probesetfreeze" do
+  schema "ProbeSetFreeze" do
     field :ProbeFreezeId, :integer
     field :AvgID, :integer
     field :Name
@@ -15,5 +15,5 @@ defmodule GnServer.Schema.ProbeSetFreeze do
     field :AuthorisedUsers
     field :DataScale
   end
-  
+
 end

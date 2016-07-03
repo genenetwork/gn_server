@@ -1,7 +1,7 @@
 defmodule GnServer.Schema.Geno do
   use Ecto.Schema
 
-  schema "geno" do
+  schema "Geno" do
     field :SpeciesId, :integer
     field :Name
     field :Maker_Name

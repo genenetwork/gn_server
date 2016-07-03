@@ -1,7 +1,7 @@
 defmodule GnServer.Schema.PublishFreeze do
   use Ecto.Schema
 
-  schema "publishfreeze" do
+  schema "PublishFreeze" do
     field :Name
     field :FullName
     field :ShortName

@@ -1,9 +1,9 @@
 defmodule GnServer.Schema.ProbeSetData do
   use Ecto.Schema
 
-  schema "probesetdata" do
+  schema "ProbeSetData" do
     field :StrainId, :integer
     field :value, :float
   end
-  
+
 end
