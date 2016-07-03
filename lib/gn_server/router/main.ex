@@ -1,4 +1,4 @@
-defmodule GnServer.Router.MainAPI do
+defmodule GnServer.Router.Main do
 
   use Maru.Router
 
