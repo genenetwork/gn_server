@@ -29,6 +29,7 @@ defmodule GnServer.Mixfile do
   def deps do
   [ {:maru, "~> 0.9.5"} ,
     {:mysqlex, github: "tjheeta/mysqlex" },
+    {:ecto, "~> 2.0.2"},
     {:cors_plug, "~> 1.1"}]
   end
 end
