@@ -84,7 +84,7 @@ defmodule APITest do
     # result = Poison.decode!(value)
     [result | tail] = Poison.decode!(value)
     assert result ==
-      [1, "B6D2F1", 15.251, "null"]
+      [1, "B6D2F1", 15.251, nil]
 
     assert(Enum.count(tail)+1==99)
   end
@@ -92,7 +92,7 @@ defmodule APITest do
   test "/phenotype/HC_M2_0606_P/BXD/1443823_s_at.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/HC_M2_0606_P/BXD/1443823_s_at.json") |> make_response
     [result | tail] = Poison.decode!(value)
-    assert result == [1, "B6D2F1", 15.251, "null"]
+    assert result == [1, "B6D2F1", 15.251, nil]
 
     assert(Enum.count(tail)+1==71)
   end
