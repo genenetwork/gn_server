@@ -9,9 +9,9 @@ defmodule GnServer do
 
     children = [
       # Start the endpoint when the application starts
-      # supervisor(GnServer.API, []),
+       supervisor(GnServer.Repo, []),
       # Start the Ecto repository
-      worker(GnServer.Repo, []),
+      #worker(GnServer.Repo, []),
       # Here you could define other workers and supervisors as children
       # worker(PhoenixMaru.Worker, [arg1, arg2, arg3]),
     ]
