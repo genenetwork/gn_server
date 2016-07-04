@@ -120,7 +120,12 @@ defmodule GnServer.Data.Store do
       join: inbredset in InbredSet,
       on: species.id == inbredset."SpeciesId",
       where: field(inbredset, ^inbredset_field) == ^inbredset_value,
-      select: {species."SpeciesId", species."Name", inbredset."InbredSetId", inbredset."Name", inbredset."MappingMethodId", inbredset."GeneticType"},
+      select: {inbredset."InbredSetId",
+               inbredset."Name",
+               species."SpeciesId", 
+               species."Name",
+               inbredset."MappingMethodId",
+               inbredset."GeneticType"},
       distinct: true
     # for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
     Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
@@ -376,7 +381,7 @@ defmodule GnServer.Data.Store do
 
     from_tuple_to_structure = fn(query_result) ->
       {strain_id,strain_name,value,stderr,_} = query_result
-      [strain_id,strain_name,value,stderr]
+      [strain_id,strain_name,Float.round(value,3),stderr]
     end
 
     Repo.all(query) |> Enum.map(from_tuple_to_structure)
@@ -430,7 +435,7 @@ defmodule GnServer.Data.Store do
       order_by: strain.id
     from_tuple_to_structure = fn(query_result) ->
       {strain_id,_,strain_name,value,stderr,_} = query_result
-      [strain_id,strain_name,value,stderr]
+      [strain_id,strain_name,Float.round(value,3),stderr]
     end
 
     Repo.all(query) |> Enum.map(from_tuple_to_structure)
