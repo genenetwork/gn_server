@@ -7,7 +7,7 @@
 
 defmodule GnServer.Data.Store do
 
-  alias GnServer.Backend.MySQL, as: DB
+  # alias GnServer.Backend.MySQL, as: DB
   import Ecto.Query
   alias GnServer.Repo
   alias GnServer.Schema.Species
@@ -25,6 +25,7 @@ defmodule GnServer.Data.Store do
   alias GnServer.Schema.ProbeSetSE
   alias GnServer.Schema.Strain
   alias GnServer.Schema.StrainXRef
+  alias Ecto.Adapters.SQL
 
   defp use_type(id) do
     try do
@@ -275,7 +276,7 @@ defmodule GnServer.Data.Store do
                probesetxref.pValue, probesetxref.additive, probesetxref."Locus",
                probeset.chr_num, probeset."Mb", probeset."Symbol", probeset.name_num},
       distinct: true,
-      order_by: probeset."symbol",
+      order_by: [asc: probeset."symbol", desc: probesetxref."LRS"],
       limit: ^limit
 
     from_tuple_to_structure = fn(query_result) ->
@@ -451,20 +452,12 @@ defmodule GnServer.Data.Store do
 
   def menu_groups(species) do
 
-    query = """
-    select distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
-    from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
-    where Species.Name = '#{species}'
-      and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300'
-      and
-                       (PublishFreeze.InbredSetId = InbredSet.Id
-                        or GenoFreeze.InbredSetId = InbredSet.Id
-                        or ProbeFreeze.InbredSetId = InbredSet.Id)
-                        order by InbredSet.Name
-"""
+    query = "select distinct InbredSet.id,InbredSet.Name,InbredSet.FullName from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze where Species.Name = ? and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300' and (PublishFreeze.InbredSetId = InbredSet.Id or GenoFreeze.InbredSetId = InbredSet.Id or ProbeFreeze.InbredSetId = InbredSet.Id) order by InbredSet.Name"
 # group by InbredSet.Name
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
+    {:ok, %Mariaex.Result{columns: _columns, command: _command, connection_id: _connection_id, last_insert_id: _last_insert_id, num_rows: _num_rows, rows: rows }} = SQL.query(Repo, query, [species])
+    rows
+    # {:ok, rows} = DB.query(query)
+    # for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
   end
 
   def menu_types(species, group) do
