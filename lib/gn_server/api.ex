@@ -3,12 +3,12 @@ defmodule GnServer.API do
   
   plug Plug.Head
 
-  mount GnServer.Router.MainAPI
-  mount GnServer.Router.IntAPI
-  mount GnServer.Router.Genotype
-  mount GnServer.Router.SNP
-  mount GnServer.Router.Stylesheets
-  mount GnServer.Router.QTL
+  mount GnServer.Router.Main
+  mount GnServer.Router.Internal
+  mount GnServer.Router.Biodalliance.Genotype
+  mount GnServer.Router.Biodalliance.SNP
+  mount GnServer.Router.Biodalliance.Stylesheets
+  mount GnServer.Router.Biodalliance.QTL
 
   IO.puts "Starting server"
   
