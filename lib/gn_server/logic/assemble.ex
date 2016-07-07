@@ -7,17 +7,31 @@ defmodule GnServer.Logic.Assemble do
   """
 
   def group_info(group) do
-    [[group_id,group_name,species_id,species,method_id,genetic_type]] = Store.group_info(group)
-    list = Store.chr_info(group)
+    # [[group_id,group_name,species_id,species,method_id,genetic_type]] = Store.group_info(group)
+    # list = Store.chr_info(group)
 
+    # %{ group_id:             group_id,
+    #    group:                group_name,
+    #    species_id:           species_id,
+    #    species:              species,
+    #    mapping_method_id:    String.to_integer(method_id),
+    #    genetic_type:         genetic_type,
+    #    chr_info:             list
+    # }
+     [group_id, group, species_id, species, mapping_method_id, genetic_type, chrs]  = Store.group_info({:optimized, group})
     %{ group_id:             group_id,
-       group:                group_name,
+       group:                group,
        species_id:           species_id,
        species:              species,
-       mapping_method_id:    String.to_integer(method_id),
+       mapping_method_id:    String.to_integer(mapping_method_id),
        genetic_type:         genetic_type,
-       chr_info:             list
+       chr_info:             String.split(chrs)|> Enum.map(&convert_group_info_chrs(&1))
     }
+  end
+
+  defp convert_group_info_chrs(str) do
+    [chr, position] = String.split(str,",")
+    [chr, String.to_integer(position)]
   end
 
   def dataset_info(dataset_name) do
