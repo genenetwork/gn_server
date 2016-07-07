@@ -41,4 +41,4 @@ config :gn_server, GnServer.Repo,
   username: "gn2",
   password: "mysql_password",
   hostname: "localhost",
-  pool_size: 10
+  pool_size: 20
