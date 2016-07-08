@@ -7,7 +7,7 @@
 
 defmodule GnServer.Data.Store do
 
-  alias GnServer.Backend.MySQL, as: DB
+  # alias GnServer.Backend.MySQL, as: DB
   import Ecto.Query
   alias GnServer.Repo
   alias GnServer.Schema.Species
@@ -25,6 +25,7 @@ defmodule GnServer.Data.Store do
   alias GnServer.Schema.ProbeSetSE
   alias GnServer.Schema.Strain
   alias GnServer.Schema.StrainXRef
+  alias Ecto.Adapters.SQL
 
   defp use_type(id) do
     try do
@@ -106,7 +107,7 @@ defmodule GnServer.Data.Store do
     Repo.all(query) |> Enum.map(&(Tuple.to_list &1))
   end
 
-  def group_info(group) do
+  def group_info({:original, group}) do
     {inbredset_field, inbredset_value} =
       case use_type(group) do
         { :integer, i } -> {:id, i}
@@ -120,7 +121,12 @@ defmodule GnServer.Data.Store do
       join: inbredset in InbredSet,
       on: species.id == inbredset."SpeciesId",
       where: field(inbredset, ^inbredset_field) == ^inbredset_value,
-      select: {species."SpeciesId", species."Name", inbredset."InbredSetId", inbredset."Name", inbredset."MappingMethodId", inbredset."GeneticType"},
+      select: {inbredset."InbredSetId",
+               inbredset."Name",
+               species."SpeciesId", 
+               species."Name",
+               inbredset."MappingMethodId",
+               inbredset."GeneticType"},
       distinct: true
     # for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
     Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
@@ -150,6 +156,71 @@ defmodule GnServer.Data.Store do
 #       """
 #     {:ok, rows} = DB.query(query)
 #     for r <- rows, do: ( {chr_name,chr_len} = r; [chr_name,chr_len] )
+  end
+
+  def group_info({:optimized, group}) do
+    {inbredset_field, inbredset_value} =
+      case use_type(group) do
+        { :integer, i } -> {:id, i}
+        { :string, s }  -> {:Name, s}
+      end
+#     query = "
+# SELECT DISTINCT Species.speciesid,Species.Name,C.InbredSetid,C.name,C.mappingmethodid,C.genetictype
+# FROM Species, InbredSet as C
+# WHERE #{subq} and C.SpeciesId = Species.Id"
+
+    # query_species = from species in Species,
+    #   join: inbredset in InbredSet,
+    #   on: field(inbredset, ^inbredset_field) == ^inbredset_value and species.id == inbredset."SpeciesId",
+    #   #where: field(inbredset, ^inbredset_field) == ^inbredset_value,
+    #   select: {inbredset."InbredSetId",
+    #            inbredset."Name",
+    #            species."SpeciesId", 
+    #            species."Name",
+    #            inbredset."MappingMethodId",
+    #            inbredset."GeneticType"},
+    #   distinct: true
+    # # for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
+    # species_results = Repo.all(query_species)
+
+    # query_chr_length = from chr_length in Chr_Length,
+    #   join: inbredset in InbredSet,
+    #   on:  field(inbredset, ^inbredset_field) == ^inbredset_value and chr_length."SpeciesId" == inbredset."SpeciesId",
+    #   # where: field(inbredset, ^inbredset_field) == ^inbredset_value,
+    #   select: {chr_length."Name", chr_length."Length"},
+    #   order_by: chr_length."OrderId"
+
+# #JSON
+# query="""
+# SELECT InbredSet.InbredSetId, InbredSet.Name, Species.SpeciesId, Species.Name, InbredSet.MappingMethodId, InbredSet.GeneticType,
+# GROUP_CONCAT(DISTINCT JSON_OBJECT(Chr_Length.Name, Chr_Length.Length) ORDER BY Chr_Length.OrderId SEPARATOR ',') as Chrs
+# FROM Species
+# JOIN InbredSet
+# ON Species.Id = InbredSet.SpeciesId and InbredSet.Name = "BXD"
+# JOIN Chr_Length
+# ON Chr_Length.SpeciesId = InbredSet.SpeciesId
+# GROUP BY InbredSet.InbredSetId, InbredSet.Name,Species.SpeciesId, Species.Name,InbredSet.MappingMethodId, InbredSet.GeneticType
+# """
+
+
+query="""
+SELECT InbredSet.InbredSetId, InbredSet.Name, Species.SpeciesId, Species.Name, InbredSet.MappingMethodId, InbredSet.GeneticType,
+GROUP_CONCAT(DISTINCT CONCAT_WS(',',Chr_Length.Name, Chr_Length.Length) ORDER BY Chr_Length.OrderId SEPARATOR ' ') as Chrs
+FROM Species
+JOIN InbredSet
+ON Species.Id = InbredSet.SpeciesId and InbredSet.#{inbredset_field} = "#{inbredset_value}"
+JOIN Chr_Length
+ON Chr_Length.SpeciesId = InbredSet.SpeciesId
+GROUP BY InbredSet.InbredSetId, InbredSet.Name,Species.SpeciesId, Species.Name,InbredSet.MappingMethodId, InbredSet.GeneticType
+"""
+
+{:ok,
+ %Mariaex.Result{columns: ["InbredSetId", "Name", "SpeciesId", "Name",
+   "MappingMethodId", "GeneticType", "Chrs"], command: :select,
+  connection_id: nil, last_insert_id: nil, num_rows: 1,
+  rows: [data]}} = Ecto.Adapters.SQL.query(Repo, String.replace(query,"\n"," "), []) # would be better to use the parameters in the custom query
+
+data
   end
 
   def datasets(group) do
@@ -270,7 +341,7 @@ defmodule GnServer.Data.Store do
                probesetxref.pValue, probesetxref.additive, probesetxref."Locus",
                probeset.chr_num, probeset."Mb", probeset."Symbol", probeset.name_num},
       distinct: true,
-      order_by: probeset."symbol",
+      order_by: [asc: probeset."symbol", desc: probesetxref."LRS"],
       limit: ^limit
 
     from_tuple_to_structure = fn(query_result) ->
@@ -376,7 +447,7 @@ defmodule GnServer.Data.Store do
 
     from_tuple_to_structure = fn(query_result) ->
       {strain_id,strain_name,value,stderr,_} = query_result
-      [strain_id,strain_name,value,stderr]
+      [strain_id,strain_name,Float.round(value,3),stderr]
     end
 
     Repo.all(query) |> Enum.map(from_tuple_to_structure)
@@ -386,7 +457,7 @@ defmodule GnServer.Data.Store do
   def phenotype_info(dataset_name,marker,group) do
     authorize_dataset(dataset_name)
     authorize_group(group)
-    [[group_id | _ ] | _] = group_info(group)
+    [[group_id | _ ] | _] = group_info({:original,group})
     # query = """
 # SELECT DISTINCT Strain.Id, StrainXRef.InbredSetId, Strain.Name, ProbeSetData.value, ProbeSetSE.error,
   # ProbeSetData.Id
@@ -430,7 +501,7 @@ defmodule GnServer.Data.Store do
       order_by: strain.id
     from_tuple_to_structure = fn(query_result) ->
       {strain_id,_,strain_name,value,stderr,_} = query_result
-      [strain_id,strain_name,value,stderr]
+      [strain_id,strain_name,Float.round(value,3),stderr]
     end
 
     Repo.all(query) |> Enum.map(from_tuple_to_structure)
@@ -446,20 +517,12 @@ defmodule GnServer.Data.Store do
 
   def menu_groups(species) do
 
-    query = """
-    select distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
-    from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
-    where Species.Name = '#{species}'
-      and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300'
-      and
-                       (PublishFreeze.InbredSetId = InbredSet.Id
-                        or GenoFreeze.InbredSetId = InbredSet.Id
-                        or ProbeFreeze.InbredSetId = InbredSet.Id)
-                        order by InbredSet.Name
-"""
+    query = "select distinct InbredSet.id,InbredSet.Name,InbredSet.FullName from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze where Species.Name = ? and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300' and (PublishFreeze.InbredSetId = InbredSet.Id or GenoFreeze.InbredSetId = InbredSet.Id or ProbeFreeze.InbredSetId = InbredSet.Id) order by InbredSet.Name"
 # group by InbredSet.Name
-    {:ok, rows} = DB.query(query)
-    for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
+    {:ok, %Mariaex.Result{columns: _columns, command: _command, connection_id: _connection_id, last_insert_id: _last_insert_id, num_rows: _num_rows, rows: rows }} = SQL.query(Repo, query, [species])
+    rows
+    # {:ok, rows} = DB.query(query)
+    # for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
   end
 
   def menu_types(species, group) do

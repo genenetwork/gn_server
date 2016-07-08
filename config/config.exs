@@ -19,7 +19,7 @@ use Mix.Config
 #
 # Or configure a 3rd-party app:
 #
-#     config :logger, level: :info
+    config :logger, level: :warn
 #
 
 # It is also possible to import configuration files, relative to this
@@ -40,4 +40,5 @@ config :gn_server, GnServer.Repo,
   database: "db_webqtl_s",
   username: "gn2",
   password: "mysql_password",
-  hostname: "localhost"
+  hostname: "localhost",
+  pool_size: 20

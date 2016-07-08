@@ -1,4 +1,4 @@
-defmodule GnServer.Router.IntAPI do
+defmodule GnServer.Router.Internal do
 
   use Maru.Router
   plug CORSPlug, origin: ["*"]
