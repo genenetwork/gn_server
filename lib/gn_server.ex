@@ -14,6 +14,7 @@ defmodule GnServer do
       #worker(GnServer.Repo, []),
       # Here you could define other workers and supervisors as children
       # worker(PhoenixMaru.Worker, [arg1, arg2, arg3]),
+      worker(Cachex, [:gn_server_cache, [ default_ttl: :timer.minutes(5)]])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

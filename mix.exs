@@ -4,7 +4,7 @@ defmodule GnServer.Mixfile do
   def project do
     [app: :gn_server,
      version: "0.0.1",
-     elixir: "~> 1.2",
+     elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
@@ -14,7 +14,7 @@ defmodule GnServer.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :maru, :mariaex, :ecto],
+    [applications: [:logger, :cachex, :maru, :mariaex, :ecto],
      mod: {GnServer,[]}]
   end
 
@@ -32,6 +32,7 @@ defmodule GnServer.Mixfile do
     {:mysqlex, github: "tjheeta/mysqlex" },
     {:mariaex, "~> 0.7.3"},
     {:ecto, "~> 2.0.0"},
-    {:cors_plug, "~> 1.1"}]
+    {:cors_plug, "~> 1.1"},
+    {:cachex, "~> 1.2.1"}]
   end
 end
