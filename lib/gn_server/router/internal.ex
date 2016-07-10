@@ -15,7 +15,7 @@ defmodule GnServer.Router.Internal do
 
     get "menu/main.json" do
       json(conn, Assemble.menu_main)
-      json(conn, Assemble.menu_main)
+      #json(conn, Assemble.menu_main)
     end
   end
 end
