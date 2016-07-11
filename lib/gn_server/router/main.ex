@@ -1,6 +1,6 @@
 defmodule GnServer.Router.Main do
   use Maru.Router
-  require GnServer.Cache    
+  # require GnServer.Cache    
 
 
   IO.puts "Setup routing"
