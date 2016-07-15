@@ -1,6 +1,7 @@
 defmodule GnServer.Router.Main do
-
   use Maru.Router
+  # require GnServer.Cache    
+
 
   IO.puts "Setup routing"
 
@@ -8,13 +9,19 @@ defmodule GnServer.Router.Main do
   alias GnServer.Logic.Assemble, as: Assemble
 
   get "/species" do
-    json(conn, Store.species)
+    { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+      Store.species
+    end)
+    json(conn, result)
   end
 
   namespace :groups do
     route_param :species, type: String do
       get do
-        json(conn, Store.groups(params[:species]))
+        { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+          Store.groups(params[:species])
+        end)
+        json(conn, result)
       end
     end
   end
@@ -22,8 +29,11 @@ defmodule GnServer.Router.Main do
   namespace :group do
     route_param :name, type: String do
       get do
-        [_,group] = Regex.run ~r/(.*)\.json$/, params[:name]
-        json(conn, Assemble.group_info(group))
+        { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+           [_,group] = Regex.run ~r/(.*)\.json$/, params[:name]
+           Assemble.group_info(group)
+        end)
+        json(conn, result )
       end
     end
   end
@@ -31,8 +41,11 @@ defmodule GnServer.Router.Main do
   namespace :cross do
     route_param :name, type: String do
       get do
-        [_,group] = Regex.run ~r/(.*)\.json$/, params[:name]
-        json(conn, Assemble.group_info(group))
+        { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+          [_,group] = Regex.run ~r/(.*)\.json$/, params[:name]
+          Assemble.group_info(group)
+        end)
+        json(conn, result)
       end
     end
   end
@@ -40,7 +53,10 @@ defmodule GnServer.Router.Main do
   namespace :datasets do
     route_param :group, type: String do
       get do
-        json(conn, Store.datasets(params[:group]))
+        { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+          Store.datasets(params[:group])
+        end)
+        json(conn, result)
       end
     end
   end
@@ -48,8 +64,11 @@ defmodule GnServer.Router.Main do
   namespace :dataset do
     route_param :dataset_name, type: String do
       get do
-        [_,dataset_name] = Regex.run ~r/(.*)\.json$/, params[:dataset_name]
-        json(conn, Assemble.dataset_info(dataset_name))
+        { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+          [_,dataset_name] = Regex.run ~r/(.*)\.json$/, params[:dataset_name]
+          Assemble.dataset_info(dataset_name)
+        end)
+        json(conn, result)
       end
     end
   end
@@ -61,8 +80,11 @@ defmodule GnServer.Router.Main do
         optional :stop, type: Integer
       end
       get do
-        [_,dataset_name] = Regex.run ~r/(.*)\.json$/, params[:dataset_name]
-        json(conn, Store.phenotypes(dataset_name,params[:start],params[:stop]))
+        { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+          [_,dataset_name] = Regex.run ~r/(.*)\.json$/, params[:dataset_name]
+          Store.phenotypes(dataset_name,params[:start],params[:stop])
+        end)
+        json(conn, result)
       end
     end
   end
@@ -72,8 +94,11 @@ defmodule GnServer.Router.Main do
       route_param :group, type: String do
         route_param :trait, type: String do
           get do
-            [_,trait] = Regex.run ~r/(.*)\.json$/, params[:trait]
-            json(conn, Store.phenotype_info(params[:dataset],trait,params[:group]))
+            { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+              [_,trait] = Regex.run ~r/(.*)\.json$/, params[:trait]
+              Store.phenotype_info(params[:dataset],trait,params[:group])
+            end)
+            json(conn, result)
           end
         end
       end
@@ -84,8 +109,11 @@ defmodule GnServer.Router.Main do
     route_param :dataset, type: String do
       route_param :trait, type: String do
         get do
-          [_,trait] = Regex.run ~r/(.*)\.json$/, params[:trait]
-          json(conn, Store.phenotype_info(params[:dataset],trait))
+          { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+            [_,trait] = Regex.run ~r/(.*)\.json$/, params[:trait]
+            Store.phenotype_info(params[:dataset],trait)
+          end)
+          json(conn, result)
         end
       end
     end
@@ -96,8 +124,11 @@ defmodule GnServer.Router.Main do
       namespace :marker do
         route_param :marker, type: String do
           get do
-            [_,marker] = Regex.run ~r/(.*)\.json$/, params[:marker]
-            json(conn, Store.marker_info(params[:species],marker))
+            { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+              [_,marker] = Regex.run ~r/(.*)\.json$/, params[:marker]
+              Store.marker_info(params[:species],marker)
+            end)
+            json(conn, result)
           end
         end
       end
