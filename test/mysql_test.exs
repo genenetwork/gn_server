@@ -4,9 +4,14 @@ defmodule MySQLTest do
 
   # We currently use the small database for testing
   test "Test MySQL connection" do
-    {:ok, settings} = Poison.decode(File.read!("./etc/test_settings.json"))
-    db_settings = settings["db"]
-    {:ok, pid} = Mysqlex.Connection.start_link(username: db_settings["username"], database: db_settings["database"], password: db_settings["password"], hostname: db_settings["hostname"])
+    # {:ok, settings} = Poison.decode(File.read!("./etc/test_settings.json"))
+    # db_settings = settings["db"]
+    db_settings = Application.get_all_env(:gn_server)
+    [{GnServer.Repo,
+      [adapter: Ecto.Adapters.MySQL, database: database, username: username,
+       password: password, hostname: hostname, pool_size: 20]}, {:ecto_repos, [GnServer.Repo]}, {:included_applications, []}] = db_settings
+
+    {:ok, pid} = Mysqlex.Connection.start_link(username: username, database: database, password: password, hostname: hostname)
     {:ok, result} = Mysqlex.Connection.query(pid, "SELECT * FROM Species", [])
     # rec = Map.from_struct(result)
     %Mysqlex.Result{rows: rows} = result

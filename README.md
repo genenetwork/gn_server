@@ -4,8 +4,9 @@ GeneNetwork server (GnServer) serves data and functionality over a
 network interface. GnServer can fetch and upload data via a REST
 API. GnServer can execute remote commands.
 
-GnServer is implemented in the highly parallel and robust Elixir
-programming language on top of the Erlang VM.
+GnServer is implemented in the highly parallel and robust
+[Elixir](http://elixir-lang.org) programming language on top of the
+Erlang VM.
 
 The API documentation can be found [here](./doc/API.md)
 Note: GnServer is a work in progress (YMMV).
@@ -79,7 +80,7 @@ A configuration file can be passed in. By default it uses the
 test database with
 
 ```
-iex -S mix -- ./etc/test_settings.json
+iex -S mix run -c ./config/config.exs
 ```
 
 and
@@ -87,6 +88,14 @@ and
 ```
 curl http://localhost:8880/hey
 {"I am":"genenetwork"}
+```
+
+To change the configuration, copy the confix.exs file and pass it in
+on the command line, e.g.
+
+```
+cp ./config/config.exs ~/my_config.exs
+iex -S mix run -c ~/my_config.exs
 ```
 
 ## Benchmarking
