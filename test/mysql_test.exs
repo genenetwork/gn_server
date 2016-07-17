@@ -6,10 +6,9 @@ defmodule MySQLTest do
   test "Test MySQL connection" do
     # {:ok, settings} = Poison.decode(File.read!("./etc/test_settings.json"))
     # db_settings = settings["db"]
-    db_settings = Application.get_all_env(:gn_server)
-    [{GnServer.Repo,
-      [adapter: Ecto.Adapters.MySQL, database: database, username: username,
-       password: password, hostname: hostname, pool_size: 20]}, {:ecto_repos, [GnServer.Repo]}, {:included_applications, []}] = db_settings
+    db_settings = Application.get_env(:gn_server, GnServer.Repo)
+    [adapter: Ecto.Adapters.MySQL, database: database, username: username,
+       password: password, hostname: hostname, pool_size: 20] = db_settings
 
     {:ok, pid} = Mysqlex.Connection.start_link(username: username, database: database, password: password, hostname: hostname)
     {:ok, result} = Mysqlex.Connection.query(pid, "SELECT * FROM Species", [])
