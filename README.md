@@ -10,7 +10,7 @@ programming language on top of the Erlang VM.
 The API documentation can be found [here](./doc/API.md)
 Note: GnServer is a work in progress (YMMV).
 
-## GNU Guix installation
+## Install via GNU Guix
 
 Elixir and packages should soon come with a general genenetwork2
 install. For now use the checked out GN2 repositories and install
@@ -56,7 +56,7 @@ curl http://localhost:8880/hey
 {"I am":"genenetwork"}
 ```
 
-## Source code installation
+## Install via Hex
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be
 installed by providing:
@@ -72,6 +72,23 @@ installed by providing:
         def application do
           [applications: [:gn_server]]
         end
+
+## Configure the service
+
+A configuration file can be passed in. By default it uses the
+test database with
+
+```
+iex -S mix -- ./etc/test_settings.json
+```
+
+and
+
+```
+curl http://localhost:8880/hey
+{"I am":"genenetwork"}
+```
+
 ## Benchmarking
 
 brew install sysbench
