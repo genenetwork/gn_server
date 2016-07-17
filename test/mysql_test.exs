@@ -3,9 +3,10 @@ defmodule MySQLTest do
   # doctest GnServer
 
   # We currently use the small database for testing
-  # DB_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
   test "Test MySQL connection" do
-    {:ok, pid} = Mysqlex.Connection.start_link(username: "gn2", database: "db_webqtl_s", password: "mysql_password", hostname: "localhost")
+    {:ok, settings} = Poison.decode(File.read!("./etc/test_settings.json"))
+    db_settings = settings["db"]
+    {:ok, pid} = Mysqlex.Connection.start_link(username: db_settings["username"], database: db_settings["database"], password: db_settings["password"], hostname: db_settings["hostname"])
     {:ok, result} = Mysqlex.Connection.query(pid, "SELECT * FROM Species", [])
     # rec = Map.from_struct(result)
     %Mysqlex.Result{rows: rows} = result

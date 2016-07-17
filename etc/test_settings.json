@@ -1,0 +1,8 @@
+{
+"db": {
+  "username": "gn2",
+  "database": "db_webqtl_s",
+  "password": "mysql_password",
+  "hostname": "localhost"
+  }
+}
