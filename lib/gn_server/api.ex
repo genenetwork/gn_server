@@ -9,6 +9,7 @@ defmodule GnServer.API do
   mount GnServer.Router.Biodalliance.SNP
   mount GnServer.Router.Biodalliance.Stylesheets
   mount GnServer.Router.Biodalliance.QTL
+  mount GnServer.Router.Biodalliance.Static
 
   IO.puts "Starting server"
   
