@@ -603,4 +603,18 @@ data
     Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
   end
 
+  def snp_count(chr_name, start_mb, step_mb, strain_id1, strain_id2) do
+    query = """
+    select
+        count(*) from BXDSnpPosition
+    where
+        Chr = '#{chr_name}' AND Mb >= #{start_mb} AND Mb < #{start_mb+step_mb} AND
+        StrainId1 = #{strain_id1} AND StrainId2 = #{strain_id2}
+    """
+    {:ok, result} = SQL.query(Repo, query, [])
+    [[count]] = result.rows
+    IO.inspect(result)
+    count
+  end
+
 end
