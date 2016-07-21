@@ -115,4 +115,9 @@ defmodule APITest do
   # HC_M2_1205_R, public 0, confidentiality 0
   # EPFLBXDprot0513, public 0, confidentiality 1
 
+  test "/static/test" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/static/test") |> make_response
+    assert value == "test\n"
+  end
+
 end
