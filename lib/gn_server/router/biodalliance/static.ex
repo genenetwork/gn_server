@@ -5,7 +5,7 @@ defmodule GnServer.Router.Biodalliance.Static do
 
   plug GnServers.Headers.CORSRangePlug
 
-  uri = Application.get_env(:gn_server, :static_uri)
-  local_path = Application.get_env(:gn_server, :static_path)
-  plug Plug.Static, at: uri, from: local_path
+  uri = "static/"
+  static_path_prefix = Application.get_env(:gn_server, :static_path_prefix)
+  plug Plug.Static, at: uri, from: static_path_prefix
 end
