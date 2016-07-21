@@ -42,3 +42,7 @@ config :gn_server, GnServer.Repo,
   password: "mysql_password",
   hostname: "localhost",
   pool_size: 20
+
+config :gn_server,
+  static_path: "./static/",
+  static_uri: "/static"
