@@ -16,4 +16,10 @@ defmodule GnServer.Biodalliance.SNPDensity do
     |> Enum.map(fn {b, c} -> Map.put(b, :score, c) end)
     result
   end
+
+  def counts_mb_to_b(counts) do
+    counts
+    |> Enum.map(fn c -> %{ c | start: c.start*1_000_000, end: c.end*1_000_000} end)
+  end
+
 end
