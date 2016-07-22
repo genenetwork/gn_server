@@ -1,23 +1,27 @@
 defmodule GnServer.Router.Biodalliance.SNP do
 
+  alias GnServer.Biodalliance.SNPDensity, as: SNPDensity
+
   use Maru.Router
   plug CORSPlug, headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
   namespace :snp do
-    route_param :file, type: String do
+    namespace :features do
+      route_param :chr, type: String do
+        params do
+          optional :start,      type: Float
+          optional :end,        type: Float
+        end
 
-      # params do
-      # optional :chr,        type: String
-      # optional :start,      type: Float
-      # optional :end,        type: Float
-      # end
+        get do
+          start_mb = params[:start] / 1000000
+          end_mb = params[:end] / 1000000
+          step_mb = 0.1
 
-      get do
-        # IO.inspect params[:file]
-        path = "./test/data/input/snptest/" <> params[:file]
-
-        conn
-        |> GnServer.Files.serve_file(path, "application/x-gzip", 206)
+          counts = SNPDensity.snp_counts(params[:chr], start_mb, end_mb, step_mb, 2, 3)
+          |> SNPDensity.counts_mb_to_b
+          json(conn, %{features: counts})
+        end
       end
     end
   end
