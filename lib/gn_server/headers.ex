@@ -13,7 +13,7 @@ defmodule GnServers.Headers.CORSRangePlug do
       case File.stat("." <> conn.request_path) do
         {:ok, %{size: size}} ->
           conn
-          |> Plug.Conn.put_resp_header("Content-Range", "bytes 0-#{size-1}/#{size}")
+          |> Plug.Conn.put_resp_header("content-range", "bytes 0-#{size-1}/#{size}")
         {:error, e} ->
           IO.puts("CORSRangePlug error " <> to_string(e))
           conn
