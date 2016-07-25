@@ -117,6 +117,9 @@ defmodule GnServer.Router.Main do
     end
   end
 
+  static_path_prefix = Application.get_env(:gn_server, :static_path_prefix)
+  plug Plug.Static, at: "genotype/", from: static_path_prefix <> "/genotype"
+
   namespace :genotype do
     route_param :species, type: String do
       namespace :marker do
