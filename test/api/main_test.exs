@@ -3,7 +3,8 @@ defmodule APITest do
   use Maru.Test, for: GnServer.API
 
   setup_all do
-    {:ok, hello: Poison.encode!(%{"I am": :genenetwork})}
+    settings = Application.get_env(:gn_server, GnServer.Repo)
+    {:ok, hello: Poison.encode!(%{"version": settings[:version], "I am": :genenetwork})}
   end
 
   test "/hey",%{hello: state} do

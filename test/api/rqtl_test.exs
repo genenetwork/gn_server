@@ -1,4 +1,4 @@
-defmodule BiodallianceTest do
+defmodule BiodallianceRqtlTest do
   use ExUnit.Case
 
   setup do

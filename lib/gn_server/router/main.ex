@@ -1,7 +1,5 @@
 defmodule GnServer.Router.Main do
   use Maru.Router
-  # require GnServer.Cache    
-
 
   IO.puts "Setup routing"
 
@@ -136,11 +134,13 @@ defmodule GnServer.Router.Main do
   end
 
   get do
-    json(conn, %{"I am": :genenetwork})
+    settings = Application.get_env(:gn_server, GnServer.Repo)
+    json(conn, %{"I am": :genenetwork, "version": settings[:version] })
   end
 
   get "/hey" do
-    json(conn, %{"I am": :genenetwork})
+    settings = Application.get_env(:gn_server, GnServer.Repo)
+    json(conn, %{"I am": :genenetwork, "version": settings[:version] })
   end
 
 end

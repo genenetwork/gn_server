@@ -35,7 +35,10 @@ config :maru, GnServer.API,
 
 config :gn_server, ecto_repos: [GnServer.Repo]
 
+{:ok, version} = File.read("VERSION")
+
 config :gn_server, GnServer.Repo,
+  version: String.strip(version),
   adapter: Ecto.Adapters.MySQL,
   database: "db_webqtl_s",
   username: "gn2",
