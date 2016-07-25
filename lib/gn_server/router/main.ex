@@ -134,13 +134,13 @@ defmodule GnServer.Router.Main do
   end
 
   get do
-    settings = Application.get_env(:gn_server, GnServer.Repo)
-    json(conn, %{"I am": :genenetwork, "version": settings[:version] })
+    version = Application.get_env(:gn_server, :version)
+    json(conn, %{"I am": :genenetwork, "version": version })
   end
 
   get "/hey" do
-    settings = Application.get_env(:gn_server, GnServer.Repo)
-    json(conn, %{"I am": :genenetwork, "version": settings[:version] })
+    version = Application.get_env(:gn_server, :version)
+    json(conn, %{"I am": :genenetwork, "version": version })
   end
 
 end

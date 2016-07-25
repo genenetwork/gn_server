@@ -35,10 +35,7 @@ config :maru, GnServer.API,
 
 config :gn_server, ecto_repos: [GnServer.Repo]
 
-{:ok, version} = File.read("VERSION")
-
 config :gn_server, GnServer.Repo,
-  version: String.strip(version),
   adapter: Ecto.Adapters.MySQL,
   database: "db_webqtl_s",
   username: "gn2",
@@ -47,6 +44,6 @@ config :gn_server, GnServer.Repo,
   pool_size: 20
 
 config :gn_server,
+  version: String.strip(File.read!("VERSION")),
   # The static path is local to the source repo by default
   static_path_prefix: "./test/data/input"
-  # static_uri: "/static" - we will use REST routing
