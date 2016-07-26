@@ -136,6 +136,12 @@ defmodule GnServer.Router.Main do
     end
   end
 
+  get "qtl/scanone/iron.json" do
+    result = GnExec.Cmd.ScanOne.cmd("iron")
+    IO.inspect(result)
+    json(conn, result)
+  end
+
   get do
     version = Application.get_env(:gn_server, :version)
     json(conn, %{"I am": :genenetwork, "version": version })
