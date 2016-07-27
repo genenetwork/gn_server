@@ -143,6 +143,6 @@ defmodule APITest do
   test "/qtl/scanone/iron.json" do
     # Note, to have this test pass you have to install R/qtl
     %Plug.Conn{resp_body: value} = conn(:get, "/qtl/scanone/iron.json") |> make_response
-    assert Poison.decode!(value) == "TEST"
+    assert Poison.decode!(value) == "* Setting up R/qtl scanone"
   end
 end
