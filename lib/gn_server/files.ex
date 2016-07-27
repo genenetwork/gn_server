@@ -1,15 +1,15 @@
 defmodule GnServer.Files do
   use Maru.Router
-  # plug CORSPlug, origin: ["*"], headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
-  plug GnServers.Headers.CORSRangePlug
 
-  def serve_file(conn, path, content_type, status) do
-    {:ok, content} = File.read(path)
-    len = byte_size(content)
-    {content, len}
+  alias GnServers.Headers.CORSRangePlug, as: CORSRange
+
+  def serve_csv_partial(conn, path) do
+    %{size: size} = File.stat!(path)
+
     conn
-    # |> GnServer.Headers.add_cors_header(len)
-    |> put_resp_content_type(content_type)
-    |> send_resp(status, content)
+    |> CORSRange.put_content_range(0, size-1, size)
+    |> put_resp_header("content-type", "text/csv")
+    |> send_file(206, path)
+    |> halt
   end
 end
