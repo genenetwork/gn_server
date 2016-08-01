@@ -1,7 +1,5 @@
 defmodule GnServer.Router.Main do
   use Maru.Router
-  # require GnServer.Cache    
-
 
   IO.puts "Setup routing"
 
@@ -119,6 +117,9 @@ defmodule GnServer.Router.Main do
     end
   end
 
+  static_path_prefix = Application.get_env(:gn_server, :static_path_prefix)
+  plug Plug.Static, at: "genotype/", from: static_path_prefix <> "/genotype"
+
   namespace :genotype do
     route_param :species, type: String do
       namespace :marker do
@@ -135,12 +136,20 @@ defmodule GnServer.Router.Main do
     end
   end
 
+  get "qtl/scanone/iron.json" do
+    result = GnExec.Cmd.ScanOne.cmd("iron")
+    IO.inspect(result)
+    json(conn, result)
+  end
+
   get do
-    json(conn, %{"I am": :genenetwork})
+    version = Application.get_env(:gn_server, :version)
+    json(conn, %{"I am": :genenetwork, "version": version })
   end
 
   get "/hey" do
-    json(conn, %{"I am": :genenetwork})
+    version = Application.get_env(:gn_server, :version)
+    json(conn, %{"I am": :genenetwork, "version": version })
   end
 
 end

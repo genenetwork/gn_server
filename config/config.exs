@@ -44,6 +44,6 @@ config :gn_server, GnServer.Repo,
   pool_size: 20
 
 config :gn_server,
+  version: String.strip(File.read!("VERSION")),
   # The static path is local to the source repo by default
   static_path_prefix: "./test/data/input"
-  # static_uri: "/static" - we will use REST routing

@@ -3,7 +3,8 @@ defmodule APITest do
   use Maru.Test, for: GnServer.API
 
   setup_all do
-    {:ok, hello: Poison.encode!(%{"I am": :genenetwork})}
+    version = Application.get_env(:gn_server, :version)
+    {:ok, hello: Poison.encode!(%{"version": version, "I am": :genenetwork})}
   end
 
   test "/hey",%{hello: state} do
@@ -97,6 +98,25 @@ defmodule APITest do
     assert(Enum.count(tail)+1==71)
   end
 
+  test "/genotype/mouse/BXD.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/genotype/mouse/BXD.json") |> make_response
+    assert Poison.decode!(value) ==
+     %{"crosstype" => "riself", "description" => "BXD",
+             "geno" => "genotypes/BXD/geno.csv", "geno_transposed" => true,
+             "genotypes" => %{"B" => 1, "D" => 2, "H" => 3},
+             "genotypes_descr" => %{"heterozygous" => 3, "maternal" => 1,
+               "paternal" => 2}, "gmap" => "genotypes/BXD/gmap.csv",
+             "na.strings" => ["U"], "x_chr" => "X"}
+  end
+
+  test "/genotype/mouse/BXD/geno.csv" do
+    %Plug.Conn{resp_body: _, status: 200}  = conn(:get, "/genotype/mouse/BXD/geno.csv") |> make_response
+  end
+
+  test "/genotype/mouse/BXD/gmap.csv" do
+    %Plug.Conn{resp_body: _, status: 200}  = conn(:get, "/genotype/mouse/BXD/gmap.csv") |> make_response
+  end
+
   test "/genotype/mouse/marker/rs3693478.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/genotype/mouse/marker/rs3693478.json") |> make_response
     assert Poison.decode!(value) ==
@@ -120,4 +140,9 @@ defmodule APITest do
     assert value == "test\n"
   end
 
+  test "/qtl/scanone/iron.json" do
+    # Note, to have this test pass you have to install R/qtl
+    %Plug.Conn{resp_body: value} = conn(:get, "/qtl/scanone/iron.json") |> make_response
+    assert Poison.decode!(value) == "* Setting up R/qtl scanone"
+  end
 end
