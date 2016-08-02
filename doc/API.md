@@ -103,7 +103,7 @@ GN2 returns the genotypes in the R/qtl2 CSV data format as described
 that we offer genotypes in the transposed form (row = marker).
 
 ```sh
-curl "http://test-gn2.genenetwork.org/api_pre1//genotype/mouse/BXD/geno.csv"
+curl "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/BXD/geno.csv"
 ```
 
 returns
