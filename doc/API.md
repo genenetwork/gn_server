@@ -118,7 +118,7 @@ rs6376963,B,B,D,D,D,B,B,D,B,B,D,D,B,D,D,D,D,B,B,B,D,B,D,D,B,B,B,B,B,B,B,B,B,D,B,
 The meta file can be fetched with
 
 ```sh
-curl "http://test-gn2.genenetwpre1//genotype/mouse/BXD.json"
+curl "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/BXD.json"
 ```
 
 returning
@@ -132,7 +132,7 @@ which describes the genotypes used (B, D and U).
 Furthermore there is the gmap data with
 
 ```sh
-curl "http://test-gn2.genenetwork.org/api_pre1//genotype/mouse/BXD/gmap.csv"
+curl "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/BXD/gmap.csv"
 ```
 
 ```csv
