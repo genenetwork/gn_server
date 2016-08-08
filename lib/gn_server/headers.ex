@@ -10,14 +10,22 @@ defmodule GnServers.Headers.CORSRangePlug do
     if (Enum.empty?(Plug.Conn.get_req_header(conn, "range"))) do
       conn
     else
-      case File.stat("." <> conn.request_path) do
+      static_prefix = Application.get_env(:gn_server, :static_path_prefix)
+      path = static_prefix <> String.replace_prefix(conn.request_path, "/static", "")
+      case File.stat(path) do
         {:ok, %{size: size}} ->
           conn
-          |> Plug.Conn.put_resp_header("content-range", "bytes 0-#{size-1}/#{size}")
+          |> put_content_range(0, size-1, size)
         {:error, e} ->
-          IO.puts("CORSRangePlug error " <> to_string(e))
+          IO.puts("CORSRangePlug error " <> to_string(e) <> " - " <> path)
           conn
       end
     end
+
+  end
+
+  def put_content_range(conn, start, stop, size) do
+    conn
+    |> Plug.Conn.put_resp_header("content-range", "bytes #{start}-#{stop}/#{size}")
   end
 end
