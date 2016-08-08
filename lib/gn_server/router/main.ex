@@ -136,6 +136,7 @@ defmodule GnServer.Router.Main do
     end
   end
 
+  # WIP: run scanone
   get "qtl/scanone/iron.json" do
     result = GnExec.Cmd.ScanOne.cmd("iron")
     IO.inspect(result)

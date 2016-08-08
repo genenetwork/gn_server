@@ -140,6 +140,7 @@ defmodule APITest do
     assert value == "test\n"
   end
 
+  @tag :skip
   test "/qtl/scanone/iron.json" do
     # Note, to have this test pass you have to install R/qtl
     %Plug.Conn{resp_body: value} = conn(:get, "/qtl/scanone/iron.json") |> make_response
