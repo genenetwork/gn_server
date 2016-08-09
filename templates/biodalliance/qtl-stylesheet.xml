@@ -6,7 +6,7 @@
         <GLYPH>
           <LINEPLOT>
             <MIN>0</MIN>
-            <MAX>1</MAX>
+            <MAX>11</MAX>
             <HEIGHT>120</HEIGHT>
             <STEPS>500</STEPS>
             <COLOR1>blue</COLOR1>
