@@ -19,7 +19,7 @@ defmodule GnExec.Cmd.ScanOne do
   def cmd(dataset) do
     rscript = """
       cat("* Setting up R/qtl scanone")
-      # library(qtl)
+      library(qtl)
     """
     File.write!("try.R",rscript)
     {output, 0} = System.cmd "Rscript", ["try.R"]
