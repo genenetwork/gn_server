@@ -117,6 +117,9 @@ defmodule GnServer.Router.Main do
     end
   end
 
+
+  plug CORSPlug, origin: ["*"], headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
+
   static_path_prefix = Application.get_env(:gn_server, :static_path_prefix)
   plug Plug.Static, at: "genotype/", from: static_path_prefix <> "/genotype"
 
