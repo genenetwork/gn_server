@@ -90,6 +90,11 @@ defmodule APITest do
     assert(Enum.count(tail)+1==99)
   end
 
+  test "/phenotype/HC_M2_0606_P/1443823_s_at.csv" do
+    %Plug.Conn{resp_body: value}  = conn(:get, "/phenotype/HC_M2_0606_P/1443823_s_at.csv") |> make_response
+    assert(value == "list")
+  end
+
   test "/phenotype/HC_M2_0606_P/BXD/1443823_s_at.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/HC_M2_0606_P/BXD/1443823_s_at.json") |> make_response
     [result | tail] = Poison.decode!(value)
