@@ -124,7 +124,7 @@ curl "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/BXD.json"
 returning
 
 ```js
-{"description":"BXD","crosstype":"riself","geno":"genotypes/BXD/geno.csv","geno_transposed":true,"genotypes_descr":{"maternal":1,"paternal":2,"heterozygous":3},"genotypes":{"B":1,"D":2,"H":3},"x_chr":"X","na.strings":["U"],"gmap":"genotypes/BXD/gmap.csv"}
+{"description":"BXD","crosstype":"riself","geno":"BXD/BXD_geno_6a766888cf7a5b5b9376ee165b4518ab_20150722.csv","geno_transposed":true,"metadata":{"original":{"source":"GeneNetwork","unique_id":"42171462281377824604ec3d83771d79","date":"20150722"},"geno":{"unique_id":"6a766888cf7a5b5b9376ee165b4518ab","date":"20150722"},"gmap":{"unique_id":"dfbafbe862fb3572d3e847b7b7859540","date":"20150722"},"genotypes_descr":{"1":"maternal","2":"paternal","3":"heterozygous"}},"genotypes":{"B":1,"D":2,"H":3},"x_chr":"X","na.strings":["U"],"gmap":"BXD/BXD_gmap_dfbafbe862fb3572d3e847b7b7859540_20150722.csv"}
 ```
 
 which describes the genotypes used (B, D and U).
@@ -139,4 +139,10 @@ curl "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/BXD/gmap.csv"
 rs6269442,1,0.0,3.482275
 rs6365999,1,0.0,4.811062
 rs6376963,1,0.895,5.008089
+```
+
+A larger BXD17K is available through
+
+```sh
+curl "http://test-gn2.genenetwork.org/api_pre1/genotype/mouse/BXD17K.json"
 ```
