@@ -92,7 +92,7 @@ defmodule APITest do
 
   test "/phenotype/HC_M2_0606_P/1443823_s_at.csv" do
     %Plug.Conn{resp_body: value}  = conn(:get, "/phenotype/HC_M2_0606_P/1443823_s_at.csv") |> make_response
-    assert(value == "list")
+    assert(String.slice(value,0..100) == "id,value\n1,15.251\n2,15.626\n3,14.716\n4,15.198\n5,14.918\n6,15.057\n7,15.232\n8,14.968\n9,14.87\n10,15.084\n11")
   end
 
   test "/phenotype/HC_M2_0606_P/BXD/1443823_s_at.json" do

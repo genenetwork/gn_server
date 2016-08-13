@@ -107,11 +107,16 @@ defmodule GnServer.Router.Main do
     route_param :dataset, type: String do
       route_param :trait, type: String do
         get do
+          [_,trait,type] = Regex.run ~r/(.*)\.(json|csv)$/, params[:trait]
           { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
-            [_,trait] = Regex.run ~r/(.*)\.json$/, params[:trait]
             Store.phenotype_info(params[:dataset],trait)
           end)
-          json(conn, result)
+          case type do
+            "json" -> json(conn, result)
+            "csv"  ->
+                      res = result |> Enum.map(fn r -> [id,_,v,_] = r; "#{id},#{v}" end)
+                      conn |> text( "id,value\n" <> Enum.join(res,"\n"))
+          end
         end
       end
     end
