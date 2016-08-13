@@ -101,12 +101,7 @@ defmodule APITest do
   test "/genotype/mouse/BXD.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/genotype/mouse/BXD.json") |> make_response
     assert Poison.decode!(value) ==
-     %{"crosstype" => "riself", "description" => "BXD",
-             "geno" => "genotypes/BXD/geno.csv", "geno_transposed" => true,
-             "genotypes" => %{"B" => 1, "D" => 2, "H" => 3},
-             "genotypes_descr" => %{"heterozygous" => 3, "maternal" => 1,
-               "paternal" => 2}, "gmap" => "genotypes/BXD/gmap.csv",
-             "na.strings" => ["U"], "x_chr" => "X"}
+     %{"crosstype" => "riself", "description" => "BXD", "geno_transposed" => true, "genotypes" => %{"B" => 1, "D" => 2, "H" => 3}, "genotypes_descr" => %{"heterozygous" => 3, "maternal" => 1, "paternal" => 2}, "na.strings" => ["U"], "x_chr" => "X", "geno" => "genotype/mouse/BXD/geno.csv", "gmap" => "genotype/mouse/BXD/gmap.csv"}
   end
 
   test "/genotype/mouse/BXD/geno.csv" do
