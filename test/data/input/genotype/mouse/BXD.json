@@ -1,1 +1,1 @@
-{"description":"BXD","crosstype":"riself","geno":"genotypes/BXD/geno.csv","geno_transposed":true,"genotypes_descr":{"maternal":1,"paternal":2,"heterozygous":3},"genotypes":{"B":1,"D":2,"H":3},"x_chr":"X","na.strings":["U"],"gmap":"genotypes/BXD/gmap.csv"}
+{"description":"BXD","crosstype":"riself","geno":"genotype/mouse/BXD/geno.csv","geno_transposed":true,"genotypes_descr":{"maternal":1,"paternal":2,"heterozygous":3},"genotypes":{"B":1,"D":2,"H":3},"x_chr":"X","na.strings":["U"],"gmap":"genotype/mouse/BXD/gmap.csv"}
