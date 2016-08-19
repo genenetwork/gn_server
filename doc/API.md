@@ -100,6 +100,22 @@ GN2 can also return the phenotypes in the R/qtl2 CSV data format as
 described
 [here](http://kbroman.org/qtl2/assets/vignettes/input_files.html).
 
+```js
+curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/HC_U_0304_R/104617_at.csv"
+
+id,value
+4,8.049
+5,8.116
+6,8.064
+7,8.17
+8,8.067
+9,8.105
+10,8.317
+```
+
+Note that the identifiers match the strain ID. Getting information on these,
+as well as the individual genotypes is WIP.
+
 ### Fetch genotypes
 
 GN2 returns the genotypes in the R/qtl2 CSV data format as described

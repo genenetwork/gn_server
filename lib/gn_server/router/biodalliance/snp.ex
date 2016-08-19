@@ -16,7 +16,8 @@ defmodule GnServer.Router.Biodalliance.SNP do
         get do
           start_mb = params[:start] / 1000000
           end_mb = params[:end] / 1000000
-          step_mb = 0.1
+          bins = 175
+          step_mb = (end_mb - start_mb) / bins
 
           counts = SNPDensity.snp_counts(params[:chr], start_mb, end_mb, step_mb, 2, 3)
           |> SNPDensity.counts_mb_to_b
