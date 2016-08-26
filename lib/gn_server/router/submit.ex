@@ -18,11 +18,8 @@ defmodule GnServer.Router.Submit do
       optional :message, type: String
     end
     put do
-      # IO.inspect(conn)
-      # IO.inspect(conn.params)
-      # IO.inspect Map.keys(conn.params)
-      body = Map.keys(conn.params) |> List.first
-      # IO.inspect(body)
+      body2 = for {k, v} <- conn.params, v == nil, into: [], do: k
+      body = List.first(body2)
       result = UpdateStore.echo(params,body)
       json(conn, result)
     end
