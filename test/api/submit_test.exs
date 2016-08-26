@@ -9,7 +9,8 @@ defmodule SubmitTest do
     # IO.inspect(res)
     %Plug.Conn{resp_body: value} = res
     assert Poison.decode!(value) ==
-      %{"body" => "Hello world", "command" => "echo", "params" => %{"message" => "my message"}}
+      # %{"body" => "Hello world", "command" => "echo", "params" => %{"message" => "my message"}}
+      "Hello world"
   end
 
   test "/submit/phenotypes" do
