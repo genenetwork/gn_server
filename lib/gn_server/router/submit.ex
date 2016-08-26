@@ -7,24 +7,19 @@ defmodule GnServer.Router.Submit do
 
   IO.puts "Setup submit routing"
 
-  alias GnServer.Data.Store, as: Store
+  alias GnServer.Data.UpdateStore, as: UpdateStore
   # alias GnServer.Logic.Assemble, as: Assemble
 
   namespace :submit do
     namespace :phenotypes do
       params do
-        requires :tokenid, type: String
-        requires :dataset, type: String
+        # requires :tokenid, type: String
+        optional :dataset, type: String
       end
       put do
-        result = Store.update(params)
+        result = UpdateStore.phenotypes(params)
         json(conn, result)
       end
-    end
-
-    get "menu/main.json" do
-      json(conn, Assemble.menu_main)
-      #json(conn, Assemble.menu_main)
     end
   end
 end
