@@ -149,6 +149,7 @@ defmodule APITest do
 
   test "/qtl/pylmm/iron.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/qtl/pylmm/iron.json") |> make_response
-    # assert Poison.decode!(value) == "* LMM"
+    assert Poison.decode!(value) ==
+      %{"retval" => 1, "token" => "8412ab517c6ef9c2f8b6dae3ed2a60cc"}
   end
 end

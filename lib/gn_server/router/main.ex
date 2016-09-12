@@ -153,9 +153,8 @@ defmodule GnServer.Router.Main do
 
   # WIP: run pylmm
   get "/qtl/pylmm/iron.json" do
-    result = GnExec.Cmd.PyLMM.cmd("iron")
-    IO.inspect(result)
-    json(conn, result)
+    {retval,token} = GnExec.Cmd.PyLMM.cmd("iron")
+    json(conn, %{ "retval": retval, "token": token})
   end
 
   get do
