@@ -151,6 +151,13 @@ defmodule GnServer.Router.Main do
     json(conn, result)
   end
 
+  # WIP: run pylmm
+  get "/qtl/pylmm/iron.json" do
+    result = GnExec.Cmd.PyLMM.cmd("iron")
+    IO.inspect(result)
+    json(conn, result)
+  end
+
   get do
     version = Application.get_env(:gn_server, :version)
     json(conn, %{"I am": :genenetwork, "version": version })

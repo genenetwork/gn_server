@@ -46,6 +46,9 @@ config :gn_server, GnServer.Repo,
   hostname: "localhost",
   pool_size: 20
 
+config :gn_server, GnExec,
+  pylmm_command: "runlmm.py"
+
 config :gn_server,
   version: String.strip(File.read!("VERSION")),
   # The static path is local to the source repo by default
