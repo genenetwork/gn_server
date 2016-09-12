@@ -12,7 +12,7 @@ defmodule GnExec.Cmd.PyLMM do
     # output = :os.cmd '/home/wrk/izip/git/opensource/genenetwork/pylmm_gn2/bin/runlmm.py --help'
     {output, retval} = System.cmd "/home/wrk/izip/git/opensource/genenetwork/pylmm_gn2/bin/runlmm.py", ["--help"],
       into: File.stream!(path <> "/STDOUT"), stderr_to_stdout: true
-    # File.write!(path <> "/STDOUT",output)  # We'll use System.cmd :into to track progress later
+    # IO.inspect([output,retval,token])
     {retval,token}
   end
 end
