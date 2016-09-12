@@ -146,4 +146,9 @@ defmodule APITest do
     %Plug.Conn{resp_body: value} = conn(:get, "/qtl/scanone/iron.json") |> make_response
     assert Poison.decode!(value) == "* Setting up R/qtl scanone"
   end
+
+  test "/qtl/pylmm/iron.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/qtl/pylmm/iron.json") |> make_response
+    # assert Poison.decode!(value) == "* LMM"
+  end
 end
