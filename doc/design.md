@@ -37,7 +37,7 @@ This returns a JSON record with a value and a token. For example
 
 Now the program is running and we can get status updates with
 
-    URL/program/status/8412ab517c6ef9c2f8b6dae3ed2a60cc.json
+    URL/program/8412ab517c6ef9c2f8b6dae3ed2a60cc/status.json
 
 which returns
 
