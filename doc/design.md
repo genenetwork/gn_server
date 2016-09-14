@@ -47,8 +47,8 @@ which says that the program is at 40% progress. When complete it should look lik
 
     {"retval" => 0, "progress" => 100, "token" => "8412ab517c6ef9c2f8b6dae3ed2a60cc"}
 
-and now retval should contain a UNIX error value (retval 145=running,
-retval 144=queued, all other non zero values are errors).
+and now retval should contain a UNIX error value (retval 144=queued,
+145=running, 146=killed, all other non zero values are errors).
 
 After completion, to fetch the return data do
 
@@ -81,5 +81,10 @@ Another option is to kill a running job with
 
     URL/program/8412ab517c6ef9c2f8b6dae3ed2a60cc/status.json?kill=1
 
+should return
+
+    {"retval" => 146, "token" => "8412ab517c6ef9c2f8b6dae3ed2a60cc"}
+
 A mechanism is in place to prevent two of the same jobs running on the
-same system. Once a job is running it is automatically shared.
+same system. Once a job is running it is automatically shared between
+the two 'users'.
