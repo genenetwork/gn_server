@@ -22,7 +22,6 @@ use Mix.Config
 #
 # Or configure a 3rd-party app:
 #
-    config :logger, level: :debug
 #
 
 # It is also possible to import configuration files, relative to this
@@ -32,6 +31,9 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
+
+# config :logger, level: :debug
+config :logger, level: :warn
 
 config :maru, GnServer.API,
   http: [port: 8880]
@@ -44,7 +46,8 @@ config :gn_server, GnServer.Repo,
   username: "gn2",
   password: "mysql_password",
   hostname: "localhost",
-  pool_size: 20
+  pool_size: 20,
+  loggers: [{Ecto.LogEntry, :log, [:debug]}]  # run with MIX_ENV=prod to drop SQL output
 
 config :gn_server, GnExec,
   pylmm_command: "runlmm.py"
