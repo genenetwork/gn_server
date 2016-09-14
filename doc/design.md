@@ -47,7 +47,10 @@ which says that the program is at 40% progress. When complete it should look lik
 
     {"retval" => 0, "progress" => 100, "token" => "8412ab517c6ef9c2f8b6dae3ed2a60cc"}
 
-and retval should contain a UNIX error value. Now to fetch the return data do
+and now retval should contain a UNIX error value (retval 145=running,
+retval 144=queued, all other non zero values are errors).
+
+After completion, to fetch the return data do
 
     URL/program/output/8412ab517c6ef9c2f8b6dae3ed2a60cc/result.json
 
@@ -56,15 +59,27 @@ or in whatever format. In fact, there is now an output directory named
     /var/tmp/8412ab517c6ef9c2f8b6dae3ed2a60cc/
 
 on the server which contains all output files, including a file named
-STDOUT which can be fetched with
+STDOUT (optionally STDERR) which can be fetched with
 
     URL/program/output/8412ab517c6ef9c2f8b6dae3ed2a60cc/STDOUT
 
-other output files can also be fetched by appending the filename(s).
+even when the job errored out.  Other output files can also be fetched
+by appending the filename(s).
 
 One of the advantages of using the Hash value is that when an output
 directory already exists it does not have to be recomputed. Results
-can be returned immediately. To force a recalculation we add a
-parameter to the original command:
+can be returned immediately. To force a recalculation (say on error)
+we add a parameter to the original command:
 
-    URL/program/dataset.json?recompute=1
+    URL/program/dataset.json?force_recompute=1
+
+or
+
+    URL/program/dataset.json?recompute_on_error=1
+
+Another option is to kill a running job with
+
+    URL/program/8412ab517c6ef9c2f8b6dae3ed2a60cc/status.json?kill=1
+
+A mechanism is in place to prevent two of the same jobs running on the
+same system. Once a job is running it is automatically shared.
