@@ -15,7 +15,7 @@ defmodule SubmitTest do
 
   test "/submit/phenotypes" do
     res = conn(:put, "/submit/phenotypes") |> make_response
-    IO.inspect(res)
+    # IO.inspect(res)
     %Plug.Conn{resp_body: value} = res
     assert Poison.decode!(value) == %{"submit" => "ok"}
   end
