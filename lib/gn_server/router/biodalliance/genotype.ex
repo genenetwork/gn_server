@@ -1,6 +1,7 @@
 defmodule GnServer.Router.Biodalliance.Genotype do
 
   use Maru.Router
+
   plug CORSPlug, origin: ["*"], headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 
   namespace :genotype do
@@ -17,11 +18,9 @@ defmodule GnServer.Router.Biodalliance.Genotype do
         end
 
         get do
-          # this should probably be done in a... better way.
-          path = "./test/data/input/genotype/" <> params[:cross] <> "_" <> params[:file] <> ".csv"
+          path = "./test/data/input/genotype/#{params[:cross]}_#{params[:file]}.csv"
 
-          conn
-          |> GnServer.Files.serve_file(path, "text/csv", 206)
+          GnServer.Files.serve_csv_partial(conn, path)
         end
       end
     end

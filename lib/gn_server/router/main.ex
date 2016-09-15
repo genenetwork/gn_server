@@ -1,7 +1,5 @@
 defmodule GnServer.Router.Main do
   use Maru.Router
-  # require GnServer.Cache    
-
 
   IO.puts "Setup routing"
 
@@ -109,15 +107,26 @@ defmodule GnServer.Router.Main do
     route_param :dataset, type: String do
       route_param :trait, type: String do
         get do
+          [_,trait,type] = Regex.run ~r/(.*)\.(json|csv)$/, params[:trait]
           { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
-            [_,trait] = Regex.run ~r/(.*)\.json$/, params[:trait]
             Store.phenotype_info(params[:dataset],trait)
           end)
-          json(conn, result)
+          case type do
+            "json" -> json(conn, result)
+            "csv"  ->
+                      res = result |> Enum.map(fn r -> [id,_,v,_] = r; "#{id},#{v}" end)
+                      conn |> text( "id,value\n" <> Enum.join(res,"\n"))
+          end
         end
       end
     end
   end
+
+
+  plug CORSPlug, origin: ["*"], headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
+
+  static_path_prefix = Application.get_env(:gn_server, :static_path_prefix)
+  plug Plug.Static, at: "genotype/", from: static_path_prefix <> "/genotype"
 
   namespace :genotype do
     route_param :species, type: String do
@@ -135,12 +144,21 @@ defmodule GnServer.Router.Main do
     end
   end
 
+  # WIP: run scanone
+  get "qtl/scanone/iron.json" do
+    result = GnExec.Cmd.ScanOne.cmd("iron")
+    IO.inspect(result)
+    json(conn, result)
+  end
+
   get do
-    json(conn, %{"I am": :genenetwork})
+    version = Application.get_env(:gn_server, :version)
+    json(conn, %{"I am": :genenetwork, "version": version })
   end
 
   get "/hey" do
-    json(conn, %{"I am": :genenetwork})
+    version = Application.get_env(:gn_server, :version)
+    json(conn, %{"I am": :genenetwork, "version": version })
   end
 
 end

@@ -3,7 +3,8 @@ defmodule APITest do
   use Maru.Test, for: GnServer.API
 
   setup_all do
-    {:ok, hello: Poison.encode!(%{"I am": :genenetwork})}
+    version = Application.get_env(:gn_server, :version)
+    {:ok, hello: Poison.encode!(%{"version": version, "I am": :genenetwork})}
   end
 
   test "/hey",%{hello: state} do
@@ -89,12 +90,31 @@ defmodule APITest do
     assert(Enum.count(tail)+1==99)
   end
 
+  test "/phenotype/HC_M2_0606_P/1443823_s_at.csv" do
+    %Plug.Conn{resp_body: value}  = conn(:get, "/phenotype/HC_M2_0606_P/1443823_s_at.csv") |> make_response
+    assert(String.slice(value,0..100) == "id,value\n1,15.251\n2,15.626\n3,14.716\n4,15.198\n5,14.918\n6,15.057\n7,15.232\n8,14.968\n9,14.87\n10,15.084\n11")
+  end
+
   test "/phenotype/HC_M2_0606_P/BXD/1443823_s_at.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/HC_M2_0606_P/BXD/1443823_s_at.json") |> make_response
     [result | tail] = Poison.decode!(value)
     assert result == [1, "B6D2F1", 15.251, nil]
 
     assert(Enum.count(tail)+1==71)
+  end
+
+  test "/genotype/mouse/BXD.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/genotype/mouse/BXD.json") |> make_response
+    assert Poison.decode!(value) ==
+     %{"crosstype" => "riself", "description" => "BXD", "geno_transposed" => true, "genotypes" => %{"B" => 1, "D" => 2, "H" => 3}, "genotypes_descr" => %{"heterozygous" => 3, "maternal" => 1, "paternal" => 2}, "na.strings" => ["U"], "x_chr" => "X", "geno" => "genotype/mouse/BXD/geno.csv", "gmap" => "genotype/mouse/BXD/gmap.csv"}
+  end
+
+  test "/genotype/mouse/BXD/geno.csv" do
+    %Plug.Conn{resp_body: _, status: 200}  = conn(:get, "/genotype/mouse/BXD/geno.csv") |> make_response
+  end
+
+  test "/genotype/mouse/BXD/gmap.csv" do
+    %Plug.Conn{resp_body: _, status: 200}  = conn(:get, "/genotype/mouse/BXD/gmap.csv") |> make_response
   end
 
   test "/genotype/mouse/marker/rs3693478.json" do
@@ -120,4 +140,10 @@ defmodule APITest do
     assert value == "test\n"
   end
 
+  @tag :skip
+  test "/qtl/scanone/iron.json" do
+    # Note, to have this test pass you have to install R/qtl
+    %Plug.Conn{resp_body: value} = conn(:get, "/qtl/scanone/iron.json") |> make_response
+    assert Poison.decode!(value) == "* Setting up R/qtl scanone"
+  end
 end

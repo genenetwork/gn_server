@@ -63,7 +63,7 @@ defmodule GnServer.Data.Store do
     end
 
     [{confidentiality,public}] = rows
-    if public == 0 or confidentiality > 0 do
+    if public < 2 or confidentiality > 0 do
       raise "Authorization error"
     end
   end
@@ -123,7 +123,7 @@ defmodule GnServer.Data.Store do
       where: field(inbredset, ^inbredset_field) == ^inbredset_value,
       select: {inbredset."InbredSetId",
                inbredset."Name",
-               species."SpeciesId", 
+               species."SpeciesId",
                species."Name",
                inbredset."MappingMethodId",
                inbredset."GeneticType"},
@@ -175,7 +175,7 @@ defmodule GnServer.Data.Store do
     #   #where: field(inbredset, ^inbredset_field) == ^inbredset_value,
     #   select: {inbredset."InbredSetId",
     #            inbredset."Name",
-    #            species."SpeciesId", 
+    #            species."SpeciesId",
     #            species."Name",
     #            inbredset."MappingMethodId",
     #            inbredset."GeneticType"},
@@ -386,12 +386,12 @@ data
         marker: marker,
         chr:     chr_name,
         chr_len: chr_len
-      } 
+      }
     end
 
     Repo.all(query) |> Enum.map(from_tuple_to_structure)
 
-    
+
     # for r <- rows, do: ( {chr_name,chr_len,species_id,source} = r;
     #   %{
     #     species: species,
@@ -563,21 +563,21 @@ data
   def menu_datasets(species, group, type) do
     # query = """
     # select ProbeSetFreeze.Id,ProbeSetFreeze.Name,ProbeSetFreeze.FullName
-    # from ProbeSetFreeze, 
-    # ProbeFreeze, 
-    # InbredSet, 
+    # from ProbeSetFreeze,
+    # ProbeFreeze,
+    # InbredSet,
     # Tissue,
      # Species
     # where
-    # Species.Name = '#{species}' and 
+    # Species.Name = '#{species}' and
     # Species.Id = InbredSet.SpeciesId and
     # InbredSet.Name = '#{group}' and
     # ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
     # Tissue.Name = '#{type}' and
     # ProbeFreeze.TissueId = Tissue.Id and
      # ProbeFreeze.InbredSetId = InbredSet.Id and
-    # ProbeSetFreeze.confidentiality < 1 and 
-    # ProbeSetFreeze.public > 0 
+    # ProbeSetFreeze.confidentiality < 1 and
+    # ProbeSetFreeze.public > 0
     # order by ProbeSetFreeze.CreateTime desc
     # """
     # {:ok, rows} = DB.query(query)
@@ -593,7 +593,7 @@ data
       join: tissue in Tissue,
       on: probefreeze."TissueId" == tissue.id,
       where: tab_species."Name" == ^species and
-             inbredset."Name" == ^group and 
+             inbredset."Name" == ^group and
              tissue."Name" == ^type and
              probesetfreeze.confidentiality < 1 and
              probesetfreeze.public > 0,
