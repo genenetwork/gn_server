@@ -182,3 +182,30 @@ List of possible improvements
     - disk
     - software capabilities
     - software environment
+
+The client request a new job providing the name of the program and some parameter
+
+    GnExec.Rest.Job.get("program",["data"])
+
+the client hits the server on
+
+    URL/program/dataset.json
+
+the server creates a GnExec.Rest.job
+
+    job = GnExec.Rest.Job.new(program,[data])
+
+get the
+
+
+    GnExec.Rest.Job.run(GnExec.Rest.Job.get("program",["data"]))
+
+Get job
+curl -i -H "Accept: application/json" http://127.0.0.1:8880/Ls/dataset.json
+
+
+Get job status
+curl -i -H "Accept: application/json" http://127.0.0.1:8880/program/b2bc54b2a885d6fa61e1e86b22a837445a5abc8722331be6410d019ef0c49d45/status.json
+
+Update status
+curl -i -H "Accept: application/json" -X PUT -d progress=52 http://127.0.0.1:8880/program/b2bc54b2a885d6fa61e1e86b22a837445a5abc8722331be6410d019ef0c49d45/status.json
