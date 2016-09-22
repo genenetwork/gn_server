@@ -64,6 +64,25 @@ defmodule GnServer.Router.GnExec do
 
         get "STDOUT" do
         end
+
+        desc "Update STDOUT appending to the end"
+        params do
+          requires :stdout, type: String
+        end
+        put "STDOUT" do
+          static_path = Application.get_env(:gn_server, :static_path_prefix)
+          token_path = Path.join(static_path, params[:token])
+          response = case File.exists?(token_path) do
+            false -> %{error: :invalid_token}
+            true ->
+              file_path = Path.join(token_path, "STDOUT")
+              File.write!(file_path, params[:stdout], [:binary, :append])
+              %{token: params[:token], status: "stdout updated" }
+          end
+
+          json(conn, response)
+        end
+
       end
 
     end
