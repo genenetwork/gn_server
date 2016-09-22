@@ -83,6 +83,25 @@ defmodule GnServer.Router.GnExec do
           json(conn, response)
         end
 
+        desc "Update retval"
+        params do
+          requires :retval, type: String
+        end
+        put "retval.json" do
+          static_path = Application.get_env(:gn_server, :static_path_prefix)
+          token_path = Path.join(static_path, params[:token])
+          response = case File.exists?(token_path) do
+            false -> %{error: :invalid_token}
+            true ->
+              file_path = Path.join(token_path, "retval.json")
+              File.write!(file_path, Poison.encode!(%{retval: params[:retval]}), [:binary])
+              %{token: params[:token], retval: params[:retval] }
+          end
+
+          json(conn, response)
+        end
+
+
       end
 
     end
@@ -92,7 +111,7 @@ defmodule GnServer.Router.GnExec do
         case GnExec.Rest.Job.validate(params[:command]) do
           {:error, :noprogram } -> json(conn, %{error: :noprogram})
           {:ok, module } ->
-            job = GnExec.Rest.Job.new(params[:command], ["."])
+            job = GnExec.Rest.Job.new(params[:command], [30])
             path = Path.join(static_path, job.token)
             File.mkdir_p(path)
             File.touch!(Path.join(path,"STDOUT"))
