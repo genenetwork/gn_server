@@ -26,7 +26,7 @@ defmodule GnServer.Router.GnExec do
     json(conn, %{"I am": :genenetwork, "version": version })
   end
 
-  # namespace :gnexec do
+   namespace :gnexec do
     namespace :program do
       route_param :token, type: String do
         get "status.json" do
@@ -39,16 +39,24 @@ defmodule GnServer.Router.GnExec do
               Poison.Parser.parse!(File.read!(status_path_file),keys: :atoms!)
           end
           json(conn, status)
-        end
+        end #get status.json
 
         desc "Update a status"
         params do
           requires :progress, type: Integer
         end
         put "status.json" do
-          IO.puts params[:token]
-          IO.puts params[:progress]
-          json(conn, %{token: params[:token], progress: params[:progress] })
+          static_path = Application.get_env(:gn_server, :static_path_prefix)
+          status_path = Path.join(static_path, params[:token])
+          response = case File.exists?(status_path) do
+            false -> %{error: :invalid_token}
+            true ->
+              status_path_file = Path.join(status_path, "status.json")
+              File.write(status_path_file, Poison.encode!(%{progress: params[:progress]}), [:binary])
+              %{token: params[:token], progress: params[:progress] }
+          end
+
+          json(conn, response)
         end
 
         get "results.json" do
@@ -75,5 +83,5 @@ defmodule GnServer.Router.GnExec do
       end
 
     end
-  # end # gnexec
+   end # gnexec
 end
