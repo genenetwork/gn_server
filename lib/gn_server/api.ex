@@ -6,6 +6,7 @@ defmodule GnServer.API do
   mount GnServer.Router.Main
   mount GnServer.Router.Internal
   mount GnServer.Router.Submit
+  mount GnServer.Router.Token
   mount GnServer.Router.Biodalliance.Genotype
   mount GnServer.Router.Biodalliance.SNP
   mount GnServer.Router.Biodalliance.Stylesheets

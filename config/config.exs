@@ -30,4 +30,5 @@ config :gn_server,
   version: String.strip(File.read!("VERSION")),
   # The static path is local to the source repo by default
   static_path_prefix: "./test/data/input",
-  cache_dir: "/var/tmp/gn_server"
+  cache_dir: "/var/tmp/gn_server",
+  upload_dir: "/var/tmp/gn_server_data"
