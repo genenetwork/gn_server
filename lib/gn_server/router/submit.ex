@@ -36,5 +36,29 @@ defmodule GnServer.Router.Submit do
         json(conn, result)
       end
     end
+
+    namespace :geno do
+      post do
+        {:ok, data, _} = conn |> read_body
+
+        IO.inspect conn.params["filename"]
+        IO.puts byte_size(data)
+
+        IO.puts "creating path"
+        path = Path.join("/var/tmp/gn_server/", conn.params["filename"])
+        IO.puts "opening file"
+        {:ok, file} = File.open(path, [:write])
+
+        IO.puts "writing to file"
+        file
+        |> IO.binwrite(data)
+        |> File.close
+        IO.puts "wrote to file"
+
+        conn
+        |> put_status(200)
+        |> text("ok")
+      end
+    end
   end
 end
