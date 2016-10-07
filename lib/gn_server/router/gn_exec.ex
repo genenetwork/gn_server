@@ -94,6 +94,7 @@ defmodule GnServer.Router.GnExec do
             false -> %{error: :invalid_token}
             true ->
               file_path = Path.join(token_path, "retval.json")
+              # IO.puts params[:retval]
               File.write!(file_path, Poison.encode!(%{retval: params[:retval]}), [:binary])
               %{token: params[:token], retval: params[:retval] }
           end
@@ -102,16 +103,36 @@ defmodule GnServer.Router.GnExec do
         end
 
 
-      end
+        desc "Upload files"
+        params do
+          requires :file, type: File
+          exactly_one_of [:file]
+        end
+        post do
+          static_path = Application.get_env(:gn_server, :static_path_prefix)
+          token_path = Path.join(static_path, params[:token])
+          response = case File.exists?(token_path) do
+            false -> %{error: :invalid_token}
+            true ->
+              file = params[:file]
+              File.cp!(file.path,Path.join(token_path, file.filename))
+              %{token: params[:token], sync: "ok"}
+            end
+            json(conn, response)
+        end #uploads
 
-    end
+
+      end # token
+
+    end #program
+
     route_param :command, type: String do
       get "dataset.json" do
         static_path = Application.get_env(:gn_server, :static_path_prefix)
         case GnExec.Rest.Job.validate(params[:command]) do
           {:error, :noprogram } -> json(conn, %{error: :noprogram})
           {:ok, module } ->
-            job = GnExec.Rest.Job.new(params[:command], [30])
+            job = GnExec.Rest.Job.new(params[:command], ["."])
             path = Path.join(static_path, job.token)
             File.mkdir_p(path)
             File.touch!(Path.join(path,"STDOUT"))
@@ -122,4 +143,6 @@ defmodule GnServer.Router.GnExec do
 
     end
    end # gnexec
+
+
 end

@@ -93,6 +93,35 @@ the two 'users'.
 
 GnServer will leverage GnExec in many ways.
 
+### Todo
+
+#### Docs
+
+- [ ] search for a formal definition of *Opportunistic Computing* or papers
+- [ ] detailed dev plan
+- [ ] deploy guide
+- [ ] developers tutorial
+
+#### GnServer
+
+- [X] Receive a file associated with a job and store it locally, gn_exec transfer files after the computation.
+- [ ] Client can request list of supported software
+- [ ] write tests
+- [ ] How jobs are retained on the gn_server side ? Local actor that keeps a very simple queue?
+- [ ] kill job
+- [ ] force recompute
+- [ ] recompute_on_error
+
+#### GnExec
+
+- [ ] Create a local directory with the name of the hash/job
+- [ ] loop request/jobs
+- [ ] Support PBS, submit jobs (qsub) and monitor (qstat)
+- [ ] defined and document hooks/callbacks for job/loop aka how to deal with output or job events.
+- [ ] how to manage resources ? With PBS, the management of the resources is delegated to it, locally concurrent jobs are not yet supported.
+- [ ] update stdout on gn_server every time the stdout is update on GnExec client
+- [ ] UPLOAD FILES, send file(s) over http when job is over. Single file or archive ?
+
 
 
 ### GnExec Overview
@@ -147,20 +176,11 @@ Our primary target is to leverage by [GnServer](https://github.com/genenetwork/g
 the computing power of the [BEACON](https://www.nics.tennessee.edu/beacon) at
 University of Tennessee in a secure way.
 
-
-### Todo
-
-- [] search for a formal definition of *Opportunistic Computing* or papers
-
 ### References
 
 - Disperse Computing http://www.darpa.mil/program/dispersed-computing
 - A Language for Distributed, Eventually Consistent Computations https://lasp-lang.org/
 - Elixir Language http://elixir-lang.org/
-
-### API
-
-Client can not list available jobs for to reduce the risk of inspecting workload or server activities.
 
 ### Workflow
 
@@ -183,29 +203,45 @@ List of possible improvements
     - software capabilities
     - software environment
 
+
+### API
+
+#### Tutorial
+
+Client can not list available jobs for to reduce the risk of inspecting workload or server activities.
+
 The client request a new job providing the name of the program and some parameter
 
     GnExec.Rest.Job.get("program",["data"])
 
+program must be a valid GnExec supported software.
+
 the client hits the server on
 
-    URL/program/dataset.json
+    URL/gnexec/program/dataset.json
 
-the server creates a GnExec.Rest.job
+Similar to
+
+    curl -i -H "Accept: application/json" http://127.0.0.1:8880/gnexec/Ls/dataset.json
+
+The server creates a `GnExec.Rest.job` and returns it to the client
 
     job = GnExec.Rest.Job.new(program,[data])
 
-get the
-
+the client now runs the job
 
     GnExec.Rest.Job.run(GnExec.Rest.Job.get("program",["data"]))
 
-Get job
-curl -i -H "Accept: application/json" http://127.0.0.1:8880/Ls/dataset.json
 
 
 Get job status
-curl -i -H "Accept: application/json" http://127.0.0.1:8880/program/b2bc54b2a885d6fa61e1e86b22a837445a5abc8722331be6410d019ef0c49d45/status.json
+
+    curl -i -H "Accept: application/json" http://127.0.0.1:8880/program/b2bc54b2a885d6fa61e1e86b22a837445a5abc8722331be6410d019ef0c49d45/status.json
 
 Update status
-curl -i -H "Accept: application/json" -X PUT -d progress=52 http://127.0.0.1:8880/program/b2bc54b2a885d6fa61e1e86b22a837445a5abc8722331be6410d019ef0c49d45/status.json
+
+    curl -i -H "Accept: application/json" -X PUT -d progress=52 http://127.0.0.1:8880/program/b2bc54b2a885d6fa61e1e86b22a837445a5abc8722331be6410d019ef0c49d45/status.json
+
+Transfer a file to the server
+
+    curl --form "file=@LOCAL FILE NAME" -i -H "Accept: application/json" http://127.0.0.1:8880/gnexec/program/b2bc54b2a885d6fa61e1e86b22a837445a5abc8722331be6410d019ef0c49d45
