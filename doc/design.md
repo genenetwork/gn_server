@@ -111,6 +111,7 @@ GnServer will leverage GnExec in many ways.
 - [ ] kill job
 - [ ] force recompute
 - [ ] recompute_on_error
+- [ ] check that transferred files have the correct checksum
 
 #### GnExec
 
@@ -120,7 +121,7 @@ GnServer will leverage GnExec in many ways.
 - [ ] defined and document hooks/callbacks for job/loop aka how to deal with output or job events.
 - [ ] how to manage resources ? With PBS, the management of the resources is delegated to it, locally concurrent jobs are not yet supported.
 - [ ] update stdout on gn_server every time the stdout is update on GnExec client
-- [ ] UPLOAD FILES, send file(s) over http when job is over. Single file or archive ?
+- [X] UPLOAD FILES, send file(s) over http when job is over, file by file.
 
 
 
