@@ -613,7 +613,7 @@ data
     """
     {:ok, result} = SQL.query(Repo, query, [])
     [[count]] = result.rows
-    IO.inspect(result)
+    # IO.inspect(result)
     count
   end
 
