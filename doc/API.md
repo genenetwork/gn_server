@@ -70,7 +70,7 @@ curl "http://test-gn2.genenetwork.org/api_pre1/dataset/7.json"
 
 ### Fetch phenotypes
 
-get dataset phenotype information for a range (here mRNA propesets)
+get dataset phenotype information for a range (here mRNA probesets)
 
 ```js
 curl "http://test-gn2.genenetwork.org/api_pre1/phenotypes/HC_U_0304_R.json?start=100&stop=101"
@@ -79,8 +79,8 @@ curl "http://test-gn2.genenetwork.org/api_pre1/phenotypes/HC_U_0304_R.json?start
 {"symbol":"0610006I08Rik","p_value":0.914,"name_id":96017,"name":"96017_at","mean":10.4658333333333,"locus":"CEL-3_23204282","chr":19,"additive":0.0437053571428568,"Mb":8.845681,"MAX_LRS":7.76436750913729}]
 ```
 
-Get the actual trait measurements with the stderr (in this dataset
-missing, so null)
+Get the actual trait values or measurements of a sample with the
+stderr (in this dataset stderr is missing, so null)
 
 ```js
 curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/HC_U_0304_R/104617_at.json"
@@ -88,7 +88,7 @@ curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/HC_U_0304_R/104617_at.j
 [[4,"BXD1",8.049,null],[5,"BXD2",8.116,null],[6,"BXD5",8.064,null],[7,"BXD6",8.17,null],[8,"BXD8",8.067,null],[9,"BXD9",8.105,null],[10,"BXD11",8.317,null],[11,"BXD12",8.127,null],[13,"BXD14",8.135,null],[14,"BXD15",8.253,null],[15,"BXD16",8.335,null],[16,"BXD18",8.208,null],[17,"BXD19",8.239,null],[19,"BXD21",8.158,null],[20,"BXD22",8.226,null],[22,"BXD24",8.043,null],[23,"BXD25",7.947,null],[24,"BXD27",8.201,null],[25,"BXD28",8.068,null],[26,"BXD29",8.238,null],[27,"BXD30",8.223,null],[28,"BXD31",8.119,null],[29,"BXD32",8.039,null],[30,"BXD33",8.271,null],[31,"BXD34",8.314,null],[33,"BXD36",8.194,null],[35,"BXD38",8.163,null],[36,"BXD39",8.197,null],[37,"BXD40",8.15,null],[39,"BXD42",8.231,null]]
 ```
 
-here another example that includes parents and included stderr:
+here another example of a sample that includes parent values and stderr:
 
 ```js
 curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/HC_M2_0606_P/1443823_s_at.json"
