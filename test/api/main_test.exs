@@ -51,7 +51,8 @@ defmodule APITest do
 
   test "/datasets/BXD" do
     %Plug.Conn{resp_body: value} = conn(:get, "/datasets/BXD") |> make_response
-    assert Poison.decode!(value) == [[112, "HC_M2_0606_P", "Hippocampus Consortium M430v2 (Jun06) PDNN"]]
+    assert Enum.take(Poison.decode!(value),3) ==
+      [[112, "HC_M2_0606_P", "Hippocampus Consortium M430v2 (Jun06) PDNN"], [10001, "Central nervous system, morphology: Cerebellum weight [mg]"], [10002, "Central nervous system, morphology: Cerebellum weight after adjustment for covariance with brain size [mg]"]]
   end
 
   test "/dataset/'name'.json" do

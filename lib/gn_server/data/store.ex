@@ -10,21 +10,24 @@ defmodule GnServer.Data.Store do
   # alias GnServer.Backend.MySQL, as: DB
   import Ecto.Query
   alias GnServer.Repo
-  alias GnServer.Schema.Species
-  alias GnServer.Schema.ProbeSetFreeze
-  alias GnServer.Schema.InbredSet
-  alias GnServer.Schema.ProbeFreeze
-  alias GnServer.Schema.GenoFreeze
-  alias GnServer.Schema.PublishFreeze
-  alias GnServer.Schema.Tissue
-  alias GnServer.Schema.Geno
   alias GnServer.Schema.Chr_Length
+  alias GnServer.Schema.InbredSet
+  alias GnServer.Schema.GenoFreeze
+  alias GnServer.Schema.Geno
+  alias GnServer.Schema.Phenotype
+  alias GnServer.Schema.ProbeFreeze
+  alias GnServer.Schema.ProbeSetFreeze
   alias GnServer.Schema.ProbeSet
   alias GnServer.Schema.ProbeSetXRef
   alias GnServer.Schema.ProbeSetData
   alias GnServer.Schema.ProbeSetSE
+  alias GnServer.Schema.PublishFreeze
+  alias GnServer.Schema.PublishXRef
+  alias GnServer.Schema.Publication
+  alias GnServer.Schema.Species
   alias GnServer.Schema.Strain
   alias GnServer.Schema.StrainXRef
+  alias GnServer.Schema.Tissue
   alias Ecto.Adapters.SQL
 
   defp use_type(id) do
@@ -113,23 +116,7 @@ defmodule GnServer.Data.Store do
     Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
   end
 
-  def chr_info(dataset_name) do
-    {inbredset_field, inbredset_value} =
-      case use_type(dataset_name) do
-        { :integer, i } -> {:id, i}
-        { :string, s }  -> {:Name, s}
-      end
-
-    query = from chr_length in Chr_Length,
-      join: inbredset in InbredSet,
-      on: chr_length."SpeciesId" == inbredset."SpeciesId",
-      where: field(inbredset, ^inbredset_field) == ^inbredset_value,
-      select: {chr_length."Name", chr_length."Length"},
-      order_by: chr_length."OrderId"
-
-    Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
-  end
-
+  # FIXME: forgot what the following is about...
   def group_info({:optimized, group}) do
     {inbredset_field, inbredset_value} =
       case use_type(group) do
@@ -156,9 +143,27 @@ GROUP BY InbredSet.InbredSetId, InbredSet.Name,Species.SpeciesId, Species.Name,I
 data
   end
 
+  def chr_info(dataset_name) do
+    {inbredset_field, inbredset_value} =
+      case use_type(dataset_name) do
+        { :integer, i } -> {:id, i}
+        { :string, s }  -> {:Name, s}
+      end
+
+    query = from chr_length in Chr_Length,
+      join: inbredset in InbredSet,
+      on: chr_length."SpeciesId" == inbredset."SpeciesId",
+      where: field(inbredset, ^inbredset_field) == ^inbredset_value,
+      select: {chr_length."Name", chr_length."Length"},
+      order_by: chr_length."OrderId"
+
+    Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+  end
+
+
   def datasets(group) do
     authorize_group(group)
-    query = from probesetfreeze in ProbeSetFreeze,
+    query1 = from probesetfreeze in ProbeSetFreeze,
       join: probefreeze in ProbeFreeze,
       on: probesetfreeze."ProbeFreezeId" == probefreeze."Id",
       join: tissue in Tissue,
@@ -169,7 +174,20 @@ data
       select: {probesetfreeze.id, probesetfreeze."Name", probesetfreeze."FullName"},
       distinct: true
 
-      Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+    list1 = Repo.all(query1) |> Enum.map(&(Tuple.to_list(&1)))
+
+    query2 = from publishxref in PublishXRef,
+      join: inbredset in InbredSet,
+      on: publishxref."InbredSetId" == inbredset.id,
+      join: phenotype in Phenotype,
+      on: publishxref."PhenotypeId" == phenotype.id,
+      distinct: true,
+      select: { publishxref.id, phenotype."post_publication_description" },
+      where: inbredset."Name" == ^group
+
+    list2 = Repo.all(query2) |> Enum.map(&(Tuple.to_list(&1)))
+    # IO.inspect(list2)
+    list1 ++ list2
   end
 
   def dataset_info(dataset_name) do
