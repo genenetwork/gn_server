@@ -1,13 +1,14 @@
-# This module should only contain the MySQL calls to the backend to
-# fetch data. Assembling more complex structures should happen in the
-# Assemble modules.
-#
-# All functions return lists of lists, rather than lists of
-# tuples. Main reason is that tuples do not go nicely with JSON.
-
 defmodule GnServer.Data.Store do
 
-  # alias GnServer.Backend.MySQL, as: DB
+  @moduledoc """
+  This module provides low level calls (using Ecto) to the database -
+  each call should return a simple list of records. For more complicated
+  assembling check out the Assemble modules.
+
+  All functions return lists of lists, rather than lists of
+  tuples. Main reason is that tuples do not go nicely with JSON.
+  """
+
   import Ecto.Query
   alias GnServer.Repo
   alias GnServer.Schema.Chr_Length
@@ -30,6 +31,15 @@ defmodule GnServer.Data.Store do
   alias GnServer.Schema.Tissue
   alias Ecto.Adapters.SQL
 
+  # ==== Some private helper functions
+
+  @doc """
+  Convenience function transforms a string into an integer
+  value when it can actually convert to int. Otherwise it leaves it as
+  a string. Returns tuple {:string, s} or {:integer, i} tuple with
+  type descriptor and value.
+  """
+
   defp use_type(id) do
     try do
       { :integer, String.to_integer(id) }
@@ -38,6 +48,11 @@ defmodule GnServer.Data.Store do
     end
   end
 
+  @doc """
+  Authorize access based on inbred group - this will change
+  soon
+  """
+
   defp authorize_group(group_name) do
     if group_name != "BXD" do
       raise "Authorization error for " <> group_name
@@ -45,27 +60,54 @@ defmodule GnServer.Data.Store do
     true
   end
 
+  @doc """
+  Authorize access based on confidentiality and public
+  fields
+  """
+
   defp authorize_dataset(dataset_name) do
     {field_name, field_value} =
       case use_type(dataset_name) do
         { :integer, i } -> {:id, i}
         { :string, s }  -> {:Name,s}
       end
-    query = from x in ProbeSetFreeze,
-      select: {x.confidentiality, x.public},
-      where: field(x, ^field_name) == ^field_value,
-      distinct: true
+    # Splitting out on ProbSet and PublishData
+    if field_name == :id and field_value > 10_000 do
+      query = from publishxref in PublishXRef,
+        join: inbredset in InbredSet,
+        on: publishxref."InbredSetId" == inbredset.id,
+        join: phenotype in Phenotype,
+        on: publishxref."PhenotypeId" == phenotype.id,
+        join: publication in Publication,
+        on: publishxref."PublicationId" == publication.id,
+        distinct: true,
+        select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description }, # , publication.pubmed_id,  publication.title, publication.year },
+      where: inbredset."Name" == "BXD" and publishxref.id == ^field_value and (publication.year <= 2010 or not is_nil(publication."Pubmed_Id"))
+      rows = Repo.all(query)
+      # IO.inspect(rows)
+      if Enum.count(rows) != 1 do
+        raise "Authorization error (PublishData) for #{dataset_name}"
+      end
+    else
+      query = from x in ProbeSetFreeze,
+        select: {x.confidentiality, x.public},
+        where: field(x, ^field_name) == ^field_value,
+        distinct: true
 
-    rows = Repo.all(query)
-    if Enum.count(rows) != 1 do
-      raise "Access error"
-    end
+      rows = Repo.all(query)
+      if Enum.count(rows) != 1 do
+        raise "Access error (ProbeSet data) for #{dataset_name}"
+      end
 
-    [{confidentiality,public}] = rows
-    if public < 2 or confidentiality > 0 do
-      raise "Authorization error"
+      [{confidentiality,public}] = rows
+      if public < 2 or confidentiality > 0 do
+        raise "Authorization error (ProbeSet data) for #{dataset_name}"
+      end
     end
+    true
   end
+
+  # ==== Public database functions start here
 
   def species do
     query = from s in Species,
@@ -185,8 +227,10 @@ data
       join: publication in Publication,
         on: publishxref."PublicationId" == publication.id,
       distinct: true,
-      select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype."post_publication_description" }, # , publication.pubmed_id,  publication.title, publication.year },
+      select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description }, # , publication.pubmed_id,  publication.title, publication.year },
       where: inbredset."Name" == ^group and (publication.year <= 2010 or not is_nil(publication."Pubmed_Id"))
+      # where: inbredset."Name" == ^group and (publication.year > 2010 and is_nil(publication."Pubmed_Id"))
+
       # where: inbredset."Name" == ^group and (publication.year <= 2010 or like(phenotype.post_publication_description,"%PMID%") # or like(phenotype.post_publication_description,"%DOI%"))
 
     list2 = Repo.all(query2) |> Enum.map(&(Tuple.to_list(&1)))
@@ -201,27 +245,67 @@ data
         { :integer, i } -> {:id, i}
         { :string, s }  -> {:Name, s}
       end
+    if probesetfreeze_field==:id and probesetfreeze_value > 10_000 do
+      dataset_info_publish_data(probesetfreeze_value)
+    else
 
-    query = from probesetfreeze in ProbeSetFreeze,
-      join: probefreeze in ProbeFreeze,
-      on: probesetfreeze."ProbeFreezeId" == probefreeze."Id",
-      join: tissue in Tissue,
-      on: probefreeze."TissueId" == tissue."Id",
-      where: field(probesetfreeze, ^probesetfreeze_field) == ^probesetfreeze_value and probesetfreeze.public > 0,
-      select: {probesetfreeze.id, probesetfreeze."Name", probesetfreeze."FullName",
-               probesetfreeze."ShortName", probesetfreeze."DataScale", probefreeze."TissueId",
-               tissue."Name", probesetfreeze.public, probesetfreeze.confidentiality}
-    Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+      query = from probesetfreeze in ProbeSetFreeze,
+        join: probefreeze in ProbeFreeze,
+        on: probesetfreeze."ProbeFreezeId" == probefreeze."Id",
+        join: tissue in Tissue,
+        on: probefreeze."TissueId" == tissue."Id",
+        where: field(probesetfreeze, ^probesetfreeze_field) == ^probesetfreeze_value and probesetfreeze.public > 0,
+        select: {probesetfreeze.id, probesetfreeze."Name", probesetfreeze."FullName",
+                 probesetfreeze."ShortName", probesetfreeze."DataScale", probefreeze."TissueId",
+                 tissue."Name", probesetfreeze.public, probesetfreeze.confidentiality}
+      rec = Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+          [[id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential]] = rec
+
+      %{ id:           id,
+         name:         name,
+         full_name:    full_name,
+         short_name:   short_name,
+         data_scale:   data_scale,
+         tissue_id:    tissue_id,
+         tissue:       tissue_name,
+         public:       public,
+         confidential: confidential
+      }
+    end
+  end
+
+  defp dataset_info_publish_data(id) do
+    # authorize_dataset(id)
+    query = from publishxref in PublishXRef,
+      join: inbredset in InbredSet,
+        on: publishxref."InbredSetId" == inbredset.id,
+      join: phenotype in Phenotype,
+        on: publishxref."PhenotypeId" == phenotype.id,
+      join: publication in Publication,
+        on: publishxref."PublicationId" == publication.id,
+      distinct: true,
+      select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description , publication.pubmed_id,  publication.title, publication.year },
+      # where: inbredset."Name" == ^group and (publication.year <= 2010 or like(phenotype.post_publication_description,"%PMID%") # or like(phenotype.post_publication_description,"%DOI%"))
+      where: inbredset."Name" == "BXD" and publishxref.id == ^id
+      rec = Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+          [[id,name,descr,pmid,title,year]] = rec
+
+      %{ id:           id,
+         name:         name,
+         descr:        descr,
+         pmid:         pmid,
+         title:        title,
+         year:         year
+         # data_scale:   data_scale,
+         # tissue_id:    tissue_id,
+         # tissue:       tissue_name,
+         # public:       public,
+         # confidential: confidential
+      }
   end
 
   def phenotypes(dataset_name, start, stop) do
     authorize_dataset(dataset_name)
-    dataset_id =
-      case use_type(dataset_name) do
-        { :integer, i } -> i
-        { :string, _ }  -> ( [[id | tail_]] = dataset_info(dataset_name)
-                           id )
-      end
 
     start2 =
       if start == nil do
@@ -238,34 +322,58 @@ data
       end
 
     limit = stop2 - start2 + 1
-    query = from probeset in ProbeSet,
-      join: probesetxref in ProbeSetXRef,
-      on: probeset.id == probesetxref."ProbeSetId",
-      where: probesetxref."ProbeSetFreezeId" == ^dataset_id,
-      select: {probeset."Name", probesetxref.mean, probesetxref."LRS",
-               probesetxref.pValue, probesetxref.additive, probesetxref."Locus",
-               probeset.chr_num, probeset."Mb", probeset."Symbol", probeset.name_num},
-      distinct: true,
-      order_by: [asc: probeset."symbol", desc: probesetxref."LRS"],
-      limit: ^limit
 
-    from_tuple_to_structure = fn(query_result) ->
-      {name,mean,lrs,pvalue,additive,locus,chr,mb,symbol,name_num} = query_result
-      %{ name: name,
-         name_id: name_num,
-         mean: mean,
-         "MAX_LRS": lrs,
-         "p_value": pvalue,
-         additive: additive,
-         locus: locus,
-         chr: chr,
-         "Mb": mb,
-         symbol: symbol
-      }
+    # IO.puts("**** HERE #{dataset_name}")
+    {id_type, id} = use_type(dataset_name)
+    # IO.inspect {id_type, id}
+    dataset_id =
+      case {id_type, id} do
+        { :integer, i } -> i
+        # { :string, _ }  -> ( [[id2 | tail_]] = dataset_info(dataset_name)
+        #                    id2 )
+        { :string, _ }  -> ( %{ id: id2 } = dataset_info(dataset_name)
+                             id2 )
+      end
+    # IO.inspect { dataset_id }
+
+    if id_type==:integer and id > 10_000 do
+      phenotypes_publish_data(id,start2,limit)
+    else
+
+      query = from probeset in ProbeSet,
+        join: probesetxref in ProbeSetXRef,
+        on: probeset.id == probesetxref."ProbeSetId",
+        where: probesetxref."ProbeSetFreezeId" == ^dataset_id,
+        select: {probeset."Name", probesetxref.mean, probesetxref."LRS",
+                 probesetxref.pValue, probesetxref.additive, probesetxref."Locus",
+                 probeset.chr_num, probeset."Mb", probeset."Symbol", probeset.name_num},
+        distinct: true,
+        order_by: [asc: probeset."symbol", desc: probesetxref."LRS"],
+        limit: ^limit
+
+      from_tuple_to_structure = fn(query_result) ->
+        {name,mean,lrs,pvalue,additive,locus,chr,mb,symbol,name_num} = query_result
+        %{ name: name,
+           name_id: name_num,
+           mean: mean,
+           "MAX_LRS": lrs,
+           "p_value": pvalue,
+           additive: additive,
+           locus: locus,
+           chr: chr,
+           "Mb": mb,
+           symbol: symbol
+        }
+      end
+
+      res = Repo.all(query)
+      res2 = res |> Enum.map(from_tuple_to_structure)
+      res2
     end
+  end
 
-    Repo.all(query) |> Enum.map(from_tuple_to_structure)
-
+  defp phenotypes_publish_data(id, start, limit) do
+    raise "Not implemented"
   end
 
   def marker_info(species,marker) do
