@@ -42,6 +42,7 @@ defmodule GnServer.Data.Store do
     if group_name != "BXD" do
       raise "Authorization error for " <> group_name
     end
+    true
   end
 
   defp authorize_dataset(dataset_name) do
@@ -178,12 +179,15 @@ data
 
     query2 = from publishxref in PublishXRef,
       join: inbredset in InbredSet,
-      on: publishxref."InbredSetId" == inbredset.id,
+        on: publishxref."InbredSetId" == inbredset.id,
       join: phenotype in Phenotype,
-      on: publishxref."PhenotypeId" == phenotype.id,
+        on: publishxref."PhenotypeId" == phenotype.id,
+      join: publication in Publication,
+        on: publishxref."PublicationId" == publication.id,
       distinct: true,
-      select: { publishxref.id, phenotype."post_publication_description" },
-      where: inbredset."Name" == ^group
+      select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype."post_publication_description" }, # , publication.pubmed_id,  publication.title, publication.year },
+      where: inbredset."Name" == ^group and (publication.year <= 2010 or not is_nil(publication."Pubmed_Id"))
+      # where: inbredset."Name" == ^group and (publication.year <= 2010 or like(phenotype.post_publication_description,"%PMID%") # or like(phenotype.post_publication_description,"%DOI%"))
 
     list2 = Repo.all(query2) |> Enum.map(&(Tuple.to_list(&1)))
     # IO.inspect(list2)

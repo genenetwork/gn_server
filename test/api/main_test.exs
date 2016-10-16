@@ -51,8 +51,13 @@ defmodule APITest do
 
   test "/datasets/BXD" do
     %Plug.Conn{resp_body: value} = conn(:get, "/datasets/BXD") |> make_response
-    assert Enum.take(Poison.decode!(value),3) ==
-      [[112, "HC_M2_0606_P", "Hippocampus Consortium M430v2 (Jun06) PDNN"], [10001, "Central nervous system, morphology: Cerebellum weight [mg]"], [10002, "Central nervous system, morphology: Cerebellum weight after adjustment for covariance with brain size [mg]"]]
+    res = Poison.decode!(value)
+    # IO.puts(Enum.count(res))
+    assert Enum.reverse(res) |> Enum.take(1) ==
+      [[17439, "Ric", "Immune system, infectious disease: Rickettsiu tsutsugamushi susceptibility (strain Gilliam, ip 100 50% mouse infectious doses, two treatments) of both sexes at 6-12 weeks-of-age (ordinal scale 0 = resistant, 1=susceptible, also see BXH RI set), maps to Gbp6 gene, see PMID 21551061) [mortality]"]]
+    assert Enum.take(res,3) ==
+      [[112, "HC_M2_0606_P", "Hippocampus Consortium M430v2 (Jun06) PDNN"], [10001, "CBLWT2", "Central nervous system, morphology: Cerebellum weight [mg]"], [10002, "ADJCBLWT", "Central nervous system, morphology: Cerebellum weight after adjustment for covariance with brain size [mg]"]]
+    assert(Enum.count(res)==2565)
   end
 
   test "/dataset/'name'.json" do
