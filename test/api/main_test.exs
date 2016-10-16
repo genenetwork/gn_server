@@ -48,7 +48,6 @@ defmodule APITest do
 
   end
 
-
   test "/datasets/BXD" do
     %Plug.Conn{resp_body: value} = conn(:get, "/datasets/BXD") |> make_response
     res = Poison.decode!(value)
@@ -60,9 +59,16 @@ defmodule APITest do
     assert(Enum.count(res)==2565)
   end
 
-  test "/dataset/'name'.json" do
+  test "/dataset/HC_M2_0606_P.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/dataset/HC_M2_0606_P.json") |> make_response
+    assert Poison.decode!(value) ==
+      %{"data_scale" => "log2", "full_name" => "Hippocampus Consortium M430v2 (Jun06) PDNN", "id" => 112, "name" => "HC_M2_0606_P", "public" => 2, "short_name" => "Hippocampus M430v2 BXD 06/06 PDNN", "tissue" => "Hippocampus mRNA", "confidential" => 0, "tissue_id" => 9}
 
+  end
+
+  @tag :skip
+  test "/dataset/Ric.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/dataset/Ric.json") |> make_response
     assert Poison.decode!(value) ==
       %{"data_scale" => "log2", "full_name" => "Hippocampus Consortium M430v2 (Jun06) PDNN", "id" => 112, "name" => "HC_M2_0606_P", "public" => 2, "short_name" => "Hippocampus M430v2 BXD 06/06 PDNN", "tissue" => "Hippocampus mRNA", "confidential" => 0, "tissue_id" => 9}
 
@@ -72,6 +78,12 @@ defmodule APITest do
     %Plug.Conn{resp_body: value} = conn(:get, "/dataset/112.json") |> make_response
     assert Poison.decode!(value) ==
       %{"data_scale" => "log2", "full_name" => "Hippocampus Consortium M430v2 (Jun06) PDNN", "id" => 112, "name" => "HC_M2_0606_P", "public" => 2, "short_name" => "Hippocampus M430v2 BXD 06/06 PDNN", "tissue" => "Hippocampus mRNA", "confidential" => 0, "tissue_id" => 9}
+  end
+
+  test "/dataset/10001.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/dataset/10001.json") |> make_response
+    assert Poison.decode!(value) ==
+      %{"descr" => "Central nervous system, morphology: Cerebellum weight [mg]", "id" => 10001, "name" => "CBLWT2", "pmid" => 11438585, "title" => "Genetic control of the mouse cerebellum: identification of quantitative trait loci modulating size and architecture", "year" => "2001"}
   end
 
   test "/phenotypes/HC_M2_0606_P.json?start=100&stop=101" do

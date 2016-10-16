@@ -35,19 +35,7 @@ defmodule GnServer.Logic.Assemble do
   end
 
   def dataset_info(dataset_name) do
-    [[id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential]] = Store.dataset_info(dataset_name)
-
-    %{ id:           id,
-       name:         name,
-       full_name:    full_name,
-       short_name:   short_name,
-       data_scale:   data_scale,
-       tissue_id:    tissue_id,
-       tissue:       tissue_name,
-       public:       public,
-       confidential: confidential
-    }
-
+    Store.dataset_info(dataset_name)
   end
 
   def menu_main do
