@@ -6,6 +6,25 @@ defmodule GnServer.Router.Main do
   alias GnServer.Data.Store, as: Store
   alias GnServer.Logic.Assemble, as: Assemble
 
+  # ==== Some private helper functions
+
+  @doc """
+  Convenience function transforms a string into an integer
+  value when it can actually convert to int. Otherwise it leaves it as
+  a string. Returns tuple {:string, s} or {:integer, i} tuple with
+  type descriptor and value.
+  """
+
+  defp integer_or_string(id) do
+    try do
+      { :integer, String.to_integer(id) }
+    rescue
+      _ in ArgumentError -> { :string, id }
+    end
+  end
+
+  # ==== Routing
+
   get "/species" do
     { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
       Store.species
@@ -106,17 +125,20 @@ defmodule GnServer.Router.Main do
 
   # /phenotype/HC_U_0304_R/104617_at.json
   # /phenotype/HC_U_0304_R/104617_at.csv
-  # /phenotype/10001/traits.json
-  # /phenotype/10001/traits.csv
+  # /phenotype/112/1443823_s_at.json
+  # /phenotype/112/1443823_s_at.csv
   # /phenotype/CBLDT2/traits.json
   # /phenotype/CBLDT2/traits.csv
+  # /phenotype/10001/traits.json
+  # /phenotype/10001/traits.csv
   namespace :phenotype do
     route_param :dataset, type: String do
       route_param :trait, type: String do
         get do
+          { int_or_string, dataset } = integer_or_string(params[:dataset])
           [_,trait,type] = Regex.run ~r/(.*)\.(json|csv)$/, params[:trait]
           { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
-            Store.traits(params[:dataset],trait)
+            Store.traits(dataset,trait)
           end)
           case type do
             "json" -> json(conn, result)

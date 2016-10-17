@@ -24,6 +24,7 @@ defmodule GnServer.Data.Store do
   alias GnServer.Schema.ProbeSetXRef
   alias GnServer.Schema.ProbeSetData
   alias GnServer.Schema.ProbeSetSE
+  alias GnServer.Schema.PublishData
   alias GnServer.Schema.PublishFreeze
   alias GnServer.Schema.PublishXRef
   alias GnServer.Schema.Publication
@@ -62,6 +63,24 @@ defmodule GnServer.Data.Store do
     true
   end
 
+  defp authorize_published_dataset(id) when is_integer(id) do
+    query = from publishxref in PublishXRef,
+      join: inbredset in InbredSet,
+      on: publishxref."InbredSetId" == inbredset.id,
+      join: phenotype in Phenotype,
+      on: publishxref."PhenotypeId" == phenotype.id,
+      join: publication in Publication,
+      on: publishxref."PublicationId" == publication.id,
+      distinct: true,
+      select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description }, # , publication.pubmed_id,  publication.title, publication.year },
+    where: inbredset."Name" == "BXD" and publishxref.id == ^id and (publication.year <= @year or not is_nil(publication."Pubmed_Id"))
+    rows = Repo.all(query)
+    # IO.inspect(rows)
+    if Enum.count(rows) != 1 do
+      raise "Authorization error (PublishData) for #{id}"
+    end
+  end
+
   @doc """
   Authorize access based on confidentiality and public
   fields
@@ -75,21 +94,7 @@ defmodule GnServer.Data.Store do
       end
     # Splitting out on ProbSet and PublishData
     if field_name == :id and field_value > 10_000 do
-      query = from publishxref in PublishXRef,
-        join: inbredset in InbredSet,
-        on: publishxref."InbredSetId" == inbredset.id,
-        join: phenotype in Phenotype,
-        on: publishxref."PhenotypeId" == phenotype.id,
-        join: publication in Publication,
-        on: publishxref."PublicationId" == publication.id,
-        distinct: true,
-        select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description }, # , publication.pubmed_id,  publication.title, publication.year },
-      where: inbredset."Name" == "BXD" and publishxref.id == ^field_value and (publication.year <= @year or not is_nil(publication."Pubmed_Id"))
-      rows = Repo.all(query)
-      # IO.inspect(rows)
-      if Enum.count(rows) != 1 do
-        raise "Authorization error (PublishData) for #{dataset_name}"
-      end
+      authorize_published_dataset(field_value)
     else
       query = from x in ProbeSetFreeze,
         select: {x.confidentiality, x.public},
@@ -405,6 +410,31 @@ data
     Repo.all(query) |> Enum.map(from_tuple_to_structure)
   end
 
+  @doc """
+  Fetch the traits from the PublishData table
+  """
+
+  def traits_published(id) when is_integer(id) do
+    authorize_published_dataset(id)
+    query = from publishxref in PublishXRef,
+      join: inbredset in InbredSet,
+        on: publishxref."InbredSetId" == inbredset.id,
+      join: publishdata in PublishData,
+        on: publishdata.id == publishxref.dataid,
+      distinct: true,
+      select: { publishdata.id, publishdata.strainid, publishdata.value },
+      where: publishdata.id == 8967043
+    rows = Repo.all(query)
+    IO.inspect(rows)
+    "HERE"
+  end
+
+  def traits(id, marker) when is_integer(id) do
+    case marker do
+      "traits" -> traits_published(id)
+             _ -> raise "NYI"
+    end
+  end
 
   def traits(dataset_name,marker) do
     authorize_dataset(dataset_name)
@@ -430,7 +460,6 @@ data
     end
 
     Repo.all(query) |> Enum.map(from_tuple_to_structure)
-
   end
 
   def traits(dataset_name,marker,group) do

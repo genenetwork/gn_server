@@ -6,7 +6,7 @@ defmodule GnServer.Schema.PublishXRef do
     field :InbredSetId, :integer
     field :PhenotypeId, :integer
     field :PublicationId, :integer
-    field :DataId, :integer
+    field :dataid, :integer
     field :Locus, :string
     field :LRS, :integer
     field :additive, :float
