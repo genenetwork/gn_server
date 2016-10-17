@@ -107,8 +107,18 @@ defmodule APITest do
 
   test "/phenotype/10001/traits.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/10001/traits.json") |> make_response
-    assert Poison.decode!(value) |> Enum.take(5) ==
-       [[4, "BXD1", 61.400001525878906], [5, "BXD2", 49.0], [6, "BXD5", 62.5], [7, "BXD6", 53.099998474121094], [8, "BXD8", 59.099998474121094]]
+    res = Poison.decode!(value)
+    assert res |> Enum.take(5) ==
+      [[4, "BXD1", 61.400001525878906], [5, "BXD2", 49.0], [6, "BXD5", 62.5], [7, "BXD6", 53.099998474121094], [8, "BXD8", 59.099998474121094]]
+    assert Enum.count(res) == 34
+  end
+
+  test "/phenotype/12000/traits.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/12000/traits.json") |> make_response
+    res = Poison.decode!(value)
+    assert res |> Enum.take(5) ==
+      [[4, "BXD1", 8578.8125], [5, "BXD2", 2714.55712890625], [7, "BXD6", 3287.87841796875], [8, "BXD8", 2572.21875], [9, "BXD9", 10972.421875]]
+    assert Enum.count(res) == 64
   end
 
   @tag :skip

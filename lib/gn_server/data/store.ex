@@ -425,9 +425,9 @@ data
         on: publishdata.strainid == strain.id,
       distinct: true,
       select: [ publishdata.strainid, strain."Name", publishdata.value ],
-      where: publishdata.id == 8967043
+      # Note: fixated to BXD (inbredset==1)
+      where: publishxref.id == ^id and publishxref."InbredSetId" == 1
     rows = Repo.all(query)
-    IO.inspect(rows)
     rows
   end
 
