@@ -261,16 +261,18 @@ data
       rec = Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
           [[id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential]] = rec
 
-      %{ id:           id,
-         name:         name,
-         full_name:    full_name,
-         short_name:   short_name,
-         data_scale:   data_scale,
-         tissue_id:    tissue_id,
-         tissue:       tissue_name,
-         public:       public,
-         confidential: confidential
-      }
+          %{
+            "dataset": "probeset",
+            id:           id,
+            name:         name,
+            full_name:    full_name,
+            short_name:   short_name,
+            data_scale:   data_scale,
+            tissue_id:    tissue_id,
+            tissue:       tissue_name,
+            public:       public,
+            confidential: confidential
+          }
     end
   end
 
@@ -290,18 +292,19 @@ data
       rec = Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
           [[id,name,descr,pmid,title,year]] = rec
 
-      %{ id:           id,
-         name:         name,
-         descr:        descr,
-         pmid:         pmid,
-         title:        title,
-         year:         year
-         # data_scale:   data_scale,
-         # tissue_id:    tissue_id,
-         # tissue:       tissue_name,
-         # public:       public,
-         # confidential: confidential
-      }
+          %{ dataset:      "phenotype",
+             id:           id,
+             name:         name,
+             descr:        descr,
+             pmid:         pmid,
+             title:        title,
+             year:         year
+             # data_scale:   data_scale,
+             # tissue_id:    tissue_id,
+             # tissue:       tissue_name,
+             # public:       public,
+             # confidential: confidential
+          }
   end
 
   def phenotypes(dataset_name, start, stop) do
