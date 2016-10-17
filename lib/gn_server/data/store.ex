@@ -406,7 +406,7 @@ data
   end
 
 
-  def phenotype_info(dataset_name,marker) do
+  def traits(dataset_name,marker) do
     authorize_dataset(dataset_name)
     query = from probesetdata in ProbeSetData,
       left_join: probesetse in ProbeSetSE,
@@ -433,7 +433,7 @@ data
 
   end
 
-  def phenotype_info(dataset_name,marker,group) do
+  def traits(dataset_name,marker,group) do
     authorize_dataset(dataset_name)
     authorize_group(group)
     [[group_id | _ ] | _] = group_info({:original,group})
