@@ -133,9 +133,14 @@ defmodule APITest do
     assert Poison.decode!(value) == []
   end
 
+  test "/phenotype/12968/traits.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/12968/traits.json") |> make_response
+    assert value == "Server error" # not allowed, no PMID
+  end
+
   test "/phenotype/17469/traits.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/17469/traits.json") |> make_response
-    assert value == "Server error" # not allowed
+    assert value == "Server error" # not allowed, recent dataset
   end
 
   test "/phenotype/HC_M2_0606_P/1443823_s_at.json" do
