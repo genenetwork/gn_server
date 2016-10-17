@@ -107,7 +107,8 @@ defmodule APITest do
 
   test "/phenotype/10001/traits.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/10001/traits.json") |> make_response
-    assert Poison.decode!(value) == ["test"]
+    assert Poison.decode!(value) |> Enum.take(5) ==
+       [[4, "BXD1", 61.400001525878906], [5, "BXD2", 49.0], [6, "BXD5", 62.5], [7, "BXD6", 53.099998474121094], [8, "BXD8", 59.099998474121094]]
   end
 
   @tag :skip

@@ -421,12 +421,14 @@ data
         on: publishxref."InbredSetId" == inbredset.id,
       join: publishdata in PublishData,
         on: publishdata.id == publishxref.dataid,
+      join: strain in Strain,
+        on: publishdata.strainid == strain.id,
       distinct: true,
-      select: { publishdata.id, publishdata.strainid, publishdata.value },
+      select: [ publishdata.strainid, strain."Name", publishdata.value ],
       where: publishdata.id == 8967043
     rows = Repo.all(query)
     IO.inspect(rows)
-    "HERE"
+    rows
   end
 
   def traits(id, marker) when is_integer(id) do
