@@ -1,5 +1,7 @@
 defmodule GnServer.Data.Store do
 
+  @year 2013
+
   @moduledoc """
   This module provides low level calls (using Ecto) to the database -
   each call should return a simple list of records. For more complicated
@@ -82,7 +84,7 @@ defmodule GnServer.Data.Store do
         on: publishxref."PublicationId" == publication.id,
         distinct: true,
         select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description }, # , publication.pubmed_id,  publication.title, publication.year },
-      where: inbredset."Name" == "BXD" and publishxref.id == ^field_value and (publication.year <= 2010 or not is_nil(publication."Pubmed_Id"))
+      where: inbredset."Name" == "BXD" and publishxref.id == ^field_value and (publication.year <= @year or not is_nil(publication."Pubmed_Id"))
       rows = Repo.all(query)
       # IO.inspect(rows)
       if Enum.count(rows) != 1 do
@@ -228,7 +230,7 @@ data
         on: publishxref."PublicationId" == publication.id,
       distinct: true,
       select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description }, # , publication.pubmed_id,  publication.title, publication.year },
-      where: inbredset."Name" == ^group and (publication.year <= 2010 or not is_nil(publication."Pubmed_Id"))
+      where: inbredset."Name" == ^group and (publication.year <= @year or not is_nil(publication."Pubmed_Id"))
       # where: inbredset."Name" == ^group and (publication.year > 2010 and is_nil(publication."Pubmed_Id"))
 
       # where: inbredset."Name" == ^group and (publication.year <= 2010 or like(phenotype.post_publication_description,"%PMID%") # or like(phenotype.post_publication_description,"%DOI%"))
@@ -376,7 +378,7 @@ data
   end
 
   defp phenotypes_publish_data(id, start, limit) do
-    raise "Not implemented"
+    "Not yet implemented phenotype info for publish_data id=#{id}"
   end
 
   def marker_info(species,marker) do
