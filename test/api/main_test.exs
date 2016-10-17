@@ -133,6 +133,11 @@ defmodule APITest do
     assert Poison.decode!(value) == []
   end
 
+  test "/phenotype/17469/traits.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/17469/traits.json") |> make_response
+    assert value == "Server error" # not allowed
+  end
+
   test "/phenotype/HC_M2_0606_P/1443823_s_at.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/HC_M2_0606_P/1443823_s_at.json") |> make_response
     # result = Poison.decode!(value)
