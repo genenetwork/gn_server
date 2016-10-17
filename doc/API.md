@@ -4,8 +4,14 @@
 
 ### Introduction
 
-Most of the API outputs JSON. JSON can be parsed by JSON parsers,
-available in most languages.
+GeneNetwork offers unprecedented access to the data of thousands of
+QTL and GWAS experiments executed in the last decennium. These
+datasets include mouse, rat, arabidopsis and even human data. Next to
+having a browser-based user interface for accessing this data, our
+goal is to present all data also through a REST API, so that it can be
+used by anyone who has access to, for example, R and Python.  Next to
+R/qtl-style CSV, most of the GN API outputs JSON. JSON can be parsed
+by JSON parsers, available in most programming languages.
 
 See if the server is live
 
@@ -22,6 +28,15 @@ wget -qO - "http://test-gn2.genenetwork.org/api_pre1/"
 
 {"version":"0.50-pre1","I am":"genenetwork"}
 ```
+
+At this point almost all mouse BXD data is available through the REST
+API (some 3,500 datasets!). We are expanding to all other non-human
+datasets soon. Please contact us if you are interested in more data.
+
+When you use this data for a publication make sure what the status is
+by contacting the authors/owners of the dataset. Check also
+http://genenetwork.org/statusandContact.html. In case you need
+clarification please contact the GeneNetwork project.
 
 ### List species
 
@@ -63,6 +78,12 @@ curl "http://test-gn2.genenetwork.org/api_pre1/dataset/HC_U_0304_R.json"
 or through its id
 
 ```js
+curl "http://test-gn2.genenetwork.org/api_pre1/dataset/10001.json"
+```
+
+or for a high-throughput set:
+
+```js
 curl "http://test-gn2.genenetwork.org/api_pre1/dataset/7.json"
 
 {"tissue_id":3,"tissue":"Hematopoietic Cells mRNA","short_name":"GNF Stem Cells U74Av2 (Mar04) RMA","public":2,"name":"HC_U_0304_R","id":7,"full_name":"GNF Stem Cells U74Av2 (Mar04) RMA","data_scale":"log2","confidential":0}
@@ -70,7 +91,42 @@ curl "http://test-gn2.genenetwork.org/api_pre1/dataset/7.json"
 
 ### Fetch phenotypes
 
-get dataset phenotype information for a range (here mRNA probesets)
+#### Phenotype datasets
+
+Phenotype datasets are 'classic' QTL datasets with individuals
+(strains) and measured traits - distinguishable on the
+'dataset=phenotype' field in the dataset record above.
+
+Fetch the measurements with
+
+```js
+curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/10001/traits.json"
+
+```
+
+or from the dataset name
+
+```js
+curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/CBLDT2/traits.json"
+
+(nyi)
+```
+
+
+GN2 can also return the phenotypes in the R/qtl2 CSV data format as
+described
+[here](http://kbroman.org/qtl2/assets/vignettes/input_files.html).
+
+```js
+curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/10001/traits.csv"
+
+(nyi)
+```
+
+#### mRNA probesets
+
+get dataset phenotype information for a range (here mRNA probesets) - note this
+only works for datasets that have the 'dataset=probeset' attribute.
 
 ```js
 curl "http://test-gn2.genenetwork.org/api_pre1/phenotypes/HC_U_0304_R.json?start=100&stop=101"
