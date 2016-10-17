@@ -72,13 +72,15 @@ To get information on a dataset, e.g. HC_U_0304_R
 ```js
 curl "http://test-gn2.genenetwork.org/api_pre1/dataset/HC_U_0304_R.json"
 
-{"tissue_id":3,"tissue":"Hematopoietic Cells mRNA","short_name":"GNF Stem Cells U74Av2 (Mar04) RMA","public":2,"name":"HC_U_0304_R","id":7,"full_name":"GNF Stem Cells U74Av2 (Mar04) RMA","data_scale":"log2","confidential":0}
+{"tissue_id":3,"tissue":"Hematopoietic Cells mRNA","short_name":"GNF Stem Cells U74Av2 (Mar04) RMA","public":2,"name":"HC_U_0304_R","id":7,"full_name":"GNF Stem Cells U74Av2 (Mar04) RMA","dataset":"probeset","data_scale":"log2","confidential":0}
 ```
 
 or through its id
 
 ```js
 curl "http://test-gn2.genenetwork.org/api_pre1/dataset/10001.json"
+
+{"year":"2001","title":"Genetic control of the mouse cerebellum: identification of quantitative trait loci modulating size and architecture","pmid":11438585,"name":"CBLWT2","id":10001,"descr":"Central nervous system, morphology: Cerebellum weight, whole, bilateral in adults of both sexes [mg]","dataset":"phenotype"}
 ```
 
 or for a high-throughput set:
@@ -86,7 +88,7 @@ or for a high-throughput set:
 ```js
 curl "http://test-gn2.genenetwork.org/api_pre1/dataset/7.json"
 
-{"tissue_id":3,"tissue":"Hematopoietic Cells mRNA","short_name":"GNF Stem Cells U74Av2 (Mar04) RMA","public":2,"name":"HC_U_0304_R","id":7,"full_name":"GNF Stem Cells U74Av2 (Mar04) RMA","data_scale":"log2","confidential":0}
+{"tissue_id":3,"tissue":"Hematopoietic Cells mRNA","short_name":"GNF Stem Cells U74Av2 (Mar04) RMA","public":2,"name":"HC_U_0304_R","id":7,"full_name":"GNF Stem Cells U74Av2 (Mar04) RMA","dataset":"probeset","data_scale":"log2","confidential":0}
 ```
 
 ### Fetch phenotypes
@@ -101,7 +103,7 @@ Fetch the measurements with
 
 ```js
 curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/10001/traits.json"
-
+[[4,"BXD1",61.400001525878906],[5,"BXD2",49.0],[6,"BXD5",62.5],[7,"BXD6",53.099998474121094],[8,"BXD8",59.099998474121094],[9,"BXD9",53.900001525878906],[10,"BXD11",53.099998474121094],[11,"BXD12",45.900001525878906],[12,"BXD13",48.400001525878906],[13,"BXD14",49.400001525878906],[14,"BXD15",47.400001525878906],[15,"BXD16",56.29999923706055],[16,"BXD18",53.599998474121094],[17,"BXD19",50.099998474121094],[18,"BXD20",48.20000076293945],[19,"BXD21",50.599998474121094],[20,"BXD22",53.79999923706055],[21,"BXD23",48.599998474121094],[22,"BXD24",54.900001525878906],[23,"BXD25",49.599998474121094],[24,"BXD27",47.400001525878906],[25,"BXD28",51.5],[26,"BXD29",50.20000076293945],[27,"BXD30",53.599998474121094],[28,"BXD31",49.70000076293945],[29,"BXD32",56.0],[30,"BXD33",52.099998474121094],[31,"BXD34",53.70000076293945],[32,"BXD35",49.70000076293945],[33,"BXD36",44.5],[35,"BXD38",51.099998474121094],[36,"BXD39",54.900001525878906],[37,"BXD40",49.900001525878906],[39,"BXD42",59.400001525878906]]
 ```
 
 or from the dataset name
