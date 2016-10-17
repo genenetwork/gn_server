@@ -56,7 +56,7 @@ defmodule APITest do
       [[17439, "Ric", "Immune system, infectious disease: Rickettsiu tsutsugamushi susceptibility (strain Gilliam, ip 100 50% mouse infectious doses, two treatments) of both sexes at 6-12 weeks-of-age (ordinal scale 0 = resistant, 1=susceptible, also see BXH RI set), maps to Gbp6 gene, see PMID 21551061) [mortality]"]]
     assert Enum.take(res,3) ==
       [[112, "HC_M2_0606_P", "Hippocampus Consortium M430v2 (Jun06) PDNN"], [10001, "CBLWT2", "Central nervous system, morphology: Cerebellum weight [mg]"], [10002, "ADJCBLWT", "Central nervous system, morphology: Cerebellum weight after adjustment for covariance with brain size [mg]"]]
-    assert(Enum.count(res)==2565)
+    assert(Enum.count(res)==3642)
   end
 
   test "/dataset/HC_M2_0606_P.json" do
@@ -98,8 +98,43 @@ defmodule APITest do
     [%{"symbol" => nil, "MAX_LRS" => 30.4944361132252, "Mb" => 12.6694, "chr" => 12, "mean" => 7.232, "name" => "1452452_at", "name_id" => 1452452, "p_value" => 6.09756097560421e-5, "additive" => 0.392331541218638, "locus" => "gnf12.013.284"}]
   end
 
+  @tag :skip
+  test "/phenotypes/10001.json?stop=0" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/10001.json?stop=0") |> make_response
+    assert Poison.decode!(value) ==
+    [%{"symbol" => nil, "MAX_LRS" => 30.4944361132252, "Mb" => 12.6694, "chr" => 12, "mean" => 7.232, "name" => "1452452_at", "name_id" => 1452452, "p_value" => 6.09756097560421e-5, "additive" => 0.392331541218638, "locus" => "gnf12.013.284"}]
+  end
+
+  test "/phenotype/10001/traits.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/10001/traits.json") |> make_response
+    assert Poison.decode!(value) == ["test"]
+  end
+
+  @tag :skip
+  test "/phenotype/CBLDT2/traits.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/CBLDT2/traits.json") |> make_response
+    assert Poison.decode!(value) == []
+  end
+
+  @tag :skip
+  test "/phenotype/10001/traits.csv" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/10001/traits.csv") |> make_response
+    assert Poison.decode!(value) == []
+  end
+
   test "/phenotype/HC_M2_0606_P/1443823_s_at.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/HC_M2_0606_P/1443823_s_at.json") |> make_response
+    # result = Poison.decode!(value)
+    [result | tail] = Poison.decode!(value)
+    assert result ==
+      [1, "B6D2F1", 15.251, nil]
+
+    assert(Enum.count(tail)+1==99)
+  end
+
+  @tag :skip
+  test "/phenotype/112/1443823_s_at.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/112/1443823_s_at.json") |> make_response
     # result = Poison.decode!(value)
     [result | tail] = Poison.decode!(value)
     assert result ==
