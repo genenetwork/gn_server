@@ -109,7 +109,7 @@ defmodule APITest do
     %Plug.Conn{resp_body: value} = conn(:get, "/trait/10001.json") |> make_response
     res = Poison.decode!(value)
     assert res |> Enum.take(5) ==
-      [[4, "BXD1", 61.400001525878906], [5, "BXD2", 49.0], [6, "BXD5", 62.5], [7, "BXD6", 53.099998474121094], [8, "BXD8", 59.099998474121094]]
+      [[4, "BXD1", 61.400001525878906, nil], [5, "BXD2", 49.0, nil], [6, "BXD5", 62.5, nil], [7, "BXD6", 53.099998474121094, nil], [8, "BXD8", 59.099998474121094, nil]]
     assert Enum.count(res) == 34
   end
 
@@ -117,7 +117,7 @@ defmodule APITest do
     %Plug.Conn{resp_body: value} = conn(:get, "/trait/12000.json") |> make_response
     res = Poison.decode!(value)
     assert res |> Enum.take(5) ==
-      [[4, "BXD1", 8578.8125], [5, "BXD2", 2714.55712890625], [7, "BXD6", 3287.87841796875], [8, "BXD8", 2572.21875], [9, "BXD9", 10972.421875]]
+      [[4, "BXD1", 8578.8125, nil], [5, "BXD2", 2714.55712890625, nil], [7, "BXD6", 3287.87841796875, nil], [8, "BXD8", 2572.21875, nil], [9, "BXD9", 10972.421875, nil]]
     assert Enum.count(res) == 64
   end
 
@@ -137,7 +137,7 @@ defmodule APITest do
     %Plug.Conn{resp_body: value} = conn(:get, "/trait/12968.json") |> make_response
     # allowed, no PMID, but old enough
     assert Poison.decode!(value) |> Enum.take(5) ==
-       [[2, "C57BL/6J", 0.12999999523162842], [3, "DBA/2J", 1.0], [6, "BXD5", 1.0], [9, "BXD9", 1.0], [10, "BXD11", 1.0]]
+       [[2, "C57BL/6J", 0.12999999523162842, nil], [3, "DBA/2J", 1.0, nil], [6, "BXD5", 1.0, nil], [9, "BXD9", 1.0, nil], [10, "BXD11", 1.0, nil]]
   end
 
   test "/trait/17469.json" do
