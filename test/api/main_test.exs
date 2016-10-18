@@ -105,16 +105,16 @@ defmodule APITest do
     [%{"symbol" => nil, "MAX_LRS" => 30.4944361132252, "Mb" => 12.6694, "chr" => 12, "mean" => 7.232, "name" => "1452452_at", "name_id" => 1452452, "p_value" => 6.09756097560421e-5, "additive" => 0.392331541218638, "locus" => "gnf12.013.284"}]
   end
 
-  test "/phenotype/10001/traits.json" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/10001/traits.json") |> make_response
+  test "/trait/10001.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/trait/10001.json") |> make_response
     res = Poison.decode!(value)
     assert res |> Enum.take(5) ==
       [[4, "BXD1", 61.400001525878906], [5, "BXD2", 49.0], [6, "BXD5", 62.5], [7, "BXD6", 53.099998474121094], [8, "BXD8", 59.099998474121094]]
     assert Enum.count(res) == 34
   end
 
-  test "/phenotype/12000/traits.json" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/12000/traits.json") |> make_response
+  test "/trait/12000.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/trait/12000.json") |> make_response
     res = Poison.decode!(value)
     assert res |> Enum.take(5) ==
       [[4, "BXD1", 8578.8125], [5, "BXD2", 2714.55712890625], [7, "BXD6", 3287.87841796875], [8, "BXD8", 2572.21875], [9, "BXD9", 10972.421875]]
@@ -122,29 +122,31 @@ defmodule APITest do
   end
 
   @tag :skip
-  test "/phenotype/CBLDT2/traits.json" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/CBLDT2/traits.json") |> make_response
+  test "/trait/CBLDT2.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/trait/CBLDT2.json") |> make_response
     assert Poison.decode!(value) == []
   end
 
   @tag :skip
-  test "/phenotype/10001/traits.csv" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/10001/traits.csv") |> make_response
+  test "/trait/10001.csv" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/trait/10001.csv") |> make_response
     assert Poison.decode!(value) == []
   end
 
-  test "/phenotype/12968/traits.json" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/12968/traits.json") |> make_response
-    assert value == "Server error" # not allowed, no PMID
+  test "/trait/12968.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/trait/12968.json") |> make_response
+    # allowed, no PMID, but old enough
+    assert Poison.decode!(value) |> Enum.take(5) ==
+       [[2, "C57BL/6J", 0.12999999523162842], [3, "DBA/2J", 1.0], [6, "BXD5", 1.0], [9, "BXD9", 1.0], [10, "BXD11", 1.0]]
   end
 
-  test "/phenotype/17469/traits.json" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/17469/traits.json") |> make_response
+  test "/trait/17469.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/trait/17469.json") |> make_response
     assert value == "Server error" # not allowed, recent dataset
   end
 
-  test "/phenotype/HC_M2_0606_P/1443823_s_at.json" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/HC_M2_0606_P/1443823_s_at.json") |> make_response
+  test "/trait/HC_M2_0606_P/1443823_s_at.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/trait/HC_M2_0606_P/1443823_s_at.json") |> make_response
     # result = Poison.decode!(value)
     [result | tail] = Poison.decode!(value)
     assert result ==
@@ -154,8 +156,8 @@ defmodule APITest do
   end
 
   @tag :skip
-  test "/phenotype/112/1443823_s_at.json" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/112/1443823_s_at.json") |> make_response
+  test "/trait/112/1443823_s_at.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/trait/112/1443823_s_at.json") |> make_response
     # result = Poison.decode!(value)
     [result | tail] = Poison.decode!(value)
     assert result ==
@@ -164,13 +166,13 @@ defmodule APITest do
     assert(Enum.count(tail)+1==99)
   end
 
-  test "/phenotype/HC_M2_0606_P/1443823_s_at.csv" do
-    %Plug.Conn{resp_body: value}  = conn(:get, "/phenotype/HC_M2_0606_P/1443823_s_at.csv") |> make_response
+  test "/trait/HC_M2_0606_P/1443823_s_at.csv" do
+    %Plug.Conn{resp_body: value}  = conn(:get, "/trait/HC_M2_0606_P/1443823_s_at.csv") |> make_response
     assert(String.slice(value,0..100) == "id,value\n1,15.251\n2,15.626\n3,14.716\n4,15.198\n5,14.918\n6,15.057\n7,15.232\n8,14.968\n9,14.87\n10,15.084\n11")
   end
 
-  test "/phenotype/HC_M2_0606_P/BXD/1443823_s_at.json" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotype/HC_M2_0606_P/BXD/1443823_s_at.json") |> make_response
+  test "/trait/HC_M2_0606_P/BXD/1443823_s_at.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/trait/HC_M2_0606_P/BXD/1443823_s_at.json") |> make_response
     [result | tail] = Poison.decode!(value)
     assert result == [1, "B6D2F1", 15.251, nil]
 
