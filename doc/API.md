@@ -102,14 +102,14 @@ Phenotype datasets are 'classic' QTL datasets with individuals
 Fetch the measurements with
 
 ```js
-curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/10001/traits.json"
+curl "http://test-gn2.genenetwork.org/api_pre1/trait/10001.json"
 [[4,"BXD1",61.400001525878906],[5,"BXD2",49.0],[6,"BXD5",62.5],[7,"BXD6",53.099998474121094],[8,"BXD8",59.099998474121094],[9,"BXD9",53.900001525878906],[10,"BXD11",53.099998474121094],[11,"BXD12",45.900001525878906],[12,"BXD13",48.400001525878906],[13,"BXD14",49.400001525878906],[14,"BXD15",47.400001525878906],[15,"BXD16",56.29999923706055],[16,"BXD18",53.599998474121094],[17,"BXD19",50.099998474121094],[18,"BXD20",48.20000076293945],[19,"BXD21",50.599998474121094],[20,"BXD22",53.79999923706055],[21,"BXD23",48.599998474121094],[22,"BXD24",54.900001525878906],[23,"BXD25",49.599998474121094],[24,"BXD27",47.400001525878906],[25,"BXD28",51.5],[26,"BXD29",50.20000076293945],[27,"BXD30",53.599998474121094],[28,"BXD31",49.70000076293945],[29,"BXD32",56.0],[30,"BXD33",52.099998474121094],[31,"BXD34",53.70000076293945],[32,"BXD35",49.70000076293945],[33,"BXD36",44.5],[35,"BXD38",51.099998474121094],[36,"BXD39",54.900001525878906],[37,"BXD40",49.900001525878906],[39,"BXD42",59.400001525878906]]
 ```
 
 or from the dataset name
 
 ```js
-curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/CBLDT2/traits.json"
+curl "http://test-gn2.genenetwork.org/api_pre1/trait/CBLDT2.json"
 
 (nyi)
 ```
@@ -120,7 +120,7 @@ described
 [here](http://kbroman.org/qtl2/assets/vignettes/input_files.html).
 
 ```js
-curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/10001/traits.csv"
+curl "http://test-gn2.genenetwork.org/api_pre1/trait/10001.csv"
 
 (nyi)
 ```
@@ -141,7 +141,7 @@ Get the actual trait values or measurements of a sample with the
 stderr (in this dataset stderr is missing, so null)
 
 ```js
-curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/HC_U_0304_R/104617_at.json"
+curl "http://test-gn2.genenetwork.org/api_pre1/trait/HC_U_0304_R/104617_at.json"
 
 [[4,"BXD1",8.049,null],[5,"BXD2",8.116,null],[6,"BXD5",8.064,null],[7,"BXD6",8.17,null],[8,"BXD8",8.067,null],[9,"BXD9",8.105,null],[10,"BXD11",8.317,null],[11,"BXD12",8.127,null],[13,"BXD14",8.135,null],[14,"BXD15",8.253,null],[15,"BXD16",8.335,null],[16,"BXD18",8.208,null],[17,"BXD19",8.239,null],[19,"BXD21",8.158,null],[20,"BXD22",8.226,null],[22,"BXD24",8.043,null],[23,"BXD25",7.947,null],[24,"BXD27",8.201,null],[25,"BXD28",8.068,null],[26,"BXD29",8.238,null],[27,"BXD30",8.223,null],[28,"BXD31",8.119,null],[29,"BXD32",8.039,null],[30,"BXD33",8.271,null],[31,"BXD34",8.314,null],[33,"BXD36",8.194,null],[35,"BXD38",8.163,null],[36,"BXD39",8.197,null],[37,"BXD40",8.15,null],[39,"BXD42",8.231,null]]
 ```
@@ -149,7 +149,7 @@ curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/HC_U_0304_R/104617_at.j
 here another example of a sample that includes parent values and stderr:
 
 ```js
-curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/HC_M2_0606_P/1443823_s_at.json"
+curl "http://test-gn2.genenetwork.org/api_pre1/trait/HC_M2_0606_P/1443823_s_at.json"
 
 [[1,"B6D2F1",15.251,0.136],[2,"C57BL/6J",15.626,0.28],[3,"DBA/2J",14.716,0.26],[4,"BXD1",15.198,0.153],[5,"BXD2",14.918,0.023],[6,"BXD5",15.057,0.273],[7,"BXD6",15.232,0.107],[8,"BXD8",14.968,0.189],[9,"BXD9",14.87,0.454],[10,"BXD11",15.084,0.082],[11,"BXD12",15.192,0.298],[12,"BXD13",14.924,0.33],[14,"BXD15",15.343,0.34],[15,"BXD16",15.226,0.071],[17,"BXD19",15.364,0.074],[18,"BXD20",15.36,0.103],[19,"BXD21",14.792,0.911],...
 ```
@@ -159,7 +159,7 @@ described
 [here](http://kbroman.org/qtl2/assets/vignettes/input_files.html).
 
 ```js
-curl "http://test-gn2.genenetwork.org/api_pre1/phenotype/HC_U_0304_R/104617_at.csv"
+curl "http://test-gn2.genenetwork.org/api_pre1/trait/HC_U_0304_R/104617_at.csv"
 
 id,value
 4,8.049

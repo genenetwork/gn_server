@@ -411,10 +411,10 @@ data
   end
 
   @doc """
-  Fetch the traits from the PublishData table
+  Fetch the trait from the PublishData table
   """
 
-  def traits_published(id) when is_integer(id) do
+  def trait_published(id) when is_integer(id) do
     authorize_published_dataset(id)
     query = from publishxref in PublishXRef,
       join: inbredset in InbredSet,
@@ -431,14 +431,14 @@ data
     rows
   end
 
-  def traits(id, marker) when is_integer(id) do
+  def trait(id, marker \\ :classic) when is_integer(id) do
     case marker do
-      "traits" -> traits_published(id)
+      :classic -> trait_published(id)
              _ -> raise "NYI"
     end
   end
 
-  def traits(dataset_name,marker) do
+  def trait(dataset_name,marker) do
     authorize_dataset(dataset_name)
     query = from probesetdata in ProbeSetData,
       left_join: probesetse in ProbeSetSE,
@@ -464,7 +464,7 @@ data
     Repo.all(query) |> Enum.map(from_tuple_to_structure)
   end
 
-  def traits(dataset_name,marker,group) do
+  def trait(dataset_name,marker,group) do
     authorize_dataset(dataset_name)
     authorize_group(group)
     [[group_id | _ ] | _] = group_info({:original,group})
