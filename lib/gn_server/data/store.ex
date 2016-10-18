@@ -26,6 +26,7 @@ defmodule GnServer.Data.Store do
   alias GnServer.Schema.ProbeSetSE
   alias GnServer.Schema.PublishData
   alias GnServer.Schema.PublishFreeze
+  alias GnServer.Schema.PublishSE
   alias GnServer.Schema.PublishXRef
   alias GnServer.Schema.Publication
   alias GnServer.Schema.Species
@@ -423,8 +424,10 @@ data
         on: publishdata.id == publishxref.dataid,
       join: strain in Strain,
         on: publishdata.strainid == strain.id,
+      left_join: publishse in PublishSE,
+        on: publishdata.id == publishse.dataid and publishse.strainid == publishdata.strainid,
       distinct: true,
-      select: [ publishdata.strainid, strain."Name", publishdata.value ],
+      select: [ publishdata.strainid, strain."Name", publishdata.value, publishse.error ],
       # Note: fixated to BXD (inbredset==1)
       where: publishxref.id == ^id and publishxref."InbredSetId" == 1
     rows = Repo.all(query)
