@@ -6,6 +6,25 @@ defmodule GnServer.Router.Main do
   alias GnServer.Data.Store, as: Store
   alias GnServer.Logic.Assemble, as: Assemble
 
+  # ==== Some private helper functions
+
+  @doc """
+  Convenience function transforms a string into an integer
+  value when it can actually convert to int. Otherwise it leaves it as
+  a string. Returns tuple {:string, s} or {:integer, i} tuple with
+  type descriptor and value.
+  """
+
+  defp integer_or_string(id) do
+    try do
+      { :integer, String.to_integer(id) }
+    rescue
+      _ in ArgumentError -> { :string, id }
+    end
+  end
+
+  # ==== Routing
+
   get "/species" do
     { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
       Store.species
@@ -71,6 +90,90 @@ defmodule GnServer.Router.Main do
     end
   end
 
+  namespace :trait do
+    route_param :dataset, type: String do
+      route_param :trait, type: String do
+        get do
+          { int_or_string, dataset } = integer_or_string(params[:dataset])
+          [_,trait,type] = Regex.run ~r/(.*)\.(json|csv)$/, params[:trait]
+          { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+            Store.trait(dataset,trait)
+          end)
+          case type do
+            "json" -> json(conn, result)
+            "csv"  ->
+                      res = result |> Enum.map(fn r -> [id,_,v,_] = r; "#{id},#{v}" end)
+                      conn |> text( "id,value\n" <> Enum.join(res,"\n"))
+          end
+        end
+      end
+    end
+  end
+
+  # /trait/HC_M2_0606_P/BXD/1443823_s_at.json
+  namespace :trait do
+    route_param :dataset, type: String do
+      route_param :group, type: String do
+        route_param :trait, type: String do
+          get do
+            { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+              [_,trait] = Regex.run ~r/(.*)\.json$/, params[:trait]
+              Store.trait(params[:dataset],trait,params[:group])
+            end)
+            json(conn, result)
+          end
+        end
+      end
+    end
+  end
+
+  # /trait/HC_U_0304_R/104617_at.json
+  # /trait/HC_U_0304_R/104617_at.csv
+  # /trait/112/1443823_s_at.json
+  # /trait/112/1443823_s_at.csv
+  namespace :trait do
+    route_param :dataset, type: String do
+      route_param :trait, type: String do
+        get do
+          { int_or_string, dataset } = integer_or_string(params[:dataset])
+          [_,trait,type] = Regex.run ~r/(.*)\.(json|csv)$/, params[:trait]
+          { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
+            Store.trait(dataset,trait)
+          end)
+          case type do
+            "json" -> json(conn, result)
+            "csv"  ->
+                      res = result |> Enum.map(fn r -> [id,_,v,_] = r; "#{id},#{v}" end)
+                      conn |> text( "id,value\n" <> Enum.join(res,"\n"))
+          end
+        end
+      end
+    end
+  end
+
+  # /trait/CBLDT2.json
+  # /trait/CBLDT2.csv
+  # /trait/10001.json
+  # /trait/10001.csv
+  namespace :trait do
+    route_param :dataset, type: String do
+      get do
+        [_,dataset,type] = Regex.run ~r/(.*)\.(json|csv)$/, params[:dataset]
+        { int_or_string, dataset } = integer_or_string(dataset)
+        { status, result } = Cachex.get(:gn_server_cache, conn.request_path,
+          fallback: fn(key) ->
+            Store.trait(dataset)
+          end)
+        case type do
+          "json" -> json(conn, result)
+          "csv"  ->
+            res = result |> Enum.map(fn r -> [id,_,v,_] = r; "#{id},#{v}" end)
+            conn |> text( "id,value\n" <> Enum.join(res,"\n"))
+        end
+      end
+    end
+  end
+
   namespace :phenotypes do
     route_param :dataset_name, type: String do
       params do
@@ -86,42 +189,6 @@ defmodule GnServer.Router.Main do
       end
     end
   end
-
-  namespace :phenotype do
-    route_param :dataset, type: String do
-      route_param :group, type: String do
-        route_param :trait, type: String do
-          get do
-            { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
-              [_,trait] = Regex.run ~r/(.*)\.json$/, params[:trait]
-              Store.phenotype_info(params[:dataset],trait,params[:group])
-            end)
-            json(conn, result)
-          end
-        end
-      end
-    end
-  end
-
-  namespace :phenotype do
-    route_param :dataset, type: String do
-      route_param :trait, type: String do
-        get do
-          [_,trait,type] = Regex.run ~r/(.*)\.(json|csv)$/, params[:trait]
-          { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(key) ->
-            Store.phenotype_info(params[:dataset],trait)
-          end)
-          case type do
-            "json" -> json(conn, result)
-            "csv"  ->
-                      res = result |> Enum.map(fn r -> [id,_,v,_] = r; "#{id},#{v}" end)
-                      conn |> text( "id,value\n" <> Enum.join(res,"\n"))
-          end
-        end
-      end
-    end
-  end
-
 
   plug CORSPlug, origin: ["*"], headers: ["Range", "If-None-Match", "Accept-Ranges"], expose: ["Content-Range"]
 

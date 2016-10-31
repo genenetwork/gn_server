@@ -1,31 +1,48 @@
-# This module should only contain the MySQL calls to the backend to
-# fetch data. Assembling more complex structures should happen in the
-# Assemble modules.
-#
-# All functions return lists of lists, rather than lists of
-# tuples. Main reason is that tuples do not go nicely with JSON.
-
 defmodule GnServer.Data.Store do
 
-  # alias GnServer.Backend.MySQL, as: DB
+  @year 2013
+
+  @moduledoc """
+  This module provides low level calls (using Ecto) to the database -
+  each call should return a simple list of records. For more complicated
+  assembling check out the Assemble modules.
+
+  All functions return lists of lists, rather than lists of
+  tuples. Main reason is that tuples do not go nicely with JSON.
+  """
+
   import Ecto.Query
   alias GnServer.Repo
-  alias GnServer.Schema.Species
-  alias GnServer.Schema.ProbeSetFreeze
-  alias GnServer.Schema.InbredSet
-  alias GnServer.Schema.ProbeFreeze
-  alias GnServer.Schema.GenoFreeze
-  alias GnServer.Schema.PublishFreeze
-  alias GnServer.Schema.Tissue
-  alias GnServer.Schema.Geno
   alias GnServer.Schema.Chr_Length
+  alias GnServer.Schema.InbredSet
+  alias GnServer.Schema.GenoFreeze
+  alias GnServer.Schema.Geno
+  alias GnServer.Schema.Phenotype
+  alias GnServer.Schema.ProbeFreeze
+  alias GnServer.Schema.ProbeSetFreeze
   alias GnServer.Schema.ProbeSet
   alias GnServer.Schema.ProbeSetXRef
   alias GnServer.Schema.ProbeSetData
   alias GnServer.Schema.ProbeSetSE
+  alias GnServer.Schema.PublishData
+  alias GnServer.Schema.PublishFreeze
+  alias GnServer.Schema.PublishSE
+  alias GnServer.Schema.PublishXRef
+  alias GnServer.Schema.Publication
+  alias GnServer.Schema.Species
   alias GnServer.Schema.Strain
   alias GnServer.Schema.StrainXRef
+  alias GnServer.Schema.Tissue
   alias Ecto.Adapters.SQL
+
+  # ==== Some private helper functions
+
+  @doc """
+  Convenience function transforms a string into an integer
+  value when it can actually convert to int. Otherwise it leaves it as
+  a string. Returns tuple {:string, s} or {:integer, i} tuple with
+  type descriptor and value.
+  """
 
   defp use_type(id) do
     try do
@@ -35,11 +52,40 @@ defmodule GnServer.Data.Store do
     end
   end
 
+  @doc """
+  Authorize access based on inbred group - this will change
+  soon
+  """
+
   defp authorize_group(group_name) do
     if group_name != "BXD" do
       raise "Authorization error for " <> group_name
     end
+    true
   end
+
+  defp authorize_published_dataset(id) when is_integer(id) do
+    query = from publishxref in PublishXRef,
+      join: inbredset in InbredSet,
+      on: publishxref."InbredSetId" == inbredset.id,
+      join: phenotype in Phenotype,
+      on: publishxref."PhenotypeId" == phenotype.id,
+      join: publication in Publication,
+      on: publishxref."PublicationId" == publication.id,
+      distinct: true,
+      select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description }, # , publication.pubmed_id,  publication.title, publication.year },
+    where: inbredset."Name" == "BXD" and publishxref.id == ^id and (publication.year <= @year or not is_nil(publication."Pubmed_Id"))
+    rows = Repo.all(query)
+    # IO.inspect(rows)
+    if Enum.count(rows) != 1 do
+      raise "Authorization error (PublishData) for #{id}"
+    end
+  end
+
+  @doc """
+  Authorize access based on confidentiality and public
+  fields
+  """
 
   defp authorize_dataset(dataset_name) do
     {field_name, field_value} =
@@ -47,26 +93,29 @@ defmodule GnServer.Data.Store do
         { :integer, i } -> {:id, i}
         { :string, s }  -> {:Name,s}
       end
-#     query = """
-# SELECT DISTINCT D.confidentiality,D.public FROM ProbeSetFreeze AS D
-# WHERE #{subq}
-# """
+    # Splitting out on ProbSet and PublishData
+    if field_name == :id and field_value > 10_000 do
+      authorize_published_dataset(field_value)
+    else
+      query = from x in ProbeSetFreeze,
+        select: {x.confidentiality, x.public},
+        where: field(x, ^field_name) == ^field_value,
+        distinct: true
 
-    query = from x in ProbeSetFreeze,
-      select: {x.confidentiality, x.public},
-      where: field(x, ^field_name) == ^field_value,
-      distinct: true
+      rows = Repo.all(query)
+      if Enum.count(rows) != 1 do
+        raise "Access error (ProbeSet data) for #{dataset_name}"
+      end
 
-    rows = Repo.all(query)
-    if Enum.count(rows) != 1 do
-      raise "Access error"
+      [{confidentiality,public}] = rows
+      if public < 2 or confidentiality > 0 do
+        raise "Authorization error (ProbeSet data) for #{dataset_name}"
+      end
     end
-
-    [{confidentiality,public}] = rows
-    if public < 2 or confidentiality > 0 do
-      raise "Authorization error"
-    end
+    true
   end
+
+  # ==== Public database functions start here
 
   def species do
     query = from s in Species,
@@ -82,15 +131,6 @@ defmodule GnServer.Data.Store do
       end
 
     # note this query can be simplified
-#     query = """
-# SELECT distinct InbredSet.id,InbredSet.Name,InbredSet.FullName
-# FROM InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze
-# WHERE #{subq}
-# and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300'
-# and (PublishFreeze.InbredSetId = InbredSet.Id
-#      or GenoFreeze.InbredSetId = InbredSet.Id
-#      or ProbeFreeze.InbredSetId = InbredSet.Id)
-# """
     query = from species in Species,
       join: inbredset in InbredSet,
       on: species.id == inbredset."SpeciesId",
@@ -113,10 +153,6 @@ defmodule GnServer.Data.Store do
         { :integer, i } -> {:id, i}
         { :string, s }  -> {:Name, s}
       end
-#     query = "
-# SELECT DISTINCT Species.speciesid,Species.Name,C.InbredSetid,C.name,C.mappingmethodid,C.genetictype
-# FROM Species, InbredSet as C
-# WHERE #{subq} and C.SpeciesId = Species.Id"
     query = from species in Species,
       join: inbredset in InbredSet,
       on: species.id == inbredset."SpeciesId",
@@ -128,8 +164,34 @@ defmodule GnServer.Data.Store do
                inbredset."MappingMethodId",
                inbredset."GeneticType"},
       distinct: true
-    # for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
     Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+  end
+
+  # FIXME: forgot what the following is about...
+  def group_info({:optimized, group}) do
+    {inbredset_field, inbredset_value} =
+      case use_type(group) do
+        { :integer, i } -> {:id, i}
+        { :string, s }  -> {:Name, s}
+      end
+    query="""
+SELECT InbredSet.InbredSetId, InbredSet.Name, Species.SpeciesId, Species.Name, InbredSet.MappingMethodId, InbredSet.GeneticType,
+GROUP_CONCAT(DISTINCT CONCAT_WS(',',Chr_Length.Name, Chr_Length.Length) ORDER BY Chr_Length.OrderId SEPARATOR ' ') as Chrs
+FROM Species
+JOIN InbredSet
+ON Species.Id = InbredSet.SpeciesId and InbredSet.#{inbredset_field} = "#{inbredset_value}"
+JOIN Chr_Length
+ON Chr_Length.SpeciesId = InbredSet.SpeciesId
+GROUP BY InbredSet.InbredSetId, InbredSet.Name,Species.SpeciesId, Species.Name,InbredSet.MappingMethodId, InbredSet.GeneticType
+    """
+
+{:ok,
+ %Mariaex.Result{columns: ["InbredSetId", "Name", "SpeciesId", "Name",
+   "MappingMethodId", "GeneticType", "Chrs"], command: :select,
+  connection_id: nil, last_insert_id: nil, num_rows: 1,
+  rows: [data]}} = Ecto.Adapters.SQL.query(Repo, String.replace(query,"\n"," "), []) # would be better to use the parameters in the custom query
+
+data
   end
 
   def chr_info(dataset_name) do
@@ -147,96 +209,12 @@ defmodule GnServer.Data.Store do
       order_by: chr_length."OrderId"
 
     Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
-#       query = """
-# SELECT Chr_Length.Name, Length
-# FROM Chr_Length, InbredSet as C
-# WHERE #{subq}
-# AND Chr_Length.SpeciesId = C.SpeciesId
-# ORDER BY Chr_Length.OrderId
-#       """
-#     {:ok, rows} = DB.query(query)
-#     for r <- rows, do: ( {chr_name,chr_len} = r; [chr_name,chr_len] )
   end
 
-  def group_info({:optimized, group}) do
-    {inbredset_field, inbredset_value} =
-      case use_type(group) do
-        { :integer, i } -> {:id, i}
-        { :string, s }  -> {:Name, s}
-      end
-#     query = "
-# SELECT DISTINCT Species.speciesid,Species.Name,C.InbredSetid,C.name,C.mappingmethodid,C.genetictype
-# FROM Species, InbredSet as C
-# WHERE #{subq} and C.SpeciesId = Species.Id"
-
-    # query_species = from species in Species,
-    #   join: inbredset in InbredSet,
-    #   on: field(inbredset, ^inbredset_field) == ^inbredset_value and species.id == inbredset."SpeciesId",
-    #   #where: field(inbredset, ^inbredset_field) == ^inbredset_value,
-    #   select: {inbredset."InbredSetId",
-    #            inbredset."Name",
-    #            species."SpeciesId",
-    #            species."Name",
-    #            inbredset."MappingMethodId",
-    #            inbredset."GeneticType"},
-    #   distinct: true
-    # # for r <- rows, do: ( {species_id,species,group_id,group_name,method_id,genetic_type} = r; [group_id,group_name,species_id,species,method_id,genetic_type] )
-    # species_results = Repo.all(query_species)
-
-    # query_chr_length = from chr_length in Chr_Length,
-    #   join: inbredset in InbredSet,
-    #   on:  field(inbredset, ^inbredset_field) == ^inbredset_value and chr_length."SpeciesId" == inbredset."SpeciesId",
-    #   # where: field(inbredset, ^inbredset_field) == ^inbredset_value,
-    #   select: {chr_length."Name", chr_length."Length"},
-    #   order_by: chr_length."OrderId"
-
-# #JSON
-# query="""
-# SELECT InbredSet.InbredSetId, InbredSet.Name, Species.SpeciesId, Species.Name, InbredSet.MappingMethodId, InbredSet.GeneticType,
-# GROUP_CONCAT(DISTINCT JSON_OBJECT(Chr_Length.Name, Chr_Length.Length) ORDER BY Chr_Length.OrderId SEPARATOR ',') as Chrs
-# FROM Species
-# JOIN InbredSet
-# ON Species.Id = InbredSet.SpeciesId and InbredSet.Name = "BXD"
-# JOIN Chr_Length
-# ON Chr_Length.SpeciesId = InbredSet.SpeciesId
-# GROUP BY InbredSet.InbredSetId, InbredSet.Name,Species.SpeciesId, Species.Name,InbredSet.MappingMethodId, InbredSet.GeneticType
-# """
-
-
-query="""
-SELECT InbredSet.InbredSetId, InbredSet.Name, Species.SpeciesId, Species.Name, InbredSet.MappingMethodId, InbredSet.GeneticType,
-GROUP_CONCAT(DISTINCT CONCAT_WS(',',Chr_Length.Name, Chr_Length.Length) ORDER BY Chr_Length.OrderId SEPARATOR ' ') as Chrs
-FROM Species
-JOIN InbredSet
-ON Species.Id = InbredSet.SpeciesId and InbredSet.#{inbredset_field} = "#{inbredset_value}"
-JOIN Chr_Length
-ON Chr_Length.SpeciesId = InbredSet.SpeciesId
-GROUP BY InbredSet.InbredSetId, InbredSet.Name,Species.SpeciesId, Species.Name,InbredSet.MappingMethodId, InbredSet.GeneticType
-"""
-
-{:ok,
- %Mariaex.Result{columns: ["InbredSetId", "Name", "SpeciesId", "Name",
-   "MappingMethodId", "GeneticType", "Chrs"], command: :select,
-  connection_id: nil, last_insert_id: nil, num_rows: 1,
-  rows: [data]}} = Ecto.Adapters.SQL.query(Repo, String.replace(query,"\n"," "), []) # would be better to use the parameters in the custom query
-
-data
-  end
 
   def datasets(group) do
     authorize_group(group)
-#     query = """
-# SELECT DISTINCT D.Id,D.Name,D.FullName
-# FROM ProbeSetFreeze AS D, ProbeFreeze as D2, InbredSet, Tissue, Species
-# WHERE
-#     InbredSet.Name = '#{group}' and
-#     D.ProbeFreezeId = D2.Id
-#     AND D2.TissueId = Tissue.Id
-#     AND D2.InbredSetId = InbredSet.Id
-#     AND D.confidentiality < 1
-#     AND D.public > 0
-# """
-    query = from probesetfreeze in ProbeSetFreeze,
+    query1 = from probesetfreeze in ProbeSetFreeze,
       join: probefreeze in ProbeFreeze,
       on: probesetfreeze."ProbeFreezeId" == probefreeze."Id",
       join: tissue in Tissue,
@@ -247,10 +225,25 @@ data
       select: {probesetfreeze.id, probesetfreeze."Name", probesetfreeze."FullName"},
       distinct: true
 
-      Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+    list1 = Repo.all(query1) |> Enum.map(&(Tuple.to_list(&1)))
 
-    # {:ok, rows} = DB.query(query)
-    # for r <- rows, do: ( {id,name,full_name} = r ; [id,name,full_name] )
+    query2 = from publishxref in PublishXRef,
+      join: inbredset in InbredSet,
+        on: publishxref."InbredSetId" == inbredset.id,
+      join: phenotype in Phenotype,
+        on: publishxref."PhenotypeId" == phenotype.id,
+      join: publication in Publication,
+        on: publishxref."PublicationId" == publication.id,
+      distinct: true,
+      select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description }, # , publication.pubmed_id,  publication.title, publication.year },
+      where: inbredset."Name" == ^group and (publication.year <= @year or not is_nil(publication."Pubmed_Id"))
+      # where: inbredset."Name" == ^group and (publication.year > 2010 and is_nil(publication."Pubmed_Id"))
+
+      # where: inbredset."Name" == ^group and (publication.year <= 2010 or like(phenotype.post_publication_description,"%PMID%") # or like(phenotype.post_publication_description,"%DOI%"))
+
+    list2 = Repo.all(query2) |> Enum.map(&(Tuple.to_list(&1)))
+    # IO.inspect(list2)
+    list1 ++ list2
   end
 
   def dataset_info(dataset_name) do
@@ -260,38 +253,70 @@ data
         { :integer, i } -> {:id, i}
         { :string, s }  -> {:Name, s}
       end
+    if probesetfreeze_field==:id and probesetfreeze_value > 10_000 do
+      dataset_info_publish_data(probesetfreeze_value)
+    else
 
-#     query = """
-# SELECT D.Id, D.Name, D.FullName, D.ShortName, D.DataScale, D2.TissueId, Tissue.Name, D.public, D.confidentiality
-# FROM ProbeSetFreeze as D, ProbeFreeze as D2, Tissue
-# WHERE #{subq}
-#     AND D.public > 0
-#     AND D.ProbeFreezeId = D2.Id
-#     AND D2.TissueId = Tissue.Id
-#     """
-#     {:ok, rows} = DB.query(query)
-#     for r <- rows, do: ( {id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential} = r; [id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential] )
+      query = from probesetfreeze in ProbeSetFreeze,
+        join: probefreeze in ProbeFreeze,
+        on: probesetfreeze."ProbeFreezeId" == probefreeze."Id",
+        join: tissue in Tissue,
+        on: probefreeze."TissueId" == tissue."Id",
+        where: field(probesetfreeze, ^probesetfreeze_field) == ^probesetfreeze_value and probesetfreeze.public > 0,
+        select: {probesetfreeze.id, probesetfreeze."Name", probesetfreeze."FullName",
+                 probesetfreeze."ShortName", probesetfreeze."DataScale", probefreeze."TissueId",
+                 tissue."Name", probesetfreeze.public, probesetfreeze.confidentiality}
+      rec = Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+          [[id,name,full_name,short_name,data_scale,tissue_id,tissue_name,public,confidential]] = rec
 
-    query = from probesetfreeze in ProbeSetFreeze,
-      join: probefreeze in ProbeFreeze,
-      on: probesetfreeze."ProbeFreezeId" == probefreeze."Id",
-      join: tissue in Tissue,
-      on: probefreeze."TissueId" == tissue."Id",
-      where: field(probesetfreeze, ^probesetfreeze_field) == ^probesetfreeze_value and probesetfreeze.public > 0,
-      select: {probesetfreeze.id, probesetfreeze."Name", probesetfreeze."FullName",
-               probesetfreeze."ShortName", probesetfreeze."DataScale", probefreeze."TissueId",
-               tissue."Name", probesetfreeze.public, probesetfreeze.confidentiality}
-    Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+          %{
+            "dataset": "probeset",
+            id:           id,
+            name:         name,
+            full_name:    full_name,
+            short_name:   short_name,
+            data_scale:   data_scale,
+            tissue_id:    tissue_id,
+            tissue:       tissue_name,
+            public:       public,
+            confidential: confidential
+          }
+    end
+  end
+
+  defp dataset_info_publish_data(id) do
+    # authorize_dataset(id)
+    query = from publishxref in PublishXRef,
+      join: inbredset in InbredSet,
+        on: publishxref."InbredSetId" == inbredset.id,
+      join: phenotype in Phenotype,
+        on: publishxref."PhenotypeId" == phenotype.id,
+      join: publication in Publication,
+        on: publishxref."PublicationId" == publication.id,
+      distinct: true,
+      select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description , publication.pubmed_id,  publication.title, publication.year },
+      # where: inbredset."Name" == ^group and (publication.year <= 2010 or like(phenotype.post_publication_description,"%PMID%") # or like(phenotype.post_publication_description,"%DOI%"))
+      where: inbredset."Name" == "BXD" and publishxref.id == ^id
+      rec = Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
+          [[id,name,descr,pmid,title,year]] = rec
+
+          %{ dataset:      "phenotype",
+             id:           id,
+             name:         name,
+             descr:        descr,
+             pmid:         pmid,
+             title:        title,
+             year:         year
+             # data_scale:   data_scale,
+             # tissue_id:    tissue_id,
+             # tissue:       tissue_name,
+             # public:       public,
+             # confidential: confidential
+          }
   end
 
   def phenotypes(dataset_name, start, stop) do
     authorize_dataset(dataset_name)
-    dataset_id =
-      case use_type(dataset_name) do
-        { :integer, i } -> i
-        { :string, _ }  -> ( [[id | tail_]] = dataset_info(dataset_name)
-                           id )
-      end
 
     start2 =
       if start == nil do
@@ -308,67 +333,61 @@ data
       end
 
     limit = stop2 - start2 + 1
-#     query = """
-# SELECT distinct ProbeSet.Name,
-#   ProbeSetXRef.Mean, ProbeSetXRef.LRS,
-#   ProbeSetXRef.PVALUE, ProbeSetXRef.additive, ProbeSetXRef.locus, ProbeSet.Chr_num,
-#   ProbeSet.Mb, ProbeSet.Symbol,
-#   ProbeSet.name_num
-# FROM ProbeSetXRef, ProbeSet
-# WHERE ProbeSet.Id = ProbeSetXRef.ProbeSetId
-#   and ProbeSetXRef.ProbeSetFreezeId = #{dataset_id}
-#   ORDER BY ProbeSet.symbol ASC LIMIT #{limit}
-#     """
-#     {:ok, rows} = DB.query(query)
-    # for r <- rows, do: ( {name,mean,lrs,pvalue,additive,locus,chr,mb,symbol,name_num} = r ;
-    #   %{ name: name,
-    #      name_id: name_num,
-    #      mean: mean,
-    #      "MAX_LRS": lrs,
-    #      "p_value": pvalue,
-    #      additive: additive,
-    #      locus: locus,
-    #      chr: chr,
-    #      "Mb": mb,
-    #      symbol: symbol
-    #   })
 
-    query = from probeset in ProbeSet,
-      join: probesetxref in ProbeSetXRef,
-      on: probeset.id == probesetxref."ProbeSetId",
-      where: probesetxref."ProbeSetFreezeId" == ^dataset_id,
-      select: {probeset."Name", probesetxref.mean, probesetxref."LRS",
-               probesetxref.pValue, probesetxref.additive, probesetxref."Locus",
-               probeset.chr_num, probeset."Mb", probeset."Symbol", probeset.name_num},
-      distinct: true,
-      order_by: [asc: probeset."symbol", desc: probesetxref."LRS"],
-      limit: ^limit
+    # IO.puts("**** HERE #{dataset_name}")
+    {id_type, id} = use_type(dataset_name)
+    # IO.inspect {id_type, id}
+    dataset_id =
+      case {id_type, id} do
+        { :integer, i } -> i
+        # { :string, _ }  -> ( [[id2 | tail_]] = dataset_info(dataset_name)
+        #                    id2 )
+        { :string, _ }  -> ( %{ id: id2 } = dataset_info(dataset_name)
+                             id2 )
+      end
+    # IO.inspect { dataset_id }
 
-    from_tuple_to_structure = fn(query_result) ->
-      {name,mean,lrs,pvalue,additive,locus,chr,mb,symbol,name_num} = query_result
-      %{ name: name,
-         name_id: name_num,
-         mean: mean,
-         "MAX_LRS": lrs,
-         "p_value": pvalue,
-         additive: additive,
-         locus: locus,
-         chr: chr,
-         "Mb": mb,
-         symbol: symbol
-      }
+    if id_type==:integer and id > 10_000 do
+      phenotypes_publish_data(id,start2,limit)
+    else
+
+      query = from probeset in ProbeSet,
+        join: probesetxref in ProbeSetXRef,
+        on: probeset.id == probesetxref."ProbeSetId",
+        where: probesetxref."ProbeSetFreezeId" == ^dataset_id,
+        select: {probeset."Name", probesetxref.mean, probesetxref."LRS",
+                 probesetxref.pValue, probesetxref.additive, probesetxref."Locus",
+                 probeset.chr_num, probeset."Mb", probeset."Symbol", probeset.name_num},
+        distinct: true,
+        order_by: [asc: probeset."symbol", desc: probesetxref."LRS"],
+        limit: ^limit
+
+      from_tuple_to_structure = fn(query_result) ->
+        {name,mean,lrs,pvalue,additive,locus,chr,mb,symbol,name_num} = query_result
+        %{ name: name,
+           name_id: name_num,
+           mean: mean,
+           "MAX_LRS": lrs,
+           "p_value": pvalue,
+           additive: additive,
+           locus: locus,
+           chr: chr,
+           "Mb": mb,
+           symbol: symbol
+        }
+      end
+
+      res = Repo.all(query)
+      res2 = res |> Enum.map(from_tuple_to_structure)
+      res2
     end
+  end
 
-    Repo.all(query) |> Enum.map(from_tuple_to_structure)
-
+  defp phenotypes_publish_data(id, start, limit) do
+    "Not yet implemented phenotype info for publish_data id=#{id}"
   end
 
   def marker_info(species,marker) do
-#       query = """
-# SELECT Geno.Chr, Geno.Mb, Species.Id,Geno.source FROM Geno, Species
-# WHERE Species.Name = '#{species}'
-# AND Geno.Name = '#{marker}'
-#      """
      query = from tab_species in Species,
      join: geno in Geno,
      on: tab_species."SpeciesId" == geno."SpeciesId",
@@ -390,45 +409,40 @@ data
     end
 
     Repo.all(query) |> Enum.map(from_tuple_to_structure)
-
-
-    # for r <- rows, do: ( {chr_name,chr_len,species_id,source} = r;
-    #   %{
-    #     species: species,
-    #     species_id: species_id,
-    #     source: source,
-    #     marker: marker,
-    #     chr:     chr_name,
-    #     chr_len: chr_len
-    #   } )
   end
 
+  @doc """
+  Fetch the trait from the PublishData table
+  """
 
-  def phenotype_info(dataset_name,marker) do
+  def trait_published(id) when is_integer(id) do
+    authorize_published_dataset(id)
+    query = from publishxref in PublishXRef,
+      join: inbredset in InbredSet,
+        on: publishxref."InbredSetId" == inbredset.id,
+      join: publishdata in PublishData,
+        on: publishdata.id == publishxref.dataid,
+      join: strain in Strain,
+        on: publishdata.strainid == strain.id,
+      left_join: publishse in PublishSE,
+        on: publishdata.id == publishse.dataid and publishse.strainid == publishdata.strainid,
+      distinct: true,
+      select: [ publishdata.strainid, strain."Name", publishdata.value, publishse.error ],
+      # Note: fixated to BXD (inbredset==1)
+      where: publishxref.id == ^id and publishxref."InbredSetId" == 1
+    rows = Repo.all(query)
+    rows
+  end
+
+  def trait(id, marker \\ :classic) when is_integer(id) do
+    case marker do
+      :classic -> trait_published(id)
+             _ -> raise "NYI"
+    end
+  end
+
+  def trait(dataset_name,marker) do
     authorize_dataset(dataset_name)
-    # The GN1 querly looks like
-    # query = "SELECT Strain.Name, %sData.value from %sData, Strain, %s, %sXRef WHERE %s.Name = '%s' and %sXRef.%sId = %s.Id and %sXRef.%sFreezeId = %d and  %sXRef.DataId = %sData.Id and %sData.StrainId = Strain.Id order by Strain.Id"
-    # but it does not pick up the stderr.
-      # query = """
-# SELECT DISTINCT Strain.id, Strain.Name, ProbeSetData.value, ProbeSetSE.error,
-  # ProbeSetData.Id
-# FROM (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
-# LEFT JOIN ProbeSetSE on (ProbeSetSE.DataId = ProbeSetData.Id
-  # AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
-# WHERE ProbeSet.Name = '#{marker}'
-  # AND ProbeSetXRef.ProbeSetId = ProbeSet.Id
-  # AND ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id
-  # AND ProbeSetFreeze.Name = '#{dataset_name}'
-  # AND ProbeSetXRef.DataId = ProbeSetData.Id
-  # AND ProbeSetData.StrainId = Strain.Id
-  # ORDER BY Strain.Id
-      # """
-    # IO.puts(query)
-    # {:ok, rows} = DB.query(query)
-    # for r <- rows, do: ( {strain_id,strain_name,value,stderr,_} = r;
-    #   [strain_id,strain_name,value,stderr]
-    # )
-
     query = from probesetdata in ProbeSetData,
       left_join: probesetse in ProbeSetSE,
       on: probesetdata.id == probesetse."DataId" and probesetdata."StrainId" == probesetse."StrainId",
@@ -451,37 +465,12 @@ data
     end
 
     Repo.all(query) |> Enum.map(from_tuple_to_structure)
-
   end
 
-  def phenotype_info(dataset_name,marker,group) do
+  def trait(dataset_name,marker,group) do
     authorize_dataset(dataset_name)
     authorize_group(group)
     [[group_id | _ ] | _] = group_info({:original,group})
-    # query = """
-# SELECT DISTINCT Strain.Id, StrainXRef.InbredSetId, Strain.Name, ProbeSetData.value, ProbeSetSE.error,
-  # ProbeSetData.Id
-# FROM (ProbeSetData as V, ProbeSetFreeze as D, ProbeFreeze as D2, Strain, StrainXRef as SX, ProbeSet, ProbeSetXRef as Locus)
-# LEFT JOIN ProbeSetSE on (ProbeSetSE.DataId = ProbeSetData.Id
-#   AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
-# WHERE ProbeSet.Name = '#{marker}'
-  # AND ProbeSetXRef.ProbeSetId = ProbeSet.Id
-  # AND ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id
-  # AND StrainXRef.StrainId = Strain.Id
-  # AND StrainXRef.InbredSetId = #{group_id}
-  # AND ProbeSetFreeze.Name = '#{dataset_name}'
-  # AND ProbeSetXRef.DataId = ProbeSetData.Id
-  # AND ProbeSetData.StrainId = Strain.Id
-  # AND StrainXRef.StrainId = Strain.Id
-  # ORDER BY Strain.Id
-    # """
-
-    # IO.puts(query)
-    # {:ok, rows} = DB.query(query)
-    # for r <- rows, do: ( {strain_id,_,strain_name,value,stderr,_} = r;
-    #   [strain_id,strain_name,value,stderr]
-    # )
-
     query = from probesetdata in ProbeSetData,
       left_join: probesetse in ProbeSetSE,
       on: probesetdata.id == probesetse."DataId" and probesetdata."StrainId" == probesetse."StrainId",
@@ -521,26 +510,9 @@ data
 # group by InbredSet.Name
     {:ok, %Mariaex.Result{columns: _columns, command: _command, connection_id: _connection_id, last_insert_id: _last_insert_id, num_rows: _num_rows, rows: rows }} = SQL.query(Repo, query, [species])
     rows
-    # {:ok, rows} = DB.query(query)
-    # for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
   end
 
   def menu_types(species, group) do
-    # query = """
-    # select distinct Tissue.Name
-    # from ProbeFreeze,ProbeSetFreeze,InbredSet,Tissue,Species
-    # where Species.Name = '#{species}' and
-      # Species.Id = InbredSet.SpeciesId and
-      # InbredSet.Name = '#{group}' and
-      # ProbeFreeze.TissueId = Tissue.Id and
-      # ProbeFreeze.InbredSetId = InbredSet.Id and
-      # ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-      # ProbeSetFreeze.public > 0
-      # order by Tissue.Name
-    # """
-    # {:ok, rows} = DB.query(query)
-    # for r <- rows, do: ( {tissue} = r; [tissue] )
-
     query = from tab_species in Species,
       join: inbredset in InbredSet,
       on: tab_species.id == inbredset."SpeciesId",
@@ -561,28 +533,6 @@ data
   end
 
   def menu_datasets(species, group, type) do
-    # query = """
-    # select ProbeSetFreeze.Id,ProbeSetFreeze.Name,ProbeSetFreeze.FullName
-    # from ProbeSetFreeze,
-    # ProbeFreeze,
-    # InbredSet,
-    # Tissue,
-     # Species
-    # where
-    # Species.Name = '#{species}' and
-    # Species.Id = InbredSet.SpeciesId and
-    # InbredSet.Name = '#{group}' and
-    # ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-    # Tissue.Name = '#{type}' and
-    # ProbeFreeze.TissueId = Tissue.Id and
-     # ProbeFreeze.InbredSetId = InbredSet.Id and
-    # ProbeSetFreeze.confidentiality < 1 and
-    # ProbeSetFreeze.public > 0
-    # order by ProbeSetFreeze.CreateTime desc
-    # """
-    # {:ok, rows} = DB.query(query)
-    # for r <- rows, do: ( {id,name,fullname} = r; [id,name,fullname] )
-
     query = from tab_species in Species,
       join: inbredset in InbredSet,
       on: tab_species.id == inbredset."SpeciesId",
@@ -613,7 +563,6 @@ data
     """
     {:ok, result} = SQL.query(Repo, query, [])
     [[count]] = result.rows
-    # IO.inspect(result)
     count
   end
 
