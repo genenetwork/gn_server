@@ -253,9 +253,6 @@ the client now runs the job
 On the gn_exec machine the system creates a local directory with the token name and run the job in a spawned task setting the working directory to the name of the token. After the completion of the of the job all the files inside the working directory are transferred to the remote gn_server.
 
 
-
-
-
 Get job status
 
     curl -i -H "Accept: application/json" http://127.0.0.1:8880/program/b2bc54b2a885d6fa61e1e86b22a837445a5abc8722331be6410d019ef0c49d45/status.json
