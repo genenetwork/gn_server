@@ -359,8 +359,9 @@ data
                  probesetxref.pValue, probesetxref.additive, probesetxref."Locus",
                  probeset.chr_num, probeset."Mb", probeset."Symbol", probeset.name_num},
         distinct: true,
-        order_by: [asc: probeset."symbol", desc: probesetxref."LRS"],
-        limit: ^limit
+        order_by: [asc: probeset."symbol", desc: probesetxref."LRS"]
+        # offset: ^start2,
+        # limit: ^limit
 
       from_tuple_to_structure = fn(query_result) ->
         {name,mean,lrs,pvalue,additive,locus,chr,mb,symbol,name_num} = query_result

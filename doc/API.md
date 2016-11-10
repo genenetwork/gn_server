@@ -113,7 +113,7 @@ Or from the dataset name
 ```js
 curl "http://test-gn2.genenetwork.org/api_pre1/trait/CBLDT2.json"
 
-(nyi)
+not yet implemented (nyi)
 ```
 
 GN2 can also return the phenotypes in the R/qtl2 CSV data format as
@@ -129,10 +129,11 @@ curl "http://test-gn2.genenetwork.org/api_pre1/trait/10001.csv"
 #### mRNA probesets
 
 get dataset phenotype information for a range (here mRNA probesets) - note this
-only works for datasets that have the 'dataset=probeset' attribute.
+only works for datasets that have the 'dataset=probeset' attribute. The result can contain
+thousands of probes (here 45,101):
 
 ```js
-curl "http://test-gn2.genenetwork.org/api_pre1/phenotypes/HC_U_0304_R.json?start=100&stop=101"
+curl "http://test-gn2.genenetwork.org/api_pre1/phenotypes/HC_U_0304_R.json"
 
 [{"symbol":"0610005C13Rik","p_value":0.666,"name_id":104617,"name":"104617_at","mean":8.165623333333329,"locus":"mCV25433152","chr":7,"additive":-0.0489058035714287,"Mb":52.823543,"MAX_LRS":9.99712881751494},
 {"symbol":"0610006I08Rik","p_value":0.914,"name_id":96017,"name":"96017_at","mean":10.4658333333333,"locus":"CEL-3_23204282","chr":19,"additive":0.0437053571428568,"Mb":8.845681,"MAX_LRS":7.76436750913729}]

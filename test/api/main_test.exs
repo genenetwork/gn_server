@@ -88,8 +88,16 @@ defmodule APITest do
 
   test "/phenotypes/HC_M2_0606_P.json?start=100&stop=101" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/HC_M2_0606_P.json?start=100&stop=101") |> make_response
-    assert Poison.decode!(value) ==
+    res = Poison.decode!(value)
+    assert Enum.count(res) == 2
+    assert res ==
       [%{"MAX_LRS" => 30.4944361132252, "Mb" => 12.6694, "chr" => 12, "mean" => 7.232, "name" => "1452452_at", "name_id" => 1452452, "p_value" => 6.09756097560421e-5, "symbol" => nil, "additive" => 0.392331541218638, "locus" => "gnf12.013.284"}, %{"MAX_LRS" => 14.306552750747, "Mb" => 13.611444, "chr" => 1, "mean" => 7.2949696969697, "name" => "1460151_at", "name_id" => 1460151, "p_value" => 0.138, "symbol" => nil, "additive" => -0.106276737967914, "locus" => "rs3655978"}]
+  end
+
+  test "/phenotypes/HC_M2_0606_P.json?start=100&stop=201" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/HC_M2_0606_P.json?start=100&stop=201") |> make_response
+    res = Poison.decode!(value)
+    assert Enum.count(res) == 101
   end
 
   test "/phenotypes/112.json?stop=0" do
