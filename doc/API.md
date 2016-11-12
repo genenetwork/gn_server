@@ -135,8 +135,8 @@ thousands of probes (here 45,101):
 ```js
 curl "http://test-gn2.genenetwork.org/api_pre1/phenotypes/HC_U_0304_R.json"
 
-[{"symbol":"0610005C13Rik","p_value":0.666,"name_id":104617,"name":"104617_at","mean":8.165623333333329,"locus":"mCV25433152","chr":7,"additive":-0.0489058035714287,"Mb":52.823543,"MAX_LRS":9.99712881751494},
-{"symbol":"0610006I08Rik","p_value":0.914,"name_id":96017,"name":"96017_at","mean":10.4658333333333,"locus":"CEL-3_23204282","chr":19,"additive":0.0437053571428568,"Mb":8.845681,"MAX_LRS":7.76436750913729}]
+[{"symbol":"0610005C13Rik","p_value":0.666,"name_id":104617,"name":"104617_at","mean":8.165623333333329,"locus":"mCV25433152","chr":7,"additive":-0.04890580357
+ue":0.914,"name_id":96017,"name":"96017_at","mean":10.4658333333333,"locus":"CEL-3_23204282","chr":19,"additive":0.0437053571428568,"Mb":8.845681,"MAX_LRS":7.76436750913729},{"symbol":"0610010K14Rik","p_value":0.527,"name_id":95634,"name":"95634_at","mean":7.95425,"locus":"rs13478951","chr":11,"additive":0.157146825396825,"Mb":70.050378,"MAX_LRS":10.1250126117534}, ...
 ```
 
 Get the actual trait values or measurements of a sample with the
