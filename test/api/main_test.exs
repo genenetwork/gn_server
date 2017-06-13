@@ -86,23 +86,25 @@ defmodule APITest do
       %{"dataset" => "phenotype", "descr" => "Central nervous system, morphology: Cerebellum weight [mg]", "id" => 10001, "name" => "CBLWT2", "pmid" => 11438585, "title" => "Genetic control of the mouse cerebellum: identification of quantitative trait loci modulating size and architecture", "year" => "2001"}
   end
 
-  test "/phenotypes/HC_M2_0606_P.json?start=100&stop=101" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/HC_M2_0606_P.json?start=100&stop=101") |> make_response
+  @tag :skip
+  test "/phenotypes/HC_M2_0606_P.json(1)" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/HC_M2_0606_P.json") |> make_response
     res = Poison.decode!(value)
-    assert Enum.count(res) == 2
-    assert res ==
+    assert Enum.count(res) == 45101
+    assert res.first ==
       [%{"MAX_LRS" => 30.4944361132252, "Mb" => 12.6694, "chr" => 12, "mean" => 7.232, "name" => "1452452_at", "name_id" => 1452452, "p_value" => 6.09756097560421e-5, "symbol" => nil, "additive" => 0.392331541218638, "locus" => "gnf12.013.284"}, %{"MAX_LRS" => 14.306552750747, "Mb" => 13.611444, "chr" => 1, "mean" => 7.2949696969697, "name" => "1460151_at", "name_id" => 1460151, "p_value" => 0.138, "symbol" => nil, "additive" => -0.106276737967914, "locus" => "rs3655978"}]
   end
 
-  test "/phenotypes/HC_M2_0606_P.json?start=100&stop=201" do
-    %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/HC_M2_0606_P.json?start=100&stop=201") |> make_response
+  test "/phenotypes/HC_M2_0606_P.json" do
+    %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/HC_M2_0606_P.json") |> make_response
     res = Poison.decode!(value)
-    assert Enum.count(res) == 101
+    assert Enum.count(res) == 45101
   end
 
+  @tag :skip
   test "/phenotypes/112.json?stop=0" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/112.json?stop=0") |> make_response
-    assert Poison.decode!(value) ==
+    assert Poison.decode!(value).first ==
     [%{"symbol" => nil, "MAX_LRS" => 30.4944361132252, "Mb" => 12.6694, "chr" => 12, "mean" => 7.232, "name" => "1452452_at", "name_id" => 1452452, "p_value" => 6.09756097560421e-5, "additive" => 0.392331541218638, "locus" => "gnf12.013.284"}]
   end
 
