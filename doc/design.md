@@ -2,8 +2,9 @@
 
 ## Introduction
 
-GnServer's main task is to serve a REST API for
-GeneNetwork. Essentially it uses the Elixir programming language and
+GnServer's main task is to serve a REST API for GeneNetwork. REST can
+be used by any modern computer language to access remote data and
+services. On the backend it uses the Elixir programming language and
 Erlang VM to leverage the strengths of data transformation and highly
 parallel processing in a convenient functional programming paradigm.
 
