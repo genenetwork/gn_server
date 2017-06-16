@@ -8,10 +8,67 @@ services. On the backend it uses the Elixir programming language and
 Erlang VM to leverage the strengths of data transformation and highly
 parallel processing in a convenient functional programming paradigm.
 
+## REST API
+
+The rest (test) API is described in [API.md](API.md).
+
+## REST server program execution
+
+Here we describe how we implement running a monitored service and make
+it available through the REST API.
+
+### Upload data
+
+The first step is to upload data that can be processed as input
+file(s).  In this example we'll upload a phenotype file. For this we
+first ask for an area to upload and that is done through a unique hash
+value.
+
+    curl -X POST -d username="Rob Williams" -d tokenid=projectid http://127.0.0.1:8880/submit/get_token
+    CeaRwqNSkrlO7fMPpVa4Yle1dRJxkHjFddrHhotJkxg
+
+the returned token represents a physical disk directory and the name
+can be regenerated using the same input tokenid and user combination.
+
+### Run program
+
+What we want to achieve is running a program through the REST interface with
+something like
+
+    curl http://127.0.0.1:8880/echo/hello
+
+which should return "hello".
+
+The simple way to run a program in Elixir is something like
+
+```elixir
+  def cmd(s) do
+    {output, 0} = System.cmd "/bin/echo", [s]
+    output
+  end
+```
+
+which handles errors, but can't show progress, nor can running
+processes easily be interrupted. But this we'll do later.
+
+### Serve result
+
+There are two routes to serve a result.
+
+### Progress meter
+
+### Interrupt running process
+
+## WARNING ==== The following text is being updated ====
+
+Below text was written up in a previous incarnation and needs to be
+checked/updated.
+
 ## Executing external commands
 
-GnServer can execute external commands by using System.cmd locally, or
-GnExec remotely (System.cmd arguably belongs in GnExec).
+By design GnServer can execute external commands by using System.cmd
+locally, or GnExec remotely (System.cmd arguably belongs in GnExec and local
+commands will disappear over time).
 
 A system command returns a return value (`retval=int`) and logs from
 stdout and stderr. In addition resulting data is returned.

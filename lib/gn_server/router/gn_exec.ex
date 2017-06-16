@@ -4,9 +4,12 @@ defmodule GnServer.Router.GnExec do
   IO.puts "Setup routing for GnExec REST APIs"
 
   # Test with:
-  #   echo -e -n "hello world" |curl -X PUT -d @- -d message=test -d message=message http://127.0.0.1:8880/echo
+  #   curl http://127.0.0.1:8880/echo_cmd/hellox
+  #
+  # Other messages then 'hellox' are currently not allowed
+
   namespace :echo_cmd do
-    route_param :msg, type: String do
+    route_param :msg, type: String, values: ["hellox"] do
       get do
         IO.inspect(params[:msg])
         result = GnExec.Cmd.Echo.cmd(params[:msg])
