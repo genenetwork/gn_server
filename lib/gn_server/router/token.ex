@@ -18,7 +18,7 @@ defmodule GnServer.Router.Token do
       post do
         # IO.puts "tokenid",params[:tokenid]
         # digest = :crypto.hash(:sha256, params[:userid] |> params[:tokenid])
-        digest = :crypto.hash(:sha256, params[:tokenid])
+        digest = :crypto.hash(:sha256, params[:tokenid] |> "AA")
         |> Base.url_encode64
 
         IO.inspect digest
