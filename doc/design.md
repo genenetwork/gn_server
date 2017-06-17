@@ -27,8 +27,20 @@ value.
     curl -X POST -d username="Rob Williams" -d tokenid=projectid http://127.0.0.1:8880/submit/get_token
     CeaRwqNSkrlO7fMPpVa4Yle1dRJxkHjFddrHhotJkxg
 
-the returned token represents a physical disk directory and the name
-can be regenerated using the same input tokenid and user combination.
+the returned token also represents a physical disk directory and the
+name can be regenerated using the same input tokenid and user
+combination. It is a kind of storage that may be persistent. Typically
+one token will be used for one analysis. That is why you can specify a
+projectid.
+
+The next step is to upload data. Upload some files in R/qtl2
+format from http://kbroman.org/qtl2/pages/sampledata.html
+
+```sh
+    wget http://kbroman.org/qtl2/assets/sampledata/iron/iron.yaml
+    curl -X
+```
+
 
 ### Run program
 

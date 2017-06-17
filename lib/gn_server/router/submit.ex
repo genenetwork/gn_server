@@ -37,6 +37,33 @@ defmodule GnServer.Router.Submit do
       end
     end
 
+    # Upload a file
+    # curl -X POST -d userid="test" -d tokenid=messagexll http://127.0.0.1:8880/submit/get_token
+    #    4PmJfVN7HBXD4_Py0tf8K1a_OPPoZhIXphpSlcOIuN4
+    #
+    namespace :rqtl do
+      namespace :control do
+        params do
+          requires :token, type: String
+          requires :filename, type: String
+        end
+
+        # put do
+        #   result = %{"submit" => "ok"}
+        #   json(conn,result)
+        # end
+        # end
+        # params do
+        # requires :tokenid, type: String
+        #  optional :dataset, type: String
+        # end
+        put do
+          result = UpdateStore.phenotypes(params)
+          json(conn, result)
+        end
+      end
+    end
+
     namespace :geno do
       post do
 

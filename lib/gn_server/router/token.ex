@@ -25,7 +25,7 @@ defmodule GnServer.Router.Token do
         |> Path.join(digest)
 
         unless File.exists?(path) do
-          IO.puts "creating token directory"
+          IO.puts "creating token directory", path
           File.mkdir_p(path)
           conn
           |> put_status(201)
