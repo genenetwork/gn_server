@@ -8,4 +8,11 @@ defmodule TokenTest do
     |> make_response
     assert token == "YVJjOoAGNks3bib1vaKq7B9TOO86zn1fwn2MpI--GWQ="
   end
+
+  test "/token/remove" do
+    %Plug.Conn{resp_body: res} =
+      conn(:post, "/token/remove", %{"userid" => "user"})
+    |> make_response
+    assert res == [:ok]
+  end
 end
