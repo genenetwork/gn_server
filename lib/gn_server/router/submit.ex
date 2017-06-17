@@ -60,11 +60,16 @@ defmodule GnServer.Router.Submit do
               path = Application.get_env(:gn_server, :upload_dir)
               |> Path.join(token) |> Path.join(conn.params["filename"])
               IO.puts "writing to " <> path
+              result = %{"submit" => "ok"}
+              conn
+              |> put_status(200)
+              |> json(result)
+            {:invalid} ->
+              IO.puts "invalid token!"
+              conn
+              |> put_status(403)
+              |> text("invalid auth token")
           end
-          result = %{"submit" => "ok"}
-          conn
-          |> put_status(200)
-          |> json(result)
         end
       end
     end
