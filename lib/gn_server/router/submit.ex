@@ -48,18 +48,11 @@ defmodule GnServer.Router.Submit do
           requires :filename, type: String
         end
 
-        # put do
-        #   result = %{"submit" => "ok"}
-        #   json(conn,result)
-        # end
-        # end
-        # params do
-        # requires :tokenid, type: String
-        #  optional :dataset, type: String
-        # end
         put do
-          result = UpdateStore.phenotypes(params)
-          json(conn, result)
+          result = %{"submit" => "ok"}
+          conn
+          |> put_status(200)
+          |> json(result)
         end
       end
     end
