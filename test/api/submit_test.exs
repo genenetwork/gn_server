@@ -30,16 +30,20 @@ defmodule SubmitTest do
 
   test "/submit/rqtl/control" do
     # res = conn(:put, "/submit/rqtl") |> make_response
+    token = "4PmJfVN7HBXD4_Py0tf8K1a_OPPoZhIXphpSlcOIuN4="
     res = conn(:put, "/submit/rqtl/control", %{"Hello world XXX" => nil,
-                                                "token" => "4PmJfVN7HBXD4_Py0tf8K1a_OPPoZhIXphpSlcOIuN4=",
+                                                "token" => token,
                                                 "filename" => "helloworld.txt"}) |> make_response
     IO.puts "====="
     IO.inspect(res)
     %Plug.Conn{resp_body: value} = res
     assert Poison.decode!(value) == %{"submit" => "ok"}
     %Plug.Conn{status: status} = res
-    IO.inspect ["*** STATUS",status]
     assert status == 200
+    filen = Application.get_env(:gn_server, :upload_dir)
+         |> Path.join(token) |> Path.join("helloworld.txt")
+    assert File.exists?(filen)
+
   end
 
 end

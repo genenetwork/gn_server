@@ -60,6 +60,10 @@ defmodule GnServer.Router.Submit do
               path = Application.get_env(:gn_server, :upload_dir)
               |> Path.join(token) |> Path.join(conn.params["filename"])
               IO.puts "writing to " <> path
+              {:ok, file} = File.open(path, [:write])
+              file
+              |> IO.binwrite(data)
+              |> File.close
               result = %{"submit" => "ok"}
               conn
               |> put_status(200)
