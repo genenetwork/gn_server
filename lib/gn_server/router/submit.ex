@@ -41,21 +41,25 @@ defmodule GnServer.Router.Submit do
     # curl -X POST -d userid="test" -d tokenid=messagexll http://127.0.0.1:8880/submit/get_token
     #    4PmJfVN7HBXD4_Py0tf8K1a_OPPoZhIXphpSlcOIuN4
     #
+    # echo "TEST" |curl -X PUT -d @- -d filename="test" -d token="4PmJfVN7HBXD4_Py0tf8K1a_OPPoZhIXphpSlcOIuN4=" http://127.0.0.1:8880/submit/rqtl/control
+
     namespace :rqtl do
       namespace :control do
         params do
           requires :token, type: String
           requires :filename, type: String
         end
-        alias GnServer.Logic.Token, as: Token
-
-        {:ok, data, _} = conn |> read_body
 
         put do
+          alias GnServer.Logic.Token, as: Token
+
+          # {:ok, data, _} = conn |> read_body
+          body2 = for {k, v} <- conn.params, v == nil, into: [], do: k
+          data = List.first(body2)
           result = %{"submit" => "ok"}
           conn
           |> put_status(200)
-          |> json(data)
+          |> json(result)
         end
       end
     end

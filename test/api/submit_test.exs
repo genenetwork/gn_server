@@ -30,7 +30,7 @@ defmodule SubmitTest do
 
   test "/submit/rqtl/control" do
     # res = conn(:put, "/submit/rqtl") |> make_response
-    res = conn(:put, "/submit/rqtl/control", %{"Hello world" => nil,
+    res = conn(:put, "/submit/rqtl/control", %{"Hello world XXX" => nil,
                                                 "token" => "4PmJfVN7HBXD4_Py0tf8K1a_OPPoZhIXphpSlcOIuN4=",
                                                 "filename" => "helloworld.txt"}) |> make_response
     IO.puts "====="
