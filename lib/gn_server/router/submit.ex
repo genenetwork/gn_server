@@ -52,10 +52,15 @@ defmodule GnServer.Router.Submit do
 
         put do
           alias GnServer.Logic.Token, as: Token
-
           # {:ok, data, _} = conn |> read_body
           body2 = for {k, v} <- conn.params, v == nil, into: [], do: k
           data = List.first(body2)
+          case conn.params["token"] |> Token.validate_token do
+            {:valid, token} ->
+              path = Application.get_env(:gn_server, :upload_dir)
+              |> Path.join(token) |> Path.join(conn.params["filename"])
+              IO.puts "writing to " <> path
+          end
           result = %{"submit" => "ok"}
           conn
           |> put_status(200)
