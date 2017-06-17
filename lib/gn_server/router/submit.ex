@@ -47,12 +47,15 @@ defmodule GnServer.Router.Submit do
           requires :token, type: String
           requires :filename, type: String
         end
+        alias GnServer.Logic.Token, as: Token
+
+        {:ok, data, _} = conn |> read_body
 
         put do
           result = %{"submit" => "ok"}
           conn
           |> put_status(200)
-          |> json(result)
+          |> json(data)
         end
       end
     end
