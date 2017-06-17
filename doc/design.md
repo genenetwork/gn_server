@@ -24,14 +24,14 @@ file(s).  In this example we'll upload a phenotype file. For this we
 first ask for an area to upload and that is done through a unique hash
 value.
 
-    curl -X POST -d username="Rob Williams" -d tokenid=projectid http://127.0.0.1:8880/submit/get_token
+    curl -X POST -d username="Rob Williams" -d tokenid=projectid http://127.0.0.1:8880/token/get
     CeaRwqNSkrlO7fMPpVa4Yle1dRJxkHjFddrHhotJkxg
 
 the returned token also represents a physical disk directory and the
 name can be regenerated using the same input tokenid and user
-combination. It is a kind of storage that may be persistent. Typically
-one token will be used for one analysis. That is why you can specify a
-projectid.
+combination. It is a kind of storage that is persistent - though it
+may expire at some point. Typically one token will be used for one
+analysis. That is why you can specify a projectid.
 
 The next step is to upload data. Upload some files in R/qtl2
 format from http://kbroman.org/qtl2/pages/sampledata.html using
@@ -40,8 +40,19 @@ the token
 ```sh
     wget http://kbroman.org/qtl2/assets/sampledata/iron/iron.yaml
     cat iron.yaml |curl -X PUT -d @- -d filename="iron.yaml" -d token="CeaRwqNSkrlO7fMPpVa4Yle1dRJxkHjFddrHhotJkxg=" http://127.0.0.1:8880/submit/rqtl/control
-    {"submit"=>"ok"}
+    {:ok => :submitted}
 ```
+
+Note that once a file has been submitted it becomes immutable. You
+can't remove or overwrite a file on the server. If you want to use the
+same names create new token. You can, however, remove a project by its
+token:
+
+: curl -X PUT http://127.0.0.1:8880/token/remove/CeaRwqNSkrlO7fMPpVa4Yle1dRJxkHjFddrHhotJkxg=
+
+```sh
+
+
 
 
 

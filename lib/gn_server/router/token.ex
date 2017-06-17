@@ -4,11 +4,11 @@ defmodule GnServer.Router.Token do
 
   IO.puts "Setup token generation routing"
 
-  # curl -X POST -d userid="test" -d tokenid=messagexll http://127.0.0.1:8880/submit/get_token
+  # curl -X POST -d userid="test" -d tokenid=messagexll http://127.0.0.1:8880/token/get
 
-  namespace :submit do
+  namespace :token do
 
-    namespace :get_token do
+    namespace :get do
 
       params do
         requires :userid, type: String

@@ -4,6 +4,6 @@ defmodule GnServer.Data.UpdateStore do
     body
   end
   def phenotypes(params) do
-    %{"submit" => "ok"}
+    [:ok]
   end
 end

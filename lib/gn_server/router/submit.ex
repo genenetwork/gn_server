@@ -38,9 +38,6 @@ defmodule GnServer.Router.Submit do
     end
 
     # Upload a file
-    # curl -X POST -d userid="test" -d tokenid=messagexll http://127.0.0.1:8880/submit/get_token
-    #    4PmJfVN7HBXD4_Py0tf8K1a_OPPoZhIXphpSlcOIuN4
-    #
     # echo "TEST" |curl -X PUT -d @- -d filename="test" -d token="4PmJfVN7HBXD4_Py0tf8K1a_OPPoZhIXphpSlcOIuN4=" http://127.0.0.1:8880/submit/rqtl/control
 
     namespace :rqtl do
@@ -64,7 +61,7 @@ defmodule GnServer.Router.Submit do
               file
               |> IO.binwrite(data)
               |> File.close
-              result = %{"submit" => "ok"}
+              result = [:ok]
               conn
               |> put_status(200)
               |> json(result)
@@ -72,7 +69,7 @@ defmodule GnServer.Router.Submit do
               IO.puts "invalid token!"
               conn
               |> put_status(403)
-              |> json(%{"submit" => "ERROR: invalid token"})
+              |> json([:error, "Invalid token"])
           end
         end
       end
