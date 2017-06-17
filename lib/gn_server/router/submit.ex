@@ -68,7 +68,7 @@ defmodule GnServer.Router.Submit do
               IO.puts "invalid token!"
               conn
               |> put_status(403)
-              |> text("invalid auth token")
+              |> json(%{"submit" => "ERROR: invalid token"})
           end
         end
       end

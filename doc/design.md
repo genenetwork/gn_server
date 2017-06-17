@@ -34,12 +34,16 @@ one token will be used for one analysis. That is why you can specify a
 projectid.
 
 The next step is to upload data. Upload some files in R/qtl2
-format from http://kbroman.org/qtl2/pages/sampledata.html
+format from http://kbroman.org/qtl2/pages/sampledata.html using
+the token
 
 ```sh
     wget http://kbroman.org/qtl2/assets/sampledata/iron/iron.yaml
-    curl -X
+    cat iron.yaml |curl -X PUT -d @- -d filename="iron.yaml" -d token="CeaRwqNSkrlO7fMPpVa4Yle1dRJxkHjFddrHhotJkxg=" http://127.0.0.1:8880/submit/rqtl/control
+    {"submit"=>"ok"}
 ```
+
+
 
 
 ### Run program
