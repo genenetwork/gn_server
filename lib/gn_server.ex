@@ -2,10 +2,22 @@
 defmodule GnServer do
   use Application
 
+  def testdir(dirname) do
+    dir = Application.get_env(:gn_server, dirname)
+    File.mkdir_p(dir)
+    if !File.dir?(dir) do
+      raise "config #{dirname} does not exist: " <> dir
+    end
+  end
+
+
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
+
+    testdir :cache_dir
+    testdir :upload_dir
 
     children = [
       # Start the endpoint when the application starts
