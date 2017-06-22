@@ -10,7 +10,7 @@ parallel processing in a convenient functional programming paradigm.
 
 ## REST API
 
-The rest (test) API is described in [API.md](API.md).
+The rest (test) API to fetch data is described in [API.md](API.md).
 
 ## REST server program execution
 
@@ -29,9 +29,10 @@ value.
 
 the returned token also represents a physical disk directory and the
 name can be regenerated using the same input tokenid and user
-combination. It is a kind of storage that is persistent - though it
-may expire at some point. Typically one token will be used for one
-analysis. That is why you can specify a projectid.
+combination. It is storage that is persistent - though it may expire
+at some point if the storage is not registered to be fully persistent
+(see below). Typically one token will be used for one analysis. That
+is why you can specify a projectid.
 
 The next step is to upload data. Upload some files in R/qtl2
 format from http://kbroman.org/qtl2/pages/sampledata.html using
@@ -52,10 +53,7 @@ token:
 
 ```sh
 
-
-
-
-
+### Fully persistent storage
 
 ### Run program
 
