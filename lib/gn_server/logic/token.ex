@@ -1,5 +1,10 @@
 defmodule GnServer.Logic.Token do
 
+  def compute_token(var) do
+    :crypto.hash(:sha256, var)
+    |> Base.url_encode64
+  end
+
   def validate_token(token) do
     if is_nil token do
       {:invalid}

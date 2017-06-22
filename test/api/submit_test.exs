@@ -25,15 +25,18 @@ defmodule SubmitTest do
     assert status == 200
   end
 
+  test "Submit control file with /submit/rqtl/control" do
+    token = GnServer.Logic.Token.compute_token(["user","token_test_input"])
+    IO.puts "Computed token" <> token
 
-  test "/submit/rqtl/control" do
-    # res = conn(:put, "/submit/rqtl") |> make_response
-    token = "4PmJfVN7HBXD4_Py0tf8K1a_OPPoZhIXphpSlcOIuN4="
-    res = conn(:put, "/submit/rqtl/control", %{"Hello world XXX" => nil,
-                                                "token" => token,
-                                                "filename" => "helloworld.txt"}) |> make_response
-    # IO.puts "====="
-    # IO.inspect(res)
+    path = Application.get_env(:gn_server, :upload_dir)
+    |> Path.join(token)
+
+    File.mkdir_p(path)
+    res = conn(:put, "/submit/rqtl/control",
+      %{"Hello world XXX" => nil,
+        "token" => token,
+        "filename" => "helloworld.txt"}) |> make_response
     %Plug.Conn{resp_body: value} = res
     assert Poison.decode!(value) == ["ok"]
     %Plug.Conn{status: status} = res

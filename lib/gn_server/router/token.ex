@@ -4,7 +4,7 @@ defmodule GnServer.Router.Token do
 
   IO.puts "Setup token generation routing"
 
-  # curl -X POST -d userid="test" -d tokenid=messagexll http://127.0.0.1:8880/token/get
+  # curl -X POST -d userid="test" -d projectid=Yes http://127.0.0.1:8880/token/get
 
   namespace :token do
 
@@ -12,13 +12,11 @@ defmodule GnServer.Router.Token do
 
       params do
         requires :userid, type: String
-        requires :tokenid, type: String
+        requires :projectid, type: String
       end
 
       post do
-        digest = :crypto.hash(:sha256, [params[:userid], params[:tokenid]])
-        |> Base.url_encode64
-
+        digest = GnServer.Logic.Token.compute_token([params[:userid], params[:projectid]])
         IO.puts "Computed token" <> digest
 
         path = Application.get_env(:gn_server, :upload_dir)
@@ -42,13 +40,19 @@ defmodule GnServer.Router.Token do
 
     namespace :remove do
       route_param :token, type: String do
+        params do
+          requires :userid, type: String
+          requires :projectid, type: String
+        end
+
         post do
+          digest = GnServer.Logic.Token.compute_token([params[:userid], params[:projectid]])
 
           token = params[:token]
           path = Application.get_env(:gn_server, :upload_dir)
           |> Path.join(token)
 
-          if File.exists?(path) do
+          if File.exists?(path) and digest == token do
             filenames = Path.wildcard(path <> "/*")
             Enum.each filenames, fn(filen) ->
               IO.puts "Removing " <> filen
