@@ -44,14 +44,16 @@ the token
     {:ok => :submitted}
 ```
 
-Note that once a file has been submitted it becomes immutable. You
+## Remove data
+
+Once a file has been submitted successfully it becomes immutable. You
 can't remove or overwrite a single file on the server. If you want to
 use the same names use a new projectid and create a new token. You
 can, however, remove a project by its token:
 
-: curl -X POST -d username="Rob Williams" -d tokenid=projectid http://127.0.0.1:8880/token/remove/CeaRwqNSkrlO7fMPpVa4Yle1dRJxkHjFddrHhotJkxg=
-
 ```sh
+curl -X POST -d username="Rob Williams" -d tokenid=projectid http://127.0.0.1:8880/token/remove/CeaRwqNSkrlO7fMPpVa4Yle1dRJxkHjFddrHhotJkxg=
+```
 
 ### Fully persistent storage
 
