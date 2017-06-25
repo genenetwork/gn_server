@@ -5,6 +5,9 @@ defmodule SubmitTest do
   setup_all do
     token = GnServer.Logic.Token.compute_token(["user","token_test_input"])
     IO.puts "Computed token" <> token
+    path = Application.get_env(:gn_server, :upload_dir) |> Path.join(token)
+    File.mkdir_p(path)
+    IO.puts "Created " <> path
     {:ok, token: token}
   end
 
@@ -32,10 +35,7 @@ defmodule SubmitTest do
   end
 
   test "Submit control file with /submit/rqtl/control", %{token: token} do
-    path = Application.get_env(:gn_server, :upload_dir)
-    |> Path.join(token)
-
-    File.mkdir_p(path)
+    IO.puts "***** control"
     # This will throw a validation error later (FIXME)
     res = conn(:put, "/submit/rqtl/control",
       %{"data" => "Hello world XXX",
@@ -65,12 +65,12 @@ defmodule SubmitTest do
   end
 
   test "Submit control file with /submit/rqtl/geno", %{token: token} do
+    IO.puts "***** geno"
     { :ok, data } = File.read("./test/data/input/rqtl/iron_geno.csv")
     res = conn(:put, "/submit/rqtl/control",
       %{"data" => data,
         "token" => token,
         "filename" => "iron_geno.csv" }) |> make_response
-    # IO.inspect res
     %Plug.Conn{resp_body: value} = res
     assert Poison.decode!(value) == ["ok","iron_geno.csv"]
     %Plug.Conn{status: status} = res
