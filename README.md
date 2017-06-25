@@ -82,6 +82,10 @@ cp ./config/config.exs ~/my_config.exs
 iex -S mix run -c ~/my_config.exs
 ```
 
+## Testing
+
+See [tests](./doc/tests.org).
+
 ## License
 
 The source code is released under the Affero General Public License 3

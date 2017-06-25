@@ -1,0 +1,37 @@
+#+TITLE: Testing gn_server
+
+* Table of Contents                                                     :TOC:
+ - [[#introduction][Introduction]]
+ - [[#unit-tests][Unit tests]]
+ - [[#test-data][Test data]]
+
+* Introduction
+
+GN_Server is designed to operate on its own, though for much
+functionality it depends on a database server and file system.
+
+* Unit tests
+
+Once installed run the unit tests with
+
+: mix test
+
+The tests reside in [[./tests/api/]]
+
+* Test data
+
+We have data that can be reached with
+
+  http://127.0.0.1:8880/sampledata/rqtl/iron.yaml
+  http://127.0.0.1:8880/sampledata/rqtl/iron_geno.csv
+  http://127.0.0.1:8880/sampledata/rqtl/iron_gmap.csv
+  http://127.0.0.1:8880/sampledata/rqtl/iron_covar.csv
+  http://127.0.0.1:8880/sampledata/rqtl/iron_pheno.csv
+
+simply representing the data stored in ./test/data/input/.
+
+Also examples exist of output data stored in ./test/data/output/
+
+GWAS: http://127.0.0.1:8880/sampleresult/faster_lmm_d/iron.txt
+
+R/qtl:

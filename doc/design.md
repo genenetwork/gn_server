@@ -17,7 +17,12 @@ The rest (test) API to fetch data is described in [API.md](API.md).
 Here we describe how we implement running a monitored service and make
 it available through the REST API.
 
-### Upload data
+Essentially data files are uploaded into a prepared directory
+(identified by a unique token). These files can be downloaded again
+using the token. Also results are put into files and can be
+downloaded.
+
+### Upload data into directory
 
 The first step is to upload data that can be processed as input
 file(s).  In this example we'll upload a phenotype file. For this we
@@ -31,9 +36,10 @@ JVXQ7Lwtt61VKIGDEHH5PQtJsODkjYfPRAvsG7hAw_k=
 ```
 
 the returned token also represents a physical disk directory and the
-name can be regenerated using the same input tokenid and user
-combination. It is storage that is persistent - though it may expire
-at some point if the storage is not registered to be fully persistent
+name can be regenerated using the same input userid+projectid (if your
+data is sensitive choose hard to guess userid and projectid)
+combination. This storage area is persistent - though it may expire at
+some point if the storage is not registered to be fully persistent
 (see below). Typically one token will be used for one analysis. That
 is why you can specify a projectid.
 
@@ -84,6 +90,8 @@ curl -X POST -d username="Rob Williams" -d tokenid=projectid http://127.0.0.1:88
 
 ### Fully persistent storage
 
+nyi
+
 ### Run program
 
 What we want to achieve is running a program through the REST interface with
@@ -93,7 +101,8 @@ something like
 
 which should return "hello".
 
-The simple way to run a program in Elixir is something like
+The simple way to run a program in the REST API server is something
+like
 
 ```elixir
   def cmd(s) do
