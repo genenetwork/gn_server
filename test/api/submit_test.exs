@@ -2,6 +2,12 @@ defmodule SubmitTest do
   use ExUnit.Case
   use Maru.Test, for: GnServer.Router.Submit
 
+  setup_all do
+    token = GnServer.Logic.Token.compute_token(["user","token_test_input"])
+    IO.puts "Computed token" <> token
+    {:ok, token: token}
+  end
+
   test "/echo" do
     res = conn(:put, "/echo", %{"Hello world" => nil,
                                 "message" => "my message"}
@@ -25,10 +31,7 @@ defmodule SubmitTest do
     assert status == 200
   end
 
-  test "Submit control file with /submit/rqtl/control" do
-    token = GnServer.Logic.Token.compute_token(["user","token_test_input"])
-    IO.puts "Computed token" <> token
-
+  test "Submit control file with /submit/rqtl/control", %{token: token} do
     path = Application.get_env(:gn_server, :upload_dir)
     |> Path.join(token)
 
@@ -58,6 +61,23 @@ defmodule SubmitTest do
     filen2 = Application.get_env(:gn_server, :upload_dir)
          |> Path.join(token) |> Path.join("iron.yaml")
     assert File.exists?(filen2)
+
+  end
+
+  test "Submit control file with /submit/rqtl/geno", %{token: token} do
+    { :ok, data } = File.read("./test/data/input/rqtl/iron_geno.csv")
+    res = conn(:put, "/submit/rqtl/geno",
+      %{data => nil,
+        "token" => token,
+        "filename" => "iron_geno.csv" }) |> make_response
+    IO.inspect res
+    %Plug.Conn{resp_body: value} = res
+    assert Poison.decode!(value) == ["ok","iron_geno.csv"]
+    %Plug.Conn{status: status} = res
+    assert status == 200
+    filen = Application.get_env(:gn_server, :upload_dir)
+         |> Path.join(token) |> Path.join("iron_geno.csv")
+    assert File.exists?(filen)
 
   end
 
