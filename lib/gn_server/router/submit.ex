@@ -37,21 +37,21 @@ defmodule GnServer.Router.Submit do
       end
     end
 
-    # Upload a file
-    # echo "TEST" |curl -X PUT -d @- -d filename="test" -d token="4PmJfVN7HBXD4_Py0tf8K1a_OPPoZhIXphpSlcOIuN4=" http://127.0.0.1:8880/submit/rqtl/control
+    defp upload_rqtl params do
+    end
 
+    # Upload a file
     namespace :rqtl do
       namespace :control do
         params do
           requires :token, type: String
           requires :filename, type: String
+          requires :data, type: String
         end
 
         put do
           alias GnServer.Logic.Token, as: Token
-          # {:ok, data, _} = conn |> read_body
-          body2 = for {k, v} <- conn.params, v == nil, into: [], do: k
-          data = List.first(body2)
+          data = conn.params["data"]
           case conn.params["token"] |> Token.validate_token do
             {:valid, token} ->
               path = Application.get_env(:gn_server, :upload_dir)
@@ -77,7 +77,7 @@ defmodule GnServer.Router.Submit do
       end
     end
 
-    namespace :geno do
+    namespace :geno_unused do
       post do
 
         alias GnServer.Logic.Geno2Rqtl, as: Geno2Rqtl
@@ -86,6 +86,7 @@ defmodule GnServer.Router.Submit do
         {:ok, data, _} = conn |> read_body
 
         # TODO the parameters should probably be handled in a better way
+        data = conn.params["data"]
         filename = conn.params["filename"]
 
         case conn.params["token"] |> Token.validate_token do

@@ -38,7 +38,7 @@ defmodule SubmitTest do
     File.mkdir_p(path)
     # This will throw a validation error later (FIXME)
     res = conn(:put, "/submit/rqtl/control",
-      %{"Hello world XXX" => nil,
+      %{"data" => "Hello world XXX",
         "token" => token,
         "filename" => "helloworld.txt"}) |> make_response
     %Plug.Conn{resp_body: value} = res
@@ -51,7 +51,7 @@ defmodule SubmitTest do
 
     { :ok, data } = File.read("./test/data/input/rqtl/iron.yaml")
     res = conn(:put, "/submit/rqtl/control",
-      %{data => nil,
+      %{"data" => data,
         "token" => token,
         "filename" => "iron.yaml" }) |> make_response
     %Plug.Conn{resp_body: value} = res
@@ -66,11 +66,11 @@ defmodule SubmitTest do
 
   test "Submit control file with /submit/rqtl/geno", %{token: token} do
     { :ok, data } = File.read("./test/data/input/rqtl/iron_geno.csv")
-    res = conn(:put, "/submit/rqtl/geno",
-      %{data => nil,
+    res = conn(:put, "/submit/rqtl/control",
+      %{"data" => data,
         "token" => token,
         "filename" => "iron_geno.csv" }) |> make_response
-    IO.inspect res
+    # IO.inspect res
     %Plug.Conn{resp_body: value} = res
     assert Poison.decode!(value) == ["ok","iron_geno.csv"]
     %Plug.Conn{status: status} = res
