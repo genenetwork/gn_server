@@ -7,7 +7,7 @@ defmodule SubmitTest do
     IO.puts "Computed token" <> token
     path = Application.get_env(:gn_server, :upload_dir) |> Path.join(token)
     File.mkdir_p(path)
-    IO.puts "Created " <> path
+    IO.puts "Mkdir " <> path
     {:ok, token: token}
   end
 
@@ -35,8 +35,7 @@ defmodule SubmitTest do
   end
 
   test "Submit control file with /submit/rqtl/control", %{token: token} do
-    IO.puts "***** control"
-    # This will throw a validation error later (FIXME)
+    # This non-YAML should throw a validation error later (FIXME)
     res = conn(:put, "/submit/rqtl/control",
       %{"data" => "Hello world XXX",
         "token" => token,
@@ -65,7 +64,6 @@ defmodule SubmitTest do
   end
 
   test "Submit control file with /submit/rqtl/geno", %{token: token} do
-    IO.puts "***** geno"
     { :ok, data } = File.read("./test/data/input/rqtl/iron_geno.csv")
     res = conn(:put, "/submit/rqtl/control",
       %{"data" => data,

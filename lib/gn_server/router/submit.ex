@@ -38,28 +38,28 @@ defmodule GnServer.Router.Submit do
     end
 
     defp upload_rqtl conn, token, filename, data do
-          alias GnServer.Logic.Token, as: Token
-          case token |> Token.validate_token do
-            {:valid, token} ->
-              path = Application.get_env(:gn_server, :upload_dir)
-              |> Path.join(token) |> Path.join(filename)
-              IO.puts "writing to " <> path
-              {:ok, file} = File.open(path, [:write])
-              file
-              |> IO.binwrite(data)
-              |> File.close
-              result = [:ok, filename]
-              conn
-              |> put_status(200)
-              |> put_resp_content_type("application/json")
-              |> json(result)
-            {:invalid} ->
-              IO.puts "invalid token!"
-              conn
-              |> put_status(403)
-              |> put_resp_content_type("application/json")
-              |> json([:error, "Invalid token", token])
-          end
+      alias GnServer.Logic.Token, as: Token
+      case token |> Token.validate_token do
+        {:valid, token} ->
+          path = Application.get_env(:gn_server, :upload_dir)
+          |> Path.join(token) |> Path.join(filename)
+          IO.puts "writing to " <> path
+          {:ok, file} = File.open(path, [:write])
+          file
+          |> IO.binwrite(data)
+          |> File.close
+          result = [:ok, filename]
+          conn
+          |> put_status(200)
+          |> put_resp_content_type("application/json")
+          |> json(result)
+        {:invalid} ->
+          IO.puts "invalid token!"
+          conn
+          |> put_status(403)
+          |> put_resp_content_type("application/json")
+          |> json([:error, "Invalid token", token])
+      end
     end
 
     # Upload a file
