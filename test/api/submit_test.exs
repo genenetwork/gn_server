@@ -11,6 +11,21 @@ defmodule SubmitTest do
     {:ok, token: token}
   end
 
+  defp upload_rqtl_file token, _filetype, uploadfn do
+    { :ok, data } = File.read("./test/data/input/rqtl/#{uploadfn}")
+    res = conn(:put, "/submit/rqtl/control",
+      %{"data" => data,
+        "token" => token,
+        "filename" => uploadfn }) |> make_response
+    %Plug.Conn{resp_body: value} = res
+    assert Poison.decode!(value) == ["ok", uploadfn]
+    %Plug.Conn{status: status} = res
+    assert status == 200
+    filen = Application.get_env(:gn_server, :upload_dir)
+         |> Path.join(token) |> Path.join(uploadfn)
+    assert File.exists?(filen)
+  end
+
   test "/echo" do
     res = conn(:put, "/echo", %{"Hello world" => nil,
                                 "message" => "my message"}
@@ -48,35 +63,11 @@ defmodule SubmitTest do
          |> Path.join(token) |> Path.join("helloworld.txt")
     assert File.exists?(filen)
 
-    { :ok, data } = File.read("./test/data/input/rqtl/iron.yaml")
-    res = conn(:put, "/submit/rqtl/control",
-      %{"data" => data,
-        "token" => token,
-        "filename" => "iron.yaml" }) |> make_response
-    %Plug.Conn{resp_body: value} = res
-    assert Poison.decode!(value) == ["ok","iron.yaml"]
-    %Plug.Conn{status: status} = res
-    assert status == 200
-    filen2 = Application.get_env(:gn_server, :upload_dir)
-         |> Path.join(token) |> Path.join("iron.yaml")
-    assert File.exists?(filen2)
-
+    upload_rqtl_file token, "control", "iron.yaml"
   end
 
   test "Submit control file with /submit/rqtl/geno", %{token: token} do
-    { :ok, data } = File.read("./test/data/input/rqtl/iron_geno.csv")
-    res = conn(:put, "/submit/rqtl/control",
-      %{"data" => data,
-        "token" => token,
-        "filename" => "iron_geno.csv" }) |> make_response
-    %Plug.Conn{resp_body: value} = res
-    assert Poison.decode!(value) == ["ok","iron_geno.csv"]
-    %Plug.Conn{status: status} = res
-    assert status == 200
-    filen = Application.get_env(:gn_server, :upload_dir)
-         |> Path.join(token) |> Path.join("iron_geno.csv")
-    assert File.exists?(filen)
-
+    upload_rqtl_file token, "geno", "iron_geno.csv"
   end
 
 end
