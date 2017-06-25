@@ -70,4 +70,16 @@ defmodule SubmitTest do
     upload_rqtl_file token, "geno", "iron_geno.csv"
   end
 
+  test "Submit control file with /submit/rqtl/pheno", %{token: token} do
+    upload_rqtl_file token, "pheno", "iron_pheno.csv"
+  end
+
+  test "Submit control file with /submit/rqtl/gmap", %{token: token} do
+    upload_rqtl_file token, "gmap", "iron_gmap.csv"
+  end
+
+  test "Submit control file with /submit/rqtl/covar", %{token: token} do
+    upload_rqtl_file token, "covar", "iron_covar.csv"
+  end
+
 end
