@@ -24,8 +24,11 @@ file(s).  In this example we'll upload a phenotype file. For this we
 first ask for an area to upload and that is done through a unique hash
 value.
 
-    curl -X POST -d username="Rob Williams" -d tokenid=projectid http://127.0.0.1:8880/token/get
-    CeaRwqNSkrlO7fMPpVa4Yle1dRJxkHjFddrHhotJkxg
+```sh
+curl -X POST -d userid="Rob Williams" -d projectid=projectid \
+    http://127.0.0.1:8880/token/get
+JVXQ7Lwtt61VKIGDEHH5PQtJsODkjYfPRAvsG7hAw_k=
+```
 
 the returned token also represents a physical disk directory and the
 name can be regenerated using the same input tokenid and user
@@ -40,11 +43,35 @@ the token
 
 ```sh
     wget http://kbroman.org/qtl2/assets/sampledata/iron/iron.yaml
-    cat iron.yaml |curl -X PUT -d @- -d filename="iron.yaml" -d token="CeaRwqNSkrlO7fMPpVa4Yle1dRJxkHjFddrHhotJkxg=" http://127.0.0.1:8880/submit/rqtl/control
-    {:ok => :submitted}
+    cat iron.yaml |curl -X PUT -d @- -d \
+        -d token="JVXQ7Lwtt61VKIGDEHH5PQtJsODkjYfPRAvsG7hAw_k=" \
+        http://127.0.0.1:8880/submit/rqtl/control
+    ["ok"]
 ```
 
-## Remove data
+Likewise, upload the other files
+
+```sh
+cat iron_geno.csv |curl -X PUT -d @- -d filename="iron_geno.csv" -d token="JVXQ7Lwtt61VKIGDEHH5PQtJsODkjYfPRAvsG7hAw_k="         http://127.0.0.1:8880/submit/rqtl/geno
+
+cat iron_pheno.csv |curl -X PUT -d @- -d filename="iron_pheno.csv" -d token="JVXQ7Lwtt61VKIGDEHH5PQtJsODkjYfPRAvsG7hAw_k="         http://127.0.0.1:8880/submit/rqtl/pheno
+
+cat iron_gmap.csv |curl -X PUT -d @- -d filename="iron_gmap.csv" -d token="JVXQ7Lwtt61VKIGDEHH5PQtJsODkjYfPRAvsG7hAw_k="         http://127.0.0.1:8880/submit/rqtl/gmap
+
+cat iron_covar.csv |curl -X PUT -d @- -d filename="iron_covar.csv" -d token="JVXQ7Lwtt61VKIGDEHH5PQtJsODkjYfPRAvsG7hAw_k="         http://127.0.0.1:8880/submit/rqtl/covar
+```
+
+#### Maximum upload size
+
+The size of the upload is determined by the web server. With GeneNetwork this
+value is set in nginx and defaults to
+
+    client_max_body_size 1M;
+
+Please contact us if you are hitting size errors. There are other
+routes for uploading data. Note also this [Phoenix setting](https://stackoverflow.com/questions/27134219/how-to-upload-a-big-file-from-a-form-to-phoenix).
+
+### Remove data
 
 Once a file has been submitted successfully it becomes immutable. You
 can't remove or overwrite a single file on the server. If you want to

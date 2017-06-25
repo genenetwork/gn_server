@@ -33,17 +33,31 @@ defmodule SubmitTest do
     |> Path.join(token)
 
     File.mkdir_p(path)
+    # This will throw a validation error later (FIXME)
     res = conn(:put, "/submit/rqtl/control",
       %{"Hello world XXX" => nil,
         "token" => token,
         "filename" => "helloworld.txt"}) |> make_response
     %Plug.Conn{resp_body: value} = res
-    assert Poison.decode!(value) == ["ok"]
+    assert Poison.decode!(value) == ["ok", "helloworld.txt"]
     %Plug.Conn{status: status} = res
     assert status == 200
     filen = Application.get_env(:gn_server, :upload_dir)
          |> Path.join(token) |> Path.join("helloworld.txt")
     assert File.exists?(filen)
+
+    { :ok, data } = File.read("./test/data/input/rqtl/iron.yaml")
+    res = conn(:put, "/submit/rqtl/control",
+      %{data => nil,
+        "token" => token,
+        "filename" => "iron.yaml" }) |> make_response
+    %Plug.Conn{resp_body: value} = res
+    assert Poison.decode!(value) == ["ok","iron.yaml"]
+    %Plug.Conn{status: status} = res
+    assert status == 200
+    filen2 = Application.get_env(:gn_server, :upload_dir)
+         |> Path.join(token) |> Path.join("iron.yaml")
+    assert File.exists?(filen2)
 
   end
 

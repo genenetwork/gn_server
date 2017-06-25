@@ -3,7 +3,6 @@ defmodule TokenTest do
   use Maru.Test, for: GnServer.Router.Token
 
   test "Register token with /token/get" do
-    # curl -X POST -d username="Rob Williams" -d tokenid=projectid http://127.0.0.1:8880/token/get
     %Plug.Conn{resp_body: token} =
       conn(:post, "/token/get", %{"userid" => "user", "projectid" => "token_test_input"})
     |> make_response

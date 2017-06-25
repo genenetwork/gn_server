@@ -61,14 +61,16 @@ defmodule GnServer.Router.Submit do
               file
               |> IO.binwrite(data)
               |> File.close
-              result = [:ok]
+              result = [:ok,conn.params["filename"]]
               conn
               |> put_status(200)
+              |> put_resp_content_type("application/json")
               |> json(result)
             {:invalid} ->
               IO.puts "invalid token!"
               conn
               |> put_status(403)
+              |> put_resp_content_type("application/json")
               |> json([:error, "Invalid token"])
           end
         end
