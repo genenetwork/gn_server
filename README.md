@@ -27,6 +27,7 @@ After setting the
 ```sh
 export GUIX_LOCPATH=$HOME/.guix-profile/lib/locale
 export LC_ALL=en_US.UTF-8
+export GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt
 mix hex.info
 mix deps.get
 mix test
