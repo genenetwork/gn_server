@@ -60,6 +60,7 @@ defmodule TokenTest do
       end
 
     end
+    IO.puts("!!!")
     IO.inspect(TestTestZ.test1())
     # IO.inspect(TestTestZ.test())
   end
