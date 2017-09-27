@@ -142,22 +142,22 @@ defmodule GnServer.Router.GnExec do
 
     end #program
 
-    route_param :command, type: String do
-      get "dataset.json" do
-        static_path = Application.get_env(:gn_server, :static_path_prefix)
-        case GnExec.Rest.Job.validate(params[:command]) do
-          {:error, :noprogram } -> json(conn, %{error: :noprogram})
-          {:ok, module } ->
-            job = GnExec.Rest.Job.new(params[:command], ["."])
-            path = Path.join(static_path, job.token)
-            File.mkdir_p(path)
-            File.touch!(Path.join(path,"STDOUT"))
-            File.touch!(Path.join(path,"status.json"))
-            json(conn, job)
-        end
-      end
+    # route_param :command, type: String do
+    #   get "dataset.json" do
+    #     static_path = Application.get_env(:gn_server, :static_path_prefix)
+    #     case GnExec.Rest.Job.validate(params[:command]) do
+    #       {:error, :noprogram } -> json(conn, %{error: :noprogram})
+    #       {:ok, module } ->
+    #         job = GnExec.Rest.Job.new(params[:command], ["."])
+    #         path = Path.join(static_path, job.token)
+    #         File.mkdir_p(path)
+    #         File.touch!(Path.join(path,"STDOUT"))
+    #         File.touch!(Path.join(path,"status.json"))
+    #         json(conn, job)
+    #     end
+    #  end
 
-    end
+    # end
    end # gnexec
 
 

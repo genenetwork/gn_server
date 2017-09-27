@@ -187,7 +187,7 @@ GROUP BY InbredSet.InbredSetId, InbredSet.Name,Species.SpeciesId, Species.Name,I
 
 {:ok,
  %Mariaex.Result{columns: ["InbredSetId", "Name", "SpeciesId", "Name",
-   "MappingMethodId", "GeneticType", "Chrs"], command: :select,
+   "MappingMethodId", "GeneticType", "Chrs"],
   connection_id: nil, last_insert_id: nil, num_rows: 1,
   rows: [data]}} = Ecto.Adapters.SQL.query(Repo, String.replace(query,"\n"," "), []) # would be better to use the parameters in the custom query
 
@@ -509,7 +509,7 @@ data
 
     query = "select distinct InbredSet.id,InbredSet.Name,InbredSet.FullName from InbredSet,Species,ProbeFreeze,GenoFreeze,PublishFreeze where Species.Name = ? and InbredSet.SpeciesId = Species.Id and InbredSet.Name != 'BXD300' and (PublishFreeze.InbredSetId = InbredSet.Id or GenoFreeze.InbredSetId = InbredSet.Id or ProbeFreeze.InbredSetId = InbredSet.Id) order by InbredSet.Name"
 # group by InbredSet.Name
-    {:ok, %Mariaex.Result{columns: _columns, command: _command, connection_id: _connection_id, last_insert_id: _last_insert_id, num_rows: _num_rows, rows: rows }} = SQL.query(Repo, query, [species])
+    {:ok, %Mariaex.Result{columns: _columns, connection_id: _connection_id, last_insert_id: _last_insert_id, num_rows: _num_rows, rows: rows }} = SQL.query(Repo, query, [species])
     rows
   end
 

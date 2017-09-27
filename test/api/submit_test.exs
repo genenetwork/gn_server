@@ -1,6 +1,6 @@
 defmodule SubmitTest do
-  use ExUnit.Case
-  use Maru.Test, for: GnServer.Router.Submit
+  use ExUnit.Case, async: true
+  use Maru.Test
 
   setup_all do
     token = GnServer.Logic.Token.compute_token(["user","token_test_input"])
@@ -13,10 +13,10 @@ defmodule SubmitTest do
 
   defp upload_rqtl_file token, _filetype, uploadfn do
     { :ok, data } = File.read("./test/data/input/rqtl/#{uploadfn}")
-    res = conn(:put, "/submit/rqtl/control",
+    res = put("/submit/rqtl/control",
       %{"data" => data,
         "token" => token,
-        "filename" => uploadfn }) |> make_response
+        "filename" => uploadfn }) |> text_response
     %Plug.Conn{resp_body: value} = res
     assert Poison.decode!(value) == ["ok", uploadfn]
     %Plug.Conn{status: status} = res
@@ -27,9 +27,9 @@ defmodule SubmitTest do
   end
 
   test "/echo" do
-    res = conn(:put, "/echo", %{"Hello world" => nil,
+    res = put("/echo", %{"Hello world" => nil,
                                 "message" => "my message"}
-                                     ) |> make_response
+                                     ) |> text_response
     # IO.inspect(res)
     %Plug.Conn{resp_body: value} = res
     assert Poison.decode!(value) ==
@@ -38,7 +38,7 @@ defmodule SubmitTest do
   end
 
   test "/submit/phenotypes" do
-    res = conn(:put, "/submit/phenotypes") |> make_response
+    res = put("/submit/phenotypes") |> text_response
     # resp_body: "{\"submit\":\"ok\"}", resp_cookies: %{},
     # resp_headers: [{"cache-control", "max-age=0, private, must-revalidate"},
     # script_name: [], secret_key_base: nil, state: :sent, status: 200}
@@ -51,10 +51,10 @@ defmodule SubmitTest do
 
   test "Submit control file with /submit/rqtl/control", %{token: token} do
     # This non-YAML should throw a validation error later (FIXME)
-    res = conn(:put, "/submit/rqtl/control",
+    res = put("/submit/rqtl/control",
       %{"data" => "Hello world XXX",
         "token" => token,
-        "filename" => "helloworld.txt"}) |> make_response
+        "filename" => "helloworld.txt"}) |> text_response
     %Plug.Conn{resp_body: value} = res
     assert Poison.decode!(value) == ["ok", "helloworld.txt"]
     %Plug.Conn{status: status} = res

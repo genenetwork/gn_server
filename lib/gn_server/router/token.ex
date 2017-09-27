@@ -1,21 +1,28 @@
 defmodule GnServer.Router.Token do
 
-  use Maru.Router
+  use Maru.Router, make_plug: true
 
   IO.puts "Setup token generation routing"
+
+  plug Plug.Parsers, [
+    parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART],
+    pass: ["*/*"],
+    json_decoder: Poison
+  ]
+
 
   # curl -X POST -d userid="test" -d projectid=Yes http://127.0.0.1:8880/token/get
 
   namespace :token do
-
-    namespace :get do
+    namespace :value do
 
       params do
-        requires :userid, type: String
-        requires :projectid, type: String
+        requires :userid # , type: String
+        requires :projectid # , type: String
       end
 
       post do
+        IO.inspect("!!!!!!!!!!!!!!token/get")
         digest = GnServer.Logic.Token.compute_token([params[:userid], params[:projectid]])
         IO.puts "Computed token" <> digest
 

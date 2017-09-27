@@ -1,5 +1,5 @@
 defmodule GnServer.API do
-  use Maru.Router, opt_app: :gn_server
+  use Maru.Router #, opt_app: :gn_server
 
   plug Plug.Head
 

@@ -1,18 +1,20 @@
 defmodule InternalAPITest do
-  use ExUnit.Case
-  use Maru.Test, for: GnServer.API
+  # use Maru.Router, make_plug: true
+  use ExUnit.Case, async: true
+  use Maru.Test # , root: GnServer.Biodalliance.SNPDensity
+
 
   setup_all do
     {:ok, hello: Poison.encode!(%{"I am": :genenetwork, api: :internal})}
   end
 
   test "int/", %{hello: state} do
-    %Plug.Conn{resp_body: value} = conn(:get, "int/") |> make_response
+    value = get("int/") |> text_response
     assert state == value
   end
 
   test "int/menu/main" do
-    %Plug.Conn{resp_body: value} = conn(:get, "int/menu/main.json") |> make_response
+    %Plug.Conn{resp_body: value} = get("int/menu/main.json") |> text_response
     assert Poison.decode!(value) ==
       %{
         "datasets" => %{"human" => %{"HLC" => %{"Liver mRNA" => [[320,
