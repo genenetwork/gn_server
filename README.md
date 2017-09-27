@@ -14,12 +14,14 @@ Note: GnServer is a work in progress (YMMV).
 ## Install via GNU Guix
 
 Elixir and packages should soon come with a general genenetwork2
-install. For now use the checked out GN2 repositories and install
-Elixir with
+install. For now use the checked out GN2 repositories (typically the
+gn-latest branch) and install GnServer with
 
 ```sh
-env GUIX_PACKAGE_PATH=../guix-bioinformatics/ ./pre-inst-env guix package -i elixir
+env GUIX_PACKAGE_PATH=../guix-bioinformatics/ ./pre-inst-env guix package -i gn-server
 ```
+
+The installation includes the elixir compiler with tools and mysql.
 
 After setting the
 [GUIX locale](https://github.com/pjotrp/guix-notes/blob/master/INSTALL.org#set-locale) (to avoid UTF-8 errors) install with mix
