@@ -34,6 +34,7 @@ defmodule GnServer.Mixfile do
     {:mariaex, "~> 0.7.3"},
     {:cors_plug, "~> 1.1"},
     {:cachex, "~> 1.2.1"},
-    {:gn_exec, "~> 0.1.0", path: "../gn_exec/"}]
+    # {:gn_exec, "~> 0.1.0", path: "../gn_exec/"}
+  ]
   end
 end
