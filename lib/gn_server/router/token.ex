@@ -13,14 +13,13 @@ defmodule GnServer.Router.Token do
   # curl -X POST -d userid="test" -d projectid=Yes http://127.0.0.1:8880/token/get
 
   namespace :token do
-    namespace :value do
 
       # params do
       #   requires :userid, type: String
         # requires :projectid, type: String
       # end
 
-      get :x do
+      get :value do
         IO.inspect("!!!!!!!!!!!!!!token/get")
         # digest = GnServer.Logic.Token.compute_token([params[:userid], params[:projectid]])
         digest = GnServer.Logic.Token.compute_token("hello")
@@ -79,5 +78,4 @@ defmodule GnServer.Router.Token do
       end
     end
 
-  end
 end
