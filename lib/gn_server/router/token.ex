@@ -1,6 +1,6 @@
 defmodule GnServer.Router.Token do
 
-  use Maru.Router, make_plug: true
+  use Maru.Router # , make_plug: true
 
   IO.puts "Setup token generation routing"
 
@@ -13,12 +13,12 @@ defmodule GnServer.Router.Token do
   # not working curl -X POST -d userid="test" -d projectid=Yes http://127.0.0.1:8880/token/get
   # works curl -X POST "http://127.0.0.1:8880/token/get?userid=pj&projectid=2"
 
-  use Maru.Builder
+  # use Maru.Builder
 
   namespace :token do
 
     params do
-      optional :value, type: String
+      optional :userid, type: String
       # requires :projectid, type: String
     end
 
