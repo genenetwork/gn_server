@@ -28,10 +28,11 @@ defmodule GnServer.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   def deps do
-  [ {:maru, "~> 0.12.3"} ,
+  [ {:maru, "0.9.5"} ,
     # {:mysqlex, github: "tjheeta/mysqlex" },
     {:ecto, "~> 2.1.6"},
     {:mariaex, "~> 0.8.3"},
+    {:plug, "~> 1.4.3"},
     {:cors_plug, "~> 1.1"},
     {:cachex, "~> 2.1.0"},
     # {:gn_exec, "~> 0.1.0", path: "../gn_exec/"}

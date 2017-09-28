@@ -1,7 +1,9 @@
 defmodule InternalAPITest do
   # use Maru.Router, make_plug: true
   use ExUnit.Case, async: true
-  use Maru.Test # , root: GnServer.Biodalliance.SNPDensity
+  # use Maru.Test # , root: GnServer.Biodalliance.SNPDensity
+  use Maru.Test, for: GnServer.API
+
 
 
   setup_all do

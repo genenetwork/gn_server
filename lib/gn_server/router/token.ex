@@ -24,6 +24,7 @@ defmodule GnServer.Router.Token do
 
     post :get do
 
+      IO.inspect(params)
       IO.inspect(conn)
         conn = Plug.Conn.fetch_query_params(conn)
         IO.inspect(conn.params)

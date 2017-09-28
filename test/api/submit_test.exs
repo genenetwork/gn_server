@@ -1,6 +1,6 @@
 defmodule SubmitTest do
   use ExUnit.Case, async: true
-  use Maru.Test
+  use Maru.Test, for: GnServer.Router.Submit
 
   setup_all do
     token = GnServer.Logic.Token.compute_token(["user","token_test_input"])

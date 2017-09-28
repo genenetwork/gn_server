@@ -1,6 +1,7 @@
 defmodule BiodallianceTest do
   use ExUnit.Case, async: true
-  use Maru.Test # , root: GnServer.Biodalliance.SNPDensity
+  # use Maru.Test # , root: GnServer.Biodalliance.SNPDensity
+  use Maru.Test, for: GnServer.API
 
   test "/snp/features/" do
     # %Plug.Conn{resp_body: value} = get("/snp/features/11?start=1&end=10000000")
