@@ -13,6 +13,7 @@ defmodule APITest do
     assert state == value
   end
 
+
   test "/", %{hello: state} do
     %Plug.Conn{resp_body: value} = conn(:get, "/") |> make_response
     assert state == value
@@ -99,6 +100,7 @@ defmodule APITest do
 
   test "/phenotypes/HC_M2_0606_P.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/HC_M2_0606_P.json") |> make_response
+    IO.inspect(value)
     res = Poison.decode!(value)
     assert Enum.count(res) == 45101
   end
