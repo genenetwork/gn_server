@@ -10,7 +10,7 @@ defmodule GnServer.Schema.InbredSet do
     field :public, :integer
     field :MappingMethodId
     field :GeneticType
-    field :orderid, :integer
+    field :orderid, :float
   end
-  
+
 end

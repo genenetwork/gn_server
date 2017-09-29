@@ -100,8 +100,10 @@ defmodule APITest do
 
   test "/phenotypes/HC_M2_0606_P.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/phenotypes/HC_M2_0606_P.json") |> make_response
-    IO.inspect(value)
+    # IO.puts("!!!")
+    # IO.inspect(value)
     res = Poison.decode!(value)
+    # IO.inspect(res)
     assert Enum.count(res) == 45101
   end
 
@@ -156,7 +158,7 @@ defmodule APITest do
 
   test "/trait/17469.json" do
     %Plug.Conn{resp_body: value} = conn(:get, "/trait/17469.json") |> make_response
-    assert value == "Server error" # not allowed, recent dataset
+    assert value == "\"ERROR: Authorization error (PublishData) for 17469\"" # not allowed, recent dataset
   end
 
   test "/trait/HC_M2_0606_P/1443823_s_at.json" do
@@ -219,7 +221,7 @@ defmodule APITest do
 
   test "EPFL-LISP_MusPMetHFD1213, public 1, confidentiality 1" do
     %Plug.Conn{resp_body: value} = conn(:get, "/dataset/EPFL-LISP_MusPMetHFD1213.json") |> make_response
-    assert value == "Server error"
+    assert value == "\"ERROR: Access error (ProbeSet data) for EPFL-LISP_MusPMetHFD1213\""
   end
 
   # HC_M2_1205_R, public 0, confidentiality 0

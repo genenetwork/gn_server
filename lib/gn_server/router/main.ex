@@ -162,6 +162,7 @@ defmodule GnServer.Router.Main do
         { _, dataset } = integer_or_string(dataset)
         { status, result } = Cachex.get(:gn_server_cache, conn.request_path,
           fallback: fn(_) ->
+            IO.puts("HERE HERE")
             Store.trait(dataset)
           end)
         case type do
@@ -183,7 +184,8 @@ defmodule GnServer.Router.Main do
       get do
         { status, result } = Cachex.get(:gn_server_cache, conn.request_path, fallback: fn(_) ->
           [_,dataset_name] = Regex.run ~r/(.*)\.json$/, params[:dataset_name]
-          Store.phenotypes(dataset_name,params[:start],params[:stop])
+          res = Store.phenotypes(dataset_name,params[:start],params[:stop])
+          res
         end)
         json(conn, result)
       end
