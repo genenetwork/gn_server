@@ -13,7 +13,7 @@ defmodule GnServer.API do
   mount GnServer.Router.Biodalliance.Stylesheets
   mount GnServer.Router.Biodalliance.QTL
   mount GnServer.Router.Biodalliance.Static
-  mount GnServer.Router.GnExec 
+  mount GnServer.Router.GnExec
 
   IO.puts "Starting server"
 
@@ -22,7 +22,7 @@ defmodule GnServer.API do
 
     conn
     |> put_status(500)
-    |> text("Server error")
+    |> text("\"ERROR: " <> e.message <> "\"")
   end
 
 end
