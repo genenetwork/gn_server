@@ -5,7 +5,8 @@ defmodule GnExecTest do
 
   test "/echo_cmd/hellox" do
     res = conn(:get, "/echo_cmd/hellox") |> make_response
-    assert Poison.decode!(res) == "hellox\n"
+    %Plug.Conn{resp_body: value} = res
+    assert Poison.decode!(value) == "hellox\n"
   end
 
 end

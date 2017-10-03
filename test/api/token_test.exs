@@ -3,7 +3,7 @@ defmodule TokenTest do
 
   test "parser test" do
     defmodule Test3 do
-      use Maru.Router, make_plug: true
+      use Maru.Router # , make_plug: true
 
       plug Plug.Parsers, [
         parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART],

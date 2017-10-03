@@ -11,12 +11,14 @@ defmodule InternalAPITest do
   end
 
   test "int/", %{hello: state} do
-    value = get("int/") |> text_response
+    # value = get("int/") |> text_response
+    %Plug.Conn{resp_body: value} = conn(:get, "int/") |> make_response
     assert state == value
   end
 
   test "int/menu/main" do
-    %Plug.Conn{resp_body: value} = get("int/menu/main.json") |> text_response
+    # %Plug.Conn{resp_body: value} = get("int/menu/main.json") |> text_response
+    %Plug.Conn{resp_body: value} = conn(:get, "int/menu/main.json") |> make_response
     assert Poison.decode!(value) ==
       %{
         "datasets" => %{"human" => %{"HLC" => %{"Liver mRNA" => [[320,
