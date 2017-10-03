@@ -1,37 +1,22 @@
 defmodule GnServer.Router.Token do
 
-  use Maru.Router # , make_plug: true
+  use Maru.Router
 
   IO.puts "Setup token generation routing"
 
-  # plug Plug.Parsers, [
-  #   parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART],
-  #   pass: ["*/*"],
-  #   json_decoder: Poison
-  # ]
-
-  # not working curl -X POST -d userid="test" -d projectid=Yes http://127.0.0.1:8880/token/get
-  # works curl -X POST "http://127.0.0.1:8880/token/get?userid=pj&projectid=2"
-
-  # use Maru.Builder
+  # curl -X POST -d userid="test" -d projectid=Yes http://127.0.0.1:8880/token/get
 
   namespace :token do
 
-    params do
-      optional :userid, type: String
-      # requires :projectid, type: String
-    end
+    namespace :get do
 
-    post :get do
+      params do
+        requires :userid, type: String
+        requires :projectid, type: String
+      end
 
-      IO.inspect(params)
-      IO.inspect(conn)
-        conn = Plug.Conn.fetch_query_params(conn)
-        IO.inspect(conn.params)
-        params = conn.params
-        IO.inspect("!!!!!!!!!!!!!!token/get")
-        digest = GnServer.Logic.Token.compute_token([params["userid"], params["projectid"]])
-        # digest = GnServer.Logic.Token.compute_token("teost")
+      post do
+        digest = GnServer.Logic.Token.compute_token([params[:userid], params[:projectid]])
         IO.puts "Computed token" <> digest
 
         path = Application.get_env(:gn_server, :upload_dir)
@@ -87,4 +72,5 @@ defmodule GnServer.Router.Token do
       end
     end
 
+  end
 end
