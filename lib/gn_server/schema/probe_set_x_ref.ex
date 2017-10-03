@@ -6,15 +6,15 @@ defmodule GnServer.Schema.ProbeSetXRef do
     field :ProbeSetId, :integer
     field :DataId, :integer
     field :Locus_old
-    field :LRS_old, :integer
-    field :pValue_old, :integer
-    field :mean, :integer
-    field :se, :integer
+    field :LRS_old, :float
+    field :pValue_old, :float
+    field :mean, :float
+    field :se, :float
     field :Locus
-    field :LRS, :integer
-    field :pValue, :integer
-    field :additive, :integer
+    field :LRS, :float
+    field :pValue, :float
+    field :additive, :float
     field :h2, :float
   end
-  
+
 end

@@ -1,5 +1,6 @@
 defmodule GnServer.API do
-  use Maru.Router #, opt_app: :gn_server
+  use Maru.Router, opt_app: :gn_server
+  import Exception
 
   plug Plug.Head
 
@@ -13,16 +14,17 @@ defmodule GnServer.API do
   mount GnServer.Router.Biodalliance.Stylesheets
   mount GnServer.Router.Biodalliance.QTL
   mount GnServer.Router.Biodalliance.Static
-  mount GnServer.Router.GnExec 
+  mount GnServer.Router.GnExec
 
   IO.puts "Starting server"
 
   rescue_from :all, as: e do
     IO.inspect e
+    IO.puts format_stacktrace(System.stacktrace)
 
     conn
     |> put_status(500)
-    |> text("Server error")
+    |> text("\"ERROR: " <> e.message <> "\"")
   end
 
 end

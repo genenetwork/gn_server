@@ -32,10 +32,10 @@ defmodule GnServer.Mixfile do
     # {:mysqlex, github: "tjheeta/mysqlex" },
     {:ecto, "~> 2.1.6"},
     {:mariaex, "~> 0.8.3"},
-    {:plug, "~> 1.4.3"},
     {:cors_plug, "~> 1.1"},
     {:cachex, "~> 2.1.0"},
-    # {:gn_exec, "~> 0.1.0", path: "../gn_exec/"}
-  ]
+    {:plug, "~> 1.4.3"}
+   ]
+
   end
 end

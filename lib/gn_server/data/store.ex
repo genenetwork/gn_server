@@ -73,11 +73,13 @@ defmodule GnServer.Data.Store do
       join: publication in Publication,
       on: publishxref."PublicationId" == publication.id,
       distinct: true,
-      select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description }, # , publication.pubmed_id,  publication.title, publication.year },
-    where: inbredset."Name" == "BXD" and publishxref.id == ^id and (publication.year <= @year or not is_nil(publication."Pubmed_Id"))
+      select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description, publication.year }, # , publication.pubmed_id,  publication.title, publication.year },
+      # where: inbredset."Name" == "BXD" and publishxref.id == ^id and (publication.year <= @year or not is_nil(publication."Pubmed_Id"))
+      where: inbredset."Name" == "BXD" and publishxref.id == ^id or not is_nil(publication."Pubmed_Id")
     rows = Repo.all(query)
-    # IO.inspect(rows)
-    if Enum.count(rows) != 1 do
+    IO.inspect(rows)
+    for n <- rows, do: IO.inspect(n)
+    if Enum.count(rows) != 0 do
       raise "Authorization error (PublishData) for #{id}"
     end
   end
@@ -297,6 +299,8 @@ data
       select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description , publication.pubmed_id,  publication.title, publication.year },
       # where: inbredset."Name" == ^group and (publication.year <= 2010 or like(phenotype.post_publication_description,"%PMID%") # or like(phenotype.post_publication_description,"%DOI%"))
       where: inbredset."Name" == "BXD" and publishxref.id == ^id
+
+      IO.inspect(query)
       rec = Repo.all(query) |> Enum.map(&(Tuple.to_list(&1)))
           [[id,name,descr,pmid,title,year]] = rec
 
@@ -378,6 +382,7 @@ data
         }
       end
 
+      # IO.inspect(query)
       res = Repo.all(query)
       res2 = res |> Enum.map(from_tuple_to_structure)
       res2
@@ -389,13 +394,14 @@ data
   end
 
   def marker_info(species,marker) do
-     query = from tab_species in Species,
-     join: geno in Geno,
-     on: tab_species."SpeciesId" == geno."SpeciesId",
-     where: tab_species."Name" == ^species and geno."Name" == ^marker,
-     select: {geno."Chr", geno."Mb", tab_species.id, geno."Source"}
+    query = from tab_species in Species,
+      join: geno in Geno,
+      on: tab_species."SpeciesId" == geno."SpeciesId",
+      where: tab_species."Name" == ^species and geno."Name" == ^marker,
+      select: {geno."Chr", geno."Mb", tab_species.id, geno."Source"}
 
     # {:ok, rows} = DB.query(query)
+    # IO.inspect(query)
 
     from_tuple_to_structure = fn(query_result) ->
       {chr_name,chr_len,species_id,source} = query_result

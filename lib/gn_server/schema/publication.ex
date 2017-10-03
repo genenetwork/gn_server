@@ -4,7 +4,7 @@ defmodule GnServer.Schema.Publication do
   schema "Publication" do
     field :pubmed_id, :integer
     field :title, :string
-    field :year, :integer
+    field :year
   end
 
 end

@@ -8,7 +8,7 @@ defmodule GnServer.Schema.ProbeSet do
     field :Symbol
     field :description
     field :Chr
-    field :Mb, :integer
+    field :Mb, :float
     field :alias
     field :GeneId
     field :GenbankId
@@ -21,17 +21,17 @@ defmodule GnServer.Schema.ProbeSet do
     field :OMIM
     field :comments
     field :Probe_set_target_region
-    field :Probe_set_specificity, :integer
-    field :Probe_set_BLAT_score, :integer
-    field :Probe_set_Blat_Mb_start, :integer
-    field :Probe_set_Blat_Mb_end, :integer
+    field :Probe_set_specificity, :float
+    field :Probe_set_BLAT_score, :float
+    field :Probe_set_Blat_Mb_start, :float
+    field :Probe_set_Blat_Mb_end, :float
     field :Probe_set_strand
     field :Probe_set_Note_by_RW
     field :flag
     field :Symbol_H
     field :description_H
     field :chromosome_H
-    field :MB_H, :integer
+    field :MB_H, :float
     field :alias_H
     field :GeneId_H
     field :chr_num, :integer
@@ -39,9 +39,9 @@ defmodule GnServer.Schema.ProbeSet do
     field :Probe_Target_Description
     field :RefSeq_TranscriptId
     field :Chr_mm8
-    field :Mb_mm8, :integer
-    field :Probe_set_Blat_Mb_start_mm8, :integer
-    field :Probe_set_Blat_Mb_end_mm8, :integer
+    field :Mb_mm8, :float
+    field :Probe_set_Blat_Mb_start_mm8, :float
+    field :Probe_set_Blat_Mb_end_mm8, :float
     field :HomoloGeneID
     field :ProteinID
     field :ProteinName
@@ -56,15 +56,12 @@ defmodule GnServer.Schema.ProbeSet do
     field :UNII_ID
     field :EC_number
     field :KEGG_ID
-    field :Molecular_Weight, :integer
+    field :Molecular_Weight, :float
     field :Nugowiki_ID, :integer
     field :Type
     field :Tissue
     field :PrimaryName
     field :SecondaryName
   end
-  
+
 end
-
-
-    
