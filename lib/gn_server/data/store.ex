@@ -64,7 +64,9 @@ defmodule GnServer.Data.Store do
     true
   end
 
+
   defp authorize_published_dataset(id) when is_integer(id) do
+
     query = from publishxref in PublishXRef,
       join: inbredset in InbredSet,
       on: publishxref."InbredSetId" == inbredset.id,
@@ -75,11 +77,13 @@ defmodule GnServer.Data.Store do
       distinct: true,
       select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description, publication.year }, # , publication.pubmed_id,  publication.title, publication.year },
       # where: inbredset."Name" == "BXD" and publishxref.id == ^id and (publication.year <= @year or not is_nil(publication."Pubmed_Id"))
-      where: inbredset."Name" == "BXD" and publishxref.id == ^id or not is_nil(publication."Pubmed_Id")
+      where: not is_nil(publication."Pubmed_Id")
+
+    IO.inspect(query)
     rows = Repo.all(query)
-    IO.inspect(rows)
-    for n <- rows, do: IO.inspect(n)
-    if Enum.count(rows) != 0 do
+
+    IO.inspect(Enum.take(rows,3))
+    if Enum.count(rows) == 0 do
       raise "Authorization error (PublishData) for #{id}"
     end
   end
@@ -338,7 +342,6 @@ data
 
     limit = stop2 - start2 + 1
 
-    # IO.puts("**** HERE #{dataset_name}")
     {id_type, id} = use_type(dataset_name)
     # IO.inspect {id_type, id}
     dataset_id =

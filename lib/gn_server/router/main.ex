@@ -162,7 +162,6 @@ defmodule GnServer.Router.Main do
         { _, dataset } = integer_or_string(dataset)
         { status, result } = Cachex.get(:gn_server_cache, conn.request_path,
           fallback: fn(_) ->
-            IO.puts("HERE HERE")
             Store.trait(dataset)
           end)
         case type do
