@@ -59,7 +59,7 @@ defmodule APITest do
       [[17439, "Ric", "Immune system, infectious disease: Rickettsiu tsutsugamushi susceptibility (strain Gilliam, ip 100 50% mouse infectious doses, two treatments) of both sexes at 6-12 weeks-of-age (ordinal scale 0 = resistant, 1=susceptible, also see BXH RI set), maps to Gbp6 gene, see PMID 21551061) [mortality]"]]
     assert Enum.take(res,3) ==
       [[112, "HC_M2_0606_P", "Hippocampus Consortium M430v2 (Jun06) PDNN"], [10001, "CBLWT2", "Central nervous system, morphology: Cerebellum weight [mg]"], [10002, "ADJCBLWT", "Central nervous system, morphology: Cerebellum weight after adjustment for covariance with brain size [mg]"]]
-    assert(Enum.count(res)==3642)
+    assert(Enum.count(res)==4558)
   end
 
   test "/dataset/HC_M2_0606_P.json" do
@@ -221,7 +221,7 @@ defmodule APITest do
 
   test "EPFL-LISP_MusPMetHFD1213, public 1, confidentiality 1" do
     %Plug.Conn{resp_body: value} = conn(:get, "/dataset/EPFL-LISP_MusPMetHFD1213.json") |> make_response
-    assert value == "\"ERROR: Access error (ProbeSet data) for EPFL-LISP_MusPMetHFD1213\""
+    assert value == "\"ERROR: Authorization error (ProbeSet data1) for EPFL-LISP_MusPMetHFD1213\""
   end
 
   # HC_M2_1205_R, public 0, confidentiality 0

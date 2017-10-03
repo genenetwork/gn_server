@@ -1,6 +1,6 @@
 defmodule GnServer.Data.Store do
 
-  @year 2013
+  @year "2014"
 
   @moduledoc """
   This module provides low level calls (using Ecto) to the database -
@@ -59,7 +59,7 @@ defmodule GnServer.Data.Store do
 
   defp authorize_group(group_name) do
     if group_name != "BXD" do
-      raise "Authorization error for " <> group_name
+      raise "Authorization error for group " <> group_name
     end
     true
   end
@@ -76,14 +76,14 @@ defmodule GnServer.Data.Store do
       on: publishxref."PublicationId" == publication.id,
       distinct: true,
       select: { publishxref.id, phenotype.post_publication_abbreviation, phenotype.post_publication_description, publication.year }, # , publication.pubmed_id,  publication.title, publication.year },
-      # where: inbredset."Name" == "BXD" and publishxref.id == ^id and (publication.year <= @year or not is_nil(publication."Pubmed_Id"))
-      where: not is_nil(publication."Pubmed_Id")
+      # where: publishxref.id == ^id and (inbredset."Name" == "BXD" or publication.year <= @year or not is_nil(publication."Pubmed_Id"))
+      where: publishxref.id == ^id and (publication.year <= @year or not is_nil(publication."Pubmed_Id"))
 
-    IO.inspect(query)
     rows = Repo.all(query)
 
-    IO.inspect(Enum.take(rows,3))
     if Enum.count(rows) == 0 do
+      IO.inspect(query)
+      IO.inspect(Enum.take(rows,3))
       raise "Authorization error (PublishData) for #{id}"
     end
   end
@@ -110,12 +110,16 @@ defmodule GnServer.Data.Store do
 
       rows = Repo.all(query)
       if Enum.count(rows) != 1 do
-        raise "Access error (ProbeSet data) for #{dataset_name}"
+        IO.inspect(query)
+        IO.inspect(Enum.take(rows,3))
+        raise "Authorization error (ProbeSet data1) for #{dataset_name}"
       end
 
       [{confidentiality,public}] = rows
       if public < 2 or confidentiality > 0 do
-        raise "Authorization error (ProbeSet data) for #{dataset_name}"
+        IO.inspect(query)
+        IO.inspect(Enum.take(rows,3))
+        raise "Authorization error (ProbeSet data2) for #{dataset_name}"
       end
     end
     true

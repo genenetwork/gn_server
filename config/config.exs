@@ -8,8 +8,8 @@ use Mix.Config
 
 tmpdir = if System.get_env("TMPDIR") != nil do System.get_env("TMPDIR") else "/tmp" end
 
-config :logger, level: :debug
-# config :logger, level: :warn # set the default log level
+# config :logger, level: :debug
+config :logger, level: :warn # set the default log level
 
 config :maru, GnServer.API,
   http: [port: 8880]
